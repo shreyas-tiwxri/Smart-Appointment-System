@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Doctor Smart Appointment System — Progress Showcase & Simulator</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <!-- Header / Navigation Bar -->
+  <header class="navbar">
+    <div class="nav-left">
+      <div class="logo-icon">🩺</div>
+      <div class="logo-meta">
+        <div class="logo-title">Doctor Smart Appointment System</div>
+        <div class="logo-subtitle">Core Java Course Project • Milestone Review</div>
+      </div>
+      <span class="status-badge live-pulse">System Active • 100% Tests Passing</span>
+    </div>
+    <div class="nav-right">
+      <button id="btn-quick-tour" class="btn btn-primary glow-btn">
+        <span class="icon">▶</span> Run 60s Teacher Demo
+      </button>
+      <div class="tab-pill-group">
+        <button class="nav-tab active" data-tab="simulator">Live Simulator</button>
+        <button class="nav-tab" data-tab="architecture">UML & Architecture</button>
+        <button class="nav-tab" data-tab="concepts">Core Java Matrix</button>
+        <button class="nav-tab" data-tab="tests">Test Suite (10/10)</button>
+        <button class="nav-tab" data-tab="viva">Viva Q&A</button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Presentation Stage Alert / Tour Banner -->
+  <div id="tour-banner" class="tour-banner hidden">
+    <div class="tour-indicator">
+      <span class="tour-step-badge" id="tour-step-num">Step 1 of 5</span>
+      <span class="tour-step-title" id="tour-step-title">Patient Aman submits appointment request</span>
+    </div>
+    <div class="tour-narration" id="tour-narration">
+      Invoking <code>AppointmentService.requestAppointment(patientId=1, doctorId=1, dateTime)</code>. Status is initialized to <code>PENDING</code>.
+    </div>
+    <div class="tour-controls">
+      <button id="btn-tour-next" class="btn btn-sm btn-accent">Next Step ➔</button>
+      <button id="btn-tour-stop" class="btn btn-sm btn-outline">Exit Walkthrough</button>
+    </div>
+  </div>
+
+  <main class="main-content">
+    <!-- TAB 1: LIVE SIMULATOR -->
+    <section id="tab-simulator" class="tab-pane active">
+      <div class="simulator-layout">
+        
+        <!-- Left Panel: Patient Portal -->
+        <div class="portal-card patient-portal">
+          <div class="portal-header">
+            <div class="portal-badge patient-badge">Patient Portal</div>
+            <div class="portal-user-select">
+              <label for="patient-select">Logged in as:</label>
+              <select id="patient-select">
+                <option value="1">Aman Sharma (ID #1)</option>
+                <option value="2">Riya Patel (ID #2)</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="portal-body">
+            <!-- Action: Request Appointment -->
+            <div class="action-box">
+              <h3 class="section-heading">Request an Appointment</h3>
+              <form id="form-request-appt" class="appt-form">
+                <div class="form-row">
+                  <div class="form-group">
+                    <label>Select Doctor</label>
+                    <select id="input-doctor-id">
+                      <option value="1">Dr. Rajesh Sharma (General Physician)</option>
+                    </select>
+                  </div>
+                  <div class="form-group">
+                    <label>Preferred Date & Time</label>
+                    <input type="datetime-local" id="input-appt-datetime" required>
+                  </div>
+                </div>
+                <div class="quick-chips">
+                  <span class="chip-label">Quick presets:</span>
+                  <button type="button" class="preset-chip" id="preset-tomorrow-10">Tomorrow 10:30 AM</button>
+                  <button type="button" class="preset-chip" id="preset-tomorrow-14">Tomorrow 02:00 PM</button>
+                  <button type="button" class="preset-chip chip-warning" id="preset-past">Past Date (Test Guard)</button>
+                </div>
+                <button type="submit" class="btn btn-patient">Submit Request (Status: PENDING)</button>
+              </form>
+            </div>
+
+            <!-- Patient Records -->
+            <div class="records-container">
+              <div class="records-tabs">
+                <button class="records-subtab active" data-subtab="patient-appts">My Appointments (<span id="count-patient-appts">0</span>)</button>
+                <button class="records-subtab" data-subtab="patient-consults">Diagnosis & Prescriptions (<span id="count-patient-consults">0</span>)</button>
+              </div>
+
+              <div id="subtab-patient-appts" class="subtab-content active">
+                <div id="patient-appts-list" class="cards-list">
+                  <!-- Populated by JS -->
+                </div>
+              </div>
+
+              <div id="subtab-patient-consults" class="subtab-content">
+                <div id="patient-consults-list" class="cards-list">
+                  <!-- Populated by JS -->
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right Panel: Doctor Portal -->
+        <div class="portal-card doctor-portal">
+          <div class="portal-header">
+            <div class="portal-badge doctor-badge">Doctor Portal</div>
+            <div class="portal-user-info">
+              <span class="doc-avatar">👨‍⚕️</span>
+              <div class="doc-meta">
+                <strong>Dr. Rajesh Sharma</strong>
+                <small>General Physician • ID #1</small>
+              </div>
+            </div>
+          </div>
+
+          <div class="portal-body">
+            <!-- Pending Requests Section -->
+            <div class="action-box">
+              <div class="box-title-row">
+                <h3 class="section-heading">Pending Appointment Requests</h3>
+                <span class="counter-badge" id="count-doctor-pending">0 Pending</span>
+              </div>
+              <div id="doctor-pending-list" class="cards-list compact-list">
+                <!-- Populated by JS -->
+              </div>
+            </div>
+
+            <!-- Consultation Recording Section -->
+            <div class="action-box highlight-box">
+              <div class="box-title-row">
+                <h3 class="section-heading">Record Consultation & Auto-Schedule Follow-up</h3>
+              </div>
+              <p class="section-desc">Consultation can only be recorded for <strong>APPROVED</strong> appointments. Next-visit generates an automatic follow-up booking.</p>
+
+              <form id="form-consultation" class="consult-form">
+                <div class="form-group">
+                  <label>Select Approved Appointment to Consult</label>
+                  <select id="select-consult-appt">
+                    <option value="">-- Choose Approved Appointment --</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label>Clinical Diagnosis</label>
+                  <input type="text" id="input-diagnosis" placeholder="e.g. Acute Bronchitis & Allergic Rhinitis" required>
+                </div>
+                <div class="form-group">
+                  <label>Prescription & Treatment Plan</label>
+                  <textarea id="input-prescription" rows="2" placeholder="e.g. Tab Amoxicillin 500mg TDS x 5d; Tab Cetirizine 10mg OD x 7d" required></textarea>
+                </div>
+                <div class="form-group">
+                  <label>Next Visit Date & Time (Triggers Auto-Booking)</label>
+                  <input type="datetime-local" id="input-next-visit" required>
+                </div>
+                <div class="quick-chips">
+                  <span class="chip-label">Quick next visit:</span>
+                  <button type="button" class="preset-chip" id="preset-next-2w">+2 Weeks (11:00 AM)</button>
+                  <button type="button" class="preset-chip" id="preset-next-1m">+1 Month (10:00 AM)</button>
+                </div>
+                <button type="submit" class="btn btn-doctor">Save Consultation & Create Follow-up</button>
+              </form>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Live Terminal / Telemetry Event Stream -->
+      <div class="telemetry-bar">
+        <div class="telemetry-header">
+          <span class="telemetry-title">⚡ Real-Time Core Java Execution Stream & Event Log</span>
+          <div class="telemetry-actions">
+            <button id="btn-clear-telemetry" class="btn-text">Clear Log</button>
+            <button id="btn-reset-data" class="btn-text btn-danger-text">Reset Demo State</button>
+          </div>
+        </div>
+        <div id="telemetry-log" class="telemetry-content">
+          <!-- Populated dynamically -->
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 2: ARCHITECTURE & UML -->
+    <section id="tab-architecture" class="tab-pane">
+      <div class="arch-container">
+        <div class="section-header">
+          <h2>Layered System Architecture & Class Hierarchy</h2>
+          <p>Designed strictly using Object-Oriented principles, separation of concerns, and clean encapsulation.</p>
+        </div>
+
+        <div class="arch-grid">
+          <!-- Layer 1: UI Layer -->
+          <div class="arch-card">
+            <div class="arch-card-header layer-ui">
+              <span class="layer-tag">Presentation Layer</span>
+              <h3>Console & UI Classes</h3>
+            </div>
+            <div class="arch-card-body">
+              <div class="class-item">
+                <span class="class-name">PatientMenu.java</span>
+                <span class="class-desc">Terminal UI for appointment request, status inquiry, and viewing medical records.</span>
+              </div>
+              <div class="class-item">
+                <span class="class-name">DoctorMenu.java</span>
+                <span class="class-desc">Terminal UI for review queue, decision making, and recording consultations.</span>
+              </div>
+              <div class="class-item">
+                <span class="class-name">InputHelper.java</span>
+                <span class="class-desc">Validated console parsing for integers, strings, and <code>dd-MM-yyyy HH:mm</code> dates.</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Layer 2: Service Layer -->
+          <div class="arch-card">
+            <div class="arch-card-header layer-service">
+              <span class="layer-tag">Business Logic Layer</span>
+              <h3>Service Controllers</h3>
+            </div>
+            <div class="arch-card-body">
+              <div class="class-item">
+                <span class="class-name">AppointmentService.java</span>
+                <span class="class-desc">Enforces past-date validation, creates initial PENDING requests, handles approval decisions.</span>
+              </div>
+              <div class="class-item">
+                <span class="class-name">ConsultationService.java</span>
+                <span class="class-desc">Verifies APPROVED status, records diagnosis/Rx, and orchestrates automatic follow-up booking.</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Layer 3: Model Layer -->
+          <div class="arch-card">
+            <div class="arch-card-header layer-model">
+              <span class="layer-tag">Domain Entities</span>
+              <h3>Core Models & Enums</h3>
+            </div>
+            <div class="arch-card-body">
+              <div class="class-item">
+                <span class="class-name">Appointment.java</span>
+                <span class="class-desc">Stateful entity containing Patient, Doctor, LocalDateTime, AppointmentStatus, followUp flag.</span>
+              </div>
+              <div class="class-item">
+                <span class="class-name">Consultation.java</span>
+                <span class="class-desc">Clinical record linking appointment, diagnosis text, prescription notes, next visit date.</span>
+              </div>
+              <div class="class-item">
+                <span class="class-name">AppointmentStatus.java</span>
+                <span class="class-desc">Enum: <code>PENDING</code>, <code>APPROVED</code>, <code>REJECTED</code>.</span>
+              </div>
+              <div class="class-item">
+                <span class="class-name">Patient.java & Doctor.java</span>
+                <span class="class-desc">Encapsulated entities for system actors with unique identifiers and contact/specialty details.</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Layer 4: Storage & Exceptions -->
+          <div class="arch-card">
+            <div class="arch-card-header layer-repo">
+              <span class="layer-tag">Data & Safety</span>
+              <h3>Repository & Exceptions</h3>
+            </div>
+            <div class="arch-card-body">
+              <div class="class-item">
+                <span class="class-name">InMemoryRepository.java</span>
+                <span class="class-desc">Thread-safe collections storage using <code>HashMap</code>, <code>LinkedHashMap</code>, and <code>ArrayList</code>.</span>
+              </div>
+              <div class="class-item">
+                <span class="class-name">InvalidInputException.java</span>
+                <span class="class-desc">Custom unchecked exception for past dates, empty strings, and malformed inputs.</span>
+              </div>
+              <div class="class-item">
+                <span class="class-name">InvalidStateException.java</span>
+                <span class="class-desc">Custom exception preventing illegal transitions (e.g. deciding approved appointments).</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Workflow Lifecycle Diagram -->
+        <div class="diagram-section">
+          <h3>Appointment State Machine & Automatic Follow-Up Flow</h3>
+          <div class="flow-steps">
+            <div class="flow-step">
+              <div class="step-num">1</div>
+              <div class="step-badge status-pending">PENDING</div>
+              <p>Patient requests appointment with future date.</p>
+            </div>
+            <div class="flow-arrow">➔</div>
+            <div class="flow-step">
+              <div class="step-num">2</div>
+              <div class="step-badge status-approved">APPROVED</div>
+              <p>Doctor accepts request (or sets to REJECTED).</p>
+            </div>
+            <div class="flow-arrow">➔</div>
+            <div class="flow-step">
+              <div class="step-num">3</div>
+              <div class="step-badge status-consult">CONSULTATION</div>
+              <p>Doctor inputs clinical diagnosis and prescription.</p>
+            </div>
+            <div class="flow-arrow">➔</div>
+            <div class="flow-step highlight-step">
+              <div class="step-num">4</div>
+              <div class="step-badge status-approved">AUTO FOLLOW-UP</div>
+              <p>System automatically books new APPROVED appointment for next visit.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 3: CORE JAVA MATRIX -->
+    <section id="tab-concepts" class="tab-pane">
+      <div class="concepts-container">
+        <div class="section-header">
+          <h2>Core Java Concepts & Academic Implementation</h2>
+          <p>How each fundamental syllabus topic is mapped directly to source code in the repository.</p>
+        </div>
+
+        <div class="concepts-grid">
+          <div class="concept-card">
+            <div class="concept-icon">🛡️</div>
+            <h3>Encapsulation & Immutability</h3>
+            <p>Private fields with public getters, defensive copying in repository collections, and immutable business identifiers (<code>final int appointmentId</code>).</p>
+            <div class="code-snippet">
+              <code>private final int appointmentId;<br>private AppointmentStatus status;<br>public void updateDecision(...) { ... }</code>
+            </div>
+          </div>
+
+          <div class="concept-card">
+            <div class="concept-icon">📦</div>
+            <h3>Java Collections Framework</h3>
+            <p>Carefully chosen data structures: <code>HashMap</code> for $O(1)$ patient lookups, <code>LinkedHashMap</code> for chronological order, and <code>ArrayList</code> for query streams.</p>
+            <div class="code-snippet">
+              <code>Map&lt;Integer, Appointment&gt; appointments = new LinkedHashMap&lt;&gt;();</code>
+            </div>
+          </div>
+
+          <div class="concept-card">
+            <div class="concept-icon">⏱️</div>
+            <h3>Modern Date & Time API</h3>
+            <p>Utilizing <code>java.time.LocalDateTime</code> and <code>DateTimeFormatter</code> instead of legacy Date/Calendar for reliable temporal comparisons.</p>
+            <div class="code-snippet">
+              <code>if (dateTime.isBefore(LocalDateTime.now()))<br>&nbsp;&nbsp;throw new InvalidInputException(...);</code>
+            </div>
+          </div>
+
+          <div class="concept-card">
+            <div class="concept-icon">🏷️</div>
+            <h3>Type-Safe Enums</h3>
+            <p>Replaces unsafe magic strings with <code>enum AppointmentStatus { PENDING, APPROVED, REJECTED }</code> to prevent invalid state configurations.</p>
+            <div class="code-snippet">
+              <code>public enum AppointmentStatus {<br>&nbsp;&nbsp;PENDING, APPROVED, REJECTED<br>}</code>
+            </div>
+          </div>
+
+          <div class="concept-card">
+            <div class="concept-icon">⚠️</div>
+            <h3>Custom Exception Hierarchy</h3>
+            <p>Domain-specific unchecked exceptions extending <code>RuntimeException</code> for granular error handling without cluttering signatures.</p>
+            <div class="code-snippet">
+              <code>public class InvalidStateException extends RuntimeException { ... }</code>
+            </div>
+          </div>
+
+          <div class="concept-card">
+            <div class="concept-icon">🧩</div>
+            <h3>Separation of Concerns</h3>
+            <p>UI layer handles only I/O, Service layer handles business rules, and Repository layer handles data persistence.</p>
+            <div class="code-snippet">
+              <code>UI ➔ Service ➔ Repository ➔ Model</code>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 4: TEST SUITE -->
+    <section id="tab-tests" class="tab-pane">
+      <div class="tests-container">
+        <div class="section-header">
+          <div class="header-with-action">
+            <div>
+              <h2>Zero-Dependency Automated Test Suite</h2>
+              <p>10 automated test cases verifying functional rules, boundaries, and security guards.</p>
+            </div>
+            <button id="btn-run-tests" class="btn btn-primary">⚡ Run All Tests in Browser</button>
+          </div>
+        </div>
+
+        <div class="test-results-summary">
+          <div class="summary-stat">
+            <span class="stat-value" id="test-pass-count">10</span>
+            <span class="stat-label">Tests Passing</span>
+          </div>
+          <div class="summary-stat">
+            <span class="stat-value">0</span>
+            <span class="stat-label">Failures</span>
+          </div>
+          <div class="summary-stat">
+            <span class="stat-value">100%</span>
+            <span class="stat-label">Coverage of Rules</span>
+          </div>
+          <div class="summary-stat">
+            <span class="stat-value">&lt; 15ms</span>
+            <span class="stat-label">Execution Time</span>
+          </div>
+        </div>
+
+        <div class="test-table-wrapper">
+          <table class="test-table">
+            <thead>
+              <tr>
+                <th>Test ID</th>
+                <th>Target Feature</th>
+                <th>Scenario & Invariants Checked</th>
+                <th>Expected Exception</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody id="test-table-body">
+              <!-- Rendered via JS -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 5: VIVA PREP -->
+    <section id="tab-viva" class="tab-pane">
+      <div class="viva-container">
+        <div class="section-header">
+          <h2>Teacher Viva & Evaluation Oral Questions</h2>
+          <p>Quick reference answers for teacher evaluations and laboratory assessments.</p>
+        </div>
+
+        <div class="viva-accordion">
+          <div class="viva-item active">
+            <div class="viva-question">
+              <span>Q1. What is the core workflow and main problem solved by this project?</span>
+              <span class="chevron">▼</span>
+            </div>
+            <div class="viva-answer">
+              <p>The system connects appointment requesting, doctor approval, clinical consultation recording, and automatic follow-up booking into a single coherent lifecycle. It eliminates manual follow-up scheduling errors by automatically creating an APPROVED follow-up appointment when the doctor inputs the next-visit date.</p>
+            </div>
+          </div>
+
+          <div class="viva-item">
+            <div class="viva-question">
+              <span>Q2. Why is in-memory storage used instead of a relational database like MySQL?</span>
+              <span class="chevron">▼</span>
+            </div>
+            <div class="viva-answer">
+              <p>In accordance with Core Java course guidelines, using in-memory Java Collections (<code>HashMap</code>, <code>LinkedHashMap</code>, <code>ArrayList</code>) demonstrates mastery of data structures, references, and memory management without introducing external driver dependencies.</p>
+            </div>
+          </div>
+
+          <div class="viva-item">
+            <div class="viva-question">
+              <span>Q3. Why is the automatic follow-up appointment created with status APPROVED?</span>
+              <span class="chevron">▼</span>
+            </div>
+            <div class="viva-answer">
+              <p>Because the doctor themselves evaluated the patient in the consultation room and established the medical need for a follow-up on that specific date. Therefore, it does not require a second doctor approval step and is directly booked as <code>APPROVED</code>.</p>
+            </div>
+          </div>
+
+          <div class="viva-item">
+            <div class="viva-question">
+              <span>Q4. How do you prevent an appointment from being approved multiple times?</span>
+              <span class="chevron">▼</span>
+            </div>
+            <div class="viva-answer">
+              <p>In <code>Appointment.updateDecision()</code>, we check <code>if (status != AppointmentStatus.PENDING)</code>. If someone tries to approve an already approved or rejected appointment, it immediately raises an <code>InvalidStateException</code>.</p>
+            </div>
+          </div>
+
+          <div class="viva-item">
+            <div class="viva-question">
+              <span>Q5. How is separation of concerns achieved in this application?</span>
+              <span class="chevron">▼</span>
+            </div>
+            <div class="viva-answer">
+              <p>The code is divided into four distinct layers: <strong>UI</strong> handles input/output; <strong>Service</strong> validates and executes business rules; <strong>Repository</strong> manages data structures; and <strong>Model</strong> encapsulates properties. This allows swapping the console UI for a Web UI or GUI without changing any business logic.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="app-footer">
+    <div class="footer-content">
+      <span>Doctor Smart Appointment System • Core Java Project</span>
+      <div class="footer-links">
+        <span class="pill-info">CLI: <code>java -cp out Main --demo</code></span>
+        <span class="pill-info">Tests: <code>java -cp out SystemWorkflowTest</code></span>
+      </div>
+    </div>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>

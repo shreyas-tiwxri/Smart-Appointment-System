@@ -20,19 +20,41 @@ src/
 docs/           proposal + notes
 ```
 
-## Run
+## Run & Presentation Commands
 Needs JDK 17+.
+
+### 1. One-Click Teacher Demo (Automated Walkthrough)
 ```bash
-mkdir -p out
 javac -d out $(find src -name "*.java")
+java -cp out Main --demo
+# or
+java -cp out DemoRunner
+```
+
+### 2. Run Automated Test Suite (10/10 Core Java Tests)
+```bash
+java -cp out SystemWorkflowTest
+```
+
+### 3. Run Interactive Console Application
+```bash
 java -cp out Main
 ```
-Windows (PowerShell):
-```powershell
-javac -d out (Get-ChildItem -Recurse src -Filter *.java).FullName
-java -cp out Main
+
+### 4. Interactive Web Presentation & Simulator
+Open [`web/index.html`](web/index.html) in your browser:
+```bash
+open web/index.html
+# or with python server
+python3 -m http.server 4567 --directory web
 ```
+
 Date format everywhere: `dd-MM-yyyy HH:mm` (e.g. `25-12-2026 10:30`).
+
+## Documentation & Progress Tracking
+- [Teacher Progress Report & UML Diagrams](docs/TEACHER_PROGRESS_REPORT.md)
+- [Weekly Milestone Checklist (8-Week Plan)](docs/TODO.md)
+
 
 ## Core Java concepts used
 Classes/objects, encapsulation, constructors, collections, enums, `java.time.LocalDateTime`,

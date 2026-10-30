@@ -10,6 +10,11 @@ import java.util.Scanner;
 
 public class Main {
     public static void main(String[] args) {
+        if (args.length > 0 && args[0].equalsIgnoreCase("--demo")) {
+            DemoRunner.runDemo();
+            return;
+        }
+
         InMemoryRepository repo = new InMemoryRepository();
         seed(repo);
 
@@ -23,11 +28,12 @@ public class Main {
 
         System.out.println("=== Doctor Smart Appointment System ===");
         while (true) {
-            System.out.println("\n1. Login as Patient\n2. Login as Doctor\n0. Exit");
+            System.out.println("\n1. Login as Patient\n2. Login as Doctor\n3. Run Automated Demo & Presentation Walkthrough\n0. Exit");
             String ch = in.readLine("Choice: ");
             switch (ch) {
                 case "1" -> patientMenu.run();
                 case "2" -> doctorMenu.run();
+                case "3" -> DemoRunner.runDemo();
                 case "0" -> {
                     System.out.println("Bye!");
                     return;
