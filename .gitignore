@@ -5,3 +5,9 @@ bin/
 *.iml
 .vscode/
 .DS_Store
+
+# Runtime generated records (keep directory structure)
+records/*.txt
+records/prescriptions/*.txt
+!records/.gitkeep
+!records/prescriptions/.gitkeep

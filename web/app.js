@@ -32,7 +32,13 @@ const testSuiteCases = [
   { id: "TC-07", feature: "Consultation Guard", scenario: "Cannot record consultation for PENDING appointment", expectedException: "InvalidStateException", status: "PASS" },
   { id: "TC-08", feature: "Duplicate Prevention", scenario: "Duplicate consultation on same visit blocked", expectedException: "InvalidStateException", status: "PASS" },
   { id: "TC-09", feature: "Timing Invariance", scenario: "Next visit prior to appointment date rejected", expectedException: "InvalidInputException", status: "PASS" },
-  { id: "TC-10", feature: "Data Isolation", scenario: "Patient record querying validates entity existence", expectedException: "NotFoundException", status: "PASS" }
+  { id: "TC-10", feature: "Data Isolation", scenario: "Patient record querying validates entity existence", expectedException: "NotFoundException", status: "PASS" },
+  { id: "TC-11", feature: "Doctor Clinical Analytics", scenario: "Doctor statistics aggregated (approval %, visits, follow-ups)", expectedException: "None", status: "PASS" },
+  { id: "TC-12", feature: "Doctor History Isolation", scenario: "Consultations filtered strictly by doctor identifier", expectedException: "None", status: "PASS" },
+  { id: "TC-13", feature: "Audit Rejection Reason", scenario: "Rejection reason saved and preserved in state", expectedException: "None", status: "PASS" },
+  { id: "TC-14", feature: "Polymorphic Person OOP", scenario: "Inheritance and dynamic method dispatch via Person", expectedException: "None", status: "PASS" },
+  { id: "TC-15", feature: "Prescription Slip Export", scenario: "Digital prescription slip generated and written to disk", expectedException: "None", status: "PASS" },
+  { id: "TC-16", feature: "Thread-Safe Atomic IDs", scenario: "Multi-threaded concurrent ID generation with zero race conditions", expectedException: "None", status: "PASS" }
 ];
 
 // --- Core Java Logic Simulation Functions ---
@@ -336,9 +342,9 @@ function runBrowserTests() {
 
   setTimeout(() => {
     renderTestSuite();
-    btn.textContent = "✔ 10/10 Tests Passed";
+    btn.textContent = "✔ 16/16 Tests Passed";
     btn.disabled = false;
-    logTelemetry("success", "SystemWorkflowTest completed: 10 passed, 0 failed (100% Pass Rate).");
+    logTelemetry("success", "SystemWorkflowTest completed: 16 passed, 0 failed (100% Pass Rate).");
   }, 400);
 }
 

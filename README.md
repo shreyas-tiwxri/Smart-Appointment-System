@@ -1,77 +1,126 @@
-# Doctor Smart Appointment System
+# Doctor Smart Appointment & Clinical Workflow System
 
-A Core Java console project (two roles: **Patient** and **Doctor**).
+A modular, enterprise-grade Core Java clinical coordination project engineered with strict Object-Oriented principles, multi-layered architecture, zero-dependency file persistence, and automated testing.
 
-## Workflow
-1. Patient requests an appointment (status `PENDING`)
-2. Doctor approves / rejects it; patient sees the decision
-3. After the visit, doctor records **diagnosis + prescription**; patient can view them
-4. Doctor gives the **next-visit date/time** -> a **follow-up appointment is created automatically**
+---
 
-## Project structure
+## 👥 Engineering Team & Division of Responsibilities
+
+| Role | Engineer | Core Responsibilities & Modules |
+|---|---|---|
+| **Member 1** | **Mohit Srivastav** | Patient domain model, Patient Portal CLI (`PatientMenu.java`), Web Presentation & interactive visual simulator showcase (`web/`). |
+| **Member 2** | **Shreyas Tiwari** | Appointment & Consultation models, Doctor Workspace CLI (`DoctorMenu.java`), Follow-up automation engine, Clinical analytics (`DoctorStats.java`), Prescription generation & File Persistence (`FilePersistenceService.java`). |
+| **Collaborative** | **Mohit & Shreyas** | Domain abstraction (`Person.java`), DAO abstraction (`IDataRepository.java`), Automated verification test suite (16/16 test scenarios), evaluation defense & documentation. |
+
+---
+
+## 🏥 Clinical Workflow Lifecycle (4-Step Pipeline)
+1. **Request Submission:** Patient requests an appointment with a chosen practitioner and preferred date/time (initial status `PENDING`).
+2. **Clinical Review & Decisioning:** Doctor reviews pending queue and decides:
+   - **Approve:** Updates status to `APPROVED`.
+   - **Reject:** Updates status to `REJECTED` with an optional documented clinical reason.
+3. **Clinical Consultation & Prescription:** Following the physical visit, doctor records:
+   - Official clinical diagnosis.
+   - Prescriptions, medications & patient instructions.
+   - Recommended next follow-up date and time.
+4. **Automated Follow-up Booking:** The system automatically schedules the follow-up appointment with status `APPROVED` directly (no secondary approval required, as it was established by the practitioner).
+5. **Digital Prescription Slip & Local Archive:** Generates standardized digital clinical discharge slips saved to `records/prescriptions/Rx_Patient#_Appt#.txt` and automatically backups state to disk.
+
+---
+
+## 📁 Layered Architecture & Codebase Map
+
 ```
 src/
-  Main.java
-  model/        Patient, Doctor, Appointment, Consultation, AppointmentStatus (enum)
-  exception/    InvalidInputException, InvalidStateException, NotFoundException
-  repository/   InMemoryRepository (ArrayList / HashMap / LinkedHashMap)
-  service/      AppointmentService, ConsultationService  (business logic)
-  ui/           PatientMenu, DoctorMenu, InputHelper     (console UI)
-docs/           proposal + notes
+├── Main.java                        # System bootstrap, CLI routing & JVM shutdown hook
+├── DemoRunner.java                  # Automated 8-stage live evaluator presentation walkthrough
+├── SystemWorkflowTest.java          # 16-point unit, integration & concurrency verification suite
+├── model/                           # Domain Entities, DTOs & Enums
+│   ├── Person.java                  # Abstract base class (Abstraction & Inheritance)
+│   ├── Patient.java                 # Patient entity (Inherits Person)
+│   ├── Doctor.java                  # Doctor entity (Inherits Person)
+│   ├── Appointment.java             # Scheduling entity & status transition guards
+│   ├── AppointmentStatus.java       # Strongly typed Enum (PENDING, APPROVED, REJECTED)
+│   ├── Consultation.java            # Clinical notes & digital Rx slip generator
+│   └── DoctorStats.java             # DTO aggregating practitioner analytics
+├── repository/                      # Data Access Layer & Storage Engines
+│   ├── IDataRepository.java         # DAO interface abstraction (Dependency Inversion Principle)
+│   ├── InMemoryRepository.java      # Thread-safe repository (ConcurrentHashMap, AtomicInteger)
+│   └── FilePersistenceService.java  # Zero-dependency file persistence & audit logger
+├── service/                         # Business Logic & Clinical Validation
+│   ├── AppointmentService.java      # Queue management, decisioning & doctor analytics
+│   └── ConsultationService.java     # Clinical consultation recording & follow-up generator
+├── ui/                              # Presentation Layer (Console CLI)
+│   ├── PatientMenu.java             # Patient portal & prescription download
+│   ├── DoctorMenu.java              # Doctor workspace, analytics & decisioning
+│   └── InputHelper.java             # Date parsing, input sanitation & exception wrappers
+docs/
+├── TEACHER_PROGRESS_REPORT.md       # Comprehensive milestone report with architecture & metrics
+├── VIVA_PREPARATION_GUIDE.md        # 1-Hour strict evaluation defense script & answers
+└── TODO.md                          # 8-Week milestone tracker (100% Complete)
+records/                             # Local persistence snapshots & exported Rx slips
+web/                                 # Interactive presentation simulator dashboard
 ```
 
-## Run & Presentation Commands
-Needs JDK 17+.
+---
 
-### 1. One-Click Teacher Demo (Automated Walkthrough)
-```bash
-javac -d out $(find src -name "*.java")
-java -cp out Main --demo
-# or
-java -cp out DemoRunner
-```
+## ⚡ Run & Evaluation Commands
 
-### 2. Run Automated Test Suite (10/10 Core Java Tests)
+Requires JDK 17+ (Tested on Java 26 / Java 17).
+
+### 1. Run Automated Test Suite (16/16 Core Java Tests)
 ```bash
+# Compile all sources:
+javac -d out src/exception/*.java src/model/*.java src/repository/*.java src/service/*.java src/ui/*.java src/*.java
+
+# Run test suite:
 java -cp out SystemWorkflowTest
 ```
 
-### 3. Run Interactive Console Application
+### 2. One-Click Evaluator Presentation Demo (--demo mode)
+```bash
+java -cp out Main --demo
+# OR directly
+java -cp out DemoRunner
+```
+
+### 3. Run Interactive Clinical Console Application
 ```bash
 java -cp out Main
 ```
+- Select `1` for Patient Portal (Aman: ID 1, Riya: ID 2, Kabir: ID 3).
+- Select `2` for Doctor Clinical Workspace (Dr. Sharma: ID 1, Dr. Verma: ID 2).
+- Select `3` for 1-Click Automated Presentation Walkthrough.
+- Select `4` to export system diagnostic database snapshot to disk.
 
-### 4. Interactive Web Presentation & Simulator
+### 4. Interactive Web Presentation Dashboard & Simulator
 Open [`web/index.html`](web/index.html) in your browser:
 ```bash
-open web/index.html
-# or with python server
-python3 -m http.server 4567 --directory web
+# Direct browser launch
+open web/index.html   # On macOS
+start web/index.html  # On Windows
+
+# Or via lightweight HTTP server
+python -m http.server 4567 --directory web
 ```
 
-Date format everywhere: `dd-MM-yyyy HH:mm` (e.g. `25-12-2026 10:30`).
+---
 
-## Documentation & Progress Tracking
-- [Teacher Progress Report & UML Diagrams](docs/TEACHER_PROGRESS_REPORT.md)
-- [Weekly Milestone Checklist (8-Week Plan)](docs/TODO.md)
+## 🔬 Core Java Principles & Technical Highlights
 
+- **Object-Oriented Abstraction & Inheritance:** `Person` base class inherited by `Patient` and `Doctor` with polymorphic methods `getRole()` and `getSummaryDetails()`.
+- **Interface-Driven Design (SOLID / DIP):** `IDataRepository` cleanly decouples business services (`AppointmentService`, `ConsultationService`) from physical storage.
+- **Thread-Safety & Concurrency Handling:** `ConcurrentHashMap`, synchronized chronological wrappers, and `AtomicInteger` lock-free primary key counters ensure race condition immunity.
+- **Zero-Dependency Disk Persistence:** `FilePersistenceService` snapshots state to `records/database_snapshot.txt` and exports printable clinical Rx slips upon consultation.
+- **Graceful JVM Shutdown Hook:** `Runtime.getRuntime().addShutdownHook(...)` guarantees automated database snapshotting even if the program terminates unexpectedly.
+- **Custom Exception Hierarchy:** Unchecked exceptions extending `RuntimeException`:
+  - `InvalidInputException` (e.g., past dates, missing fields).
+  - `InvalidStateException` (e.g., re-deciding approved visits, duplicate consultations).
+  - `NotFoundException` (e.g., unmapped patient or doctor identifiers).
 
-## Core Java concepts used
-Classes/objects, encapsulation, constructors, collections, enums, `java.time.LocalDateTime`,
-custom exceptions + validation, separation of concerns (model / service / repository / ui).
+---
 
-## Rules enforced
-- Only `PENDING` requests can be approved/rejected
-- Consultation only for `APPROVED` appointments, once per appointment
-- No past dates for requests; next visit must be after the current appointment
-- Follow-up is created with status `APPROVED` (doctor scheduled it)
-
-## Team split
-| Member | Work |
-|---|---|
-| Member 1 | Patient/Doctor models, patient-side UI |
-| Member 2 | Appointment/Consultation models, doctor-side workflow, follow-up logic |
-| Both | Shared interfaces, integration, final review |
-
-## Scope
-Only what is in the proposal. Extras (login, cancel/reschedule, DB, notifications...) need approval first.
+## 📚 Evaluation & Viva Defense Documentation
+- **[Comprehensive Viva Preparation & Defense Guide](docs/VIVA_PREPARATION_GUIDE.md)**: Word-for-word explanations, tricky examiner questions, and design justification.
+- **[Teacher Progress Report & UML Diagrams](docs/TEACHER_PROGRESS_REPORT.md)**: Complete progress audit, class diagrams, and test matrix.
+- **[8-Week Milestone Checklist](docs/TODO.md)**: All milestones verified.

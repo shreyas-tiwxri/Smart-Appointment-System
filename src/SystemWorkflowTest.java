@@ -1,21 +1,25 @@
 import exception.InvalidInputException;
 import exception.InvalidStateException;
 import exception.NotFoundException;
-import model.Appointment;
-import model.AppointmentStatus;
-import model.Consultation;
-import model.Doctor;
-import model.Patient;
+import model.*;
+import repository.FilePersistenceService;
 import repository.InMemoryRepository;
 import service.AppointmentService;
 import service.ConsultationService;
 
+import java.io.File;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Self-contained unit & integration test suite.
  * Runs without external testing frameworks (like JUnit) using pure Core Java.
+ * Verified for Course Evaluation by Mohit Srivastav (M1) and Shreyas Tiwari (M2).
  */
 public class SystemWorkflowTest {
     private static int passed = 0;
@@ -27,7 +31,7 @@ public class SystemWorkflowTest {
     private static final String BOLD = "\u001B[1m";
 
     public static void main(String[] args) {
-        System.out.println(BOLD + "\nRunning Core Java System Workflow Test Suite..." + RESET);
+        System.out.println(BOLD + "\nRunning Core Java System Workflow Test Suite (16 Test Scenarios)..." + RESET);
         System.out.println("-----------------------------------------------------------------");
 
         testAppointmentCreation();
@@ -40,6 +44,14 @@ public class SystemWorkflowTest {
         testDuplicateConsultationPrevention();
         testNextVisitTimingGuard();
         testPatientDataIsolation();
+
+        // New Tests for Member 2 & Persistence Enhancements
+        testDoctorClinicalAnalytics();
+        testDoctorConsultationHistory();
+        testDoctorRejectionWithReason();
+        testPolymorphicPersonAbstraction();
+        testPrescriptionSlipAndFileExport();
+        testThreadSafeAtomicSequenceIds();
 
         System.out.println("-----------------------------------------------------------------");
         if (failed == 0) {
@@ -119,20 +131,19 @@ public class SystemWorkflowTest {
             Appointment a = apptSvc.requestAppointment(1, 1, apptTime);
             apptSvc.updateDecision(a.getAppointmentId(), true);
 
-            LocalDateTime followUpTime = apptTime.plusWeeks(1);
-            Consultation c = consSvc.recordConsultation(a.getAppointmentId(), "Routine Checkup", "Multivitamins daily", followUpTime);
+            LocalDateTime nextVisit = apptTime.plusWeeks(1);
+            Consultation c = consSvc.recordConsultation(a.getAppointmentId(), "Viral fever", "Paracetamol 650mg", nextVisit);
 
-            assertEquals("Routine Checkup", c.getDiagnosis(), "Diagnosis must match");
-            assertEquals("Multivitamins daily", c.getPrescription(), "Prescription must match");
+            assertEquals("Viral fever", c.getDiagnosis(), "Diagnosis must match");
+            assertEquals("Paracetamol 650mg", c.getPrescription(), "Prescription must match");
 
-            // Verify auto follow-up creation
-            List<Appointment> appts = apptSvc.getAppointmentsForPatient(1);
-            assertEquals(2, appts.size(), "Patient should now have 2 appointments (original + follow-up)");
+            List<Appointment> allAppts = repo.getAllAppointments();
+            assertEquals(2, allAppts.size(), "Should have initial appointment + 1 follow-up");
 
-            Appointment followUp = appts.get(1);
-            assertEquals(true, followUp.isFollowUp(), "FollowUp flag must be true");
-            assertEquals(AppointmentStatus.APPROVED, followUp.getStatus(), "Follow-up must be APPROVED");
-            assertEquals(followUpTime, followUp.getDateTime(), "Follow-up date must match next visit date");
+            Appointment followUp = allAppts.get(1);
+            assertEquals(true, followUp.isFollowUp(), "Follow-up flag must be true");
+            assertEquals(AppointmentStatus.APPROVED, followUp.getStatus(), "Follow-up must be APPROVED automatically");
+            assertEquals(nextVisit, followUp.getDateTime(), "Follow-up time must match nextVisit");
         });
     }
 
@@ -142,10 +153,16 @@ public class SystemWorkflowTest {
             AppointmentService apptSvc = new AppointmentService(repo);
             ConsultationService consSvc = new ConsultationService(repo);
 
-            Appointment a = apptSvc.requestAppointment(1, 1, LocalDateTime.now().plusDays(1)); // Status is PENDING
+            Appointment pending = apptSvc.requestAppointment(1, 1, LocalDateTime.now().plusDays(1));
             assertThrows(InvalidStateException.class, () -> {
-                consSvc.recordConsultation(a.getAppointmentId(), "Cold", "Rest", LocalDateTime.now().plusDays(3));
-            }, "Cannot record consultation for PENDING appointment");
+                consSvc.recordConsultation(pending.getAppointmentId(), "Headache", "Rest", LocalDateTime.now().plusDays(5));
+            }, "Cannot record consultation on PENDING appointment");
+
+            Appointment rejected = apptSvc.requestAppointment(2, 1, LocalDateTime.now().plusDays(2));
+            apptSvc.updateDecision(rejected.getAppointmentId(), false);
+            assertThrows(InvalidStateException.class, () -> {
+                consSvc.recordConsultation(rejected.getAppointmentId(), "Headache", "Rest", LocalDateTime.now().plusDays(5));
+            }, "Cannot record consultation on REJECTED appointment");
         });
     }
 
@@ -155,15 +172,15 @@ public class SystemWorkflowTest {
             AppointmentService apptSvc = new AppointmentService(repo);
             ConsultationService consSvc = new ConsultationService(repo);
 
-            LocalDateTime dt = LocalDateTime.now().plusDays(1);
-            Appointment a = apptSvc.requestAppointment(1, 1, dt);
+            LocalDateTime apptTime = LocalDateTime.now().plusDays(1);
+            Appointment a = apptSvc.requestAppointment(1, 1, apptTime);
             apptSvc.updateDecision(a.getAppointmentId(), true);
 
-            consSvc.recordConsultation(a.getAppointmentId(), "Flu", "Paracetamol", dt.plusDays(3));
+            consSvc.recordConsultation(a.getAppointmentId(), "Cough", "Syrup", apptTime.plusDays(3));
 
             assertThrows(InvalidStateException.class, () -> {
-                consSvc.recordConsultation(a.getAppointmentId(), "Flu 2", "Paracetamol 2", dt.plusDays(4));
-            }, "Cannot record second consultation for same appointment");
+                consSvc.recordConsultation(a.getAppointmentId(), "Cough again", "Stronger Syrup", apptTime.plusDays(4));
+            }, "Cannot record second consultation for the same appointment");
         });
     }
 
@@ -173,13 +190,13 @@ public class SystemWorkflowTest {
             AppointmentService apptSvc = new AppointmentService(repo);
             ConsultationService consSvc = new ConsultationService(repo);
 
-            LocalDateTime dt = LocalDateTime.now().plusDays(2);
-            Appointment a = apptSvc.requestAppointment(1, 1, dt);
+            LocalDateTime apptTime = LocalDateTime.now().plusDays(5);
+            Appointment a = apptSvc.requestAppointment(1, 1, apptTime);
             apptSvc.updateDecision(a.getAppointmentId(), true);
 
             assertThrows(InvalidInputException.class, () -> {
-                consSvc.recordConsultation(a.getAppointmentId(), "Checkup", "Meds", dt.minusHours(1));
-            }, "Next visit before appointment must be rejected");
+                consSvc.recordConsultation(a.getAppointmentId(), "Checkup", "None", apptTime.minusDays(1));
+            }, "Next visit cannot be before current appointment date");
         });
     }
 
@@ -191,12 +208,145 @@ public class SystemWorkflowTest {
             apptSvc.requestAppointment(1, 1, LocalDateTime.now().plusDays(1));
             apptSvc.requestAppointment(2, 1, LocalDateTime.now().plusDays(2));
 
-            assertEquals(1, apptSvc.getAppointmentsForPatient(1).size(), "Patient 1 should have 1 appointment");
-            assertEquals(1, apptSvc.getAppointmentsForPatient(2).size(), "Patient 2 should have 1 appointment");
+            assertEquals(1, apptSvc.getAppointmentsForPatient(1).size(), "Patient 1 should have exactly 1 appointment");
+            assertEquals(1, apptSvc.getAppointmentsForPatient(2).size(), "Patient 2 should have exactly 1 appointment");
 
             assertThrows(NotFoundException.class, () -> {
                 apptSvc.getAppointmentsForPatient(999);
-            }, "Non-existent patient query should throw NotFoundException");
+            }, "Should throw NotFoundException for invalid patient id");
+        });
+    }
+
+    private static void testDoctorClinicalAnalytics() {
+        runTest("TC-11: Doctor clinical statistics calculated accurately (Member 2 Module)", () -> {
+            InMemoryRepository repo = createRepoWithSeed();
+            AppointmentService apptSvc = new AppointmentService(repo);
+            ConsultationService consSvc = new ConsultationService(repo);
+
+            // Create 3 appointments: 1 pending, 1 approved & consulted, 1 rejected
+            Appointment a1 = apptSvc.requestAppointment(1, 1, LocalDateTime.now().plusDays(1));
+            Appointment a2 = apptSvc.requestAppointment(2, 1, LocalDateTime.now().plusDays(2));
+            Appointment a3 = apptSvc.requestAppointment(1, 1, LocalDateTime.now().plusDays(3));
+
+            apptSvc.updateDecision(a1.getAppointmentId(), true);
+            apptSvc.updateDecision(a3.getAppointmentId(), false, "Doctor unavailable");
+
+            consSvc.recordConsultation(a1.getAppointmentId(), "Hypertension", "Amlodipine 5mg", LocalDateTime.now().plusWeeks(2));
+
+            DoctorStats stats = apptSvc.getDoctorStats(1);
+            // Total should be 3 initial + 1 auto follow-up = 4
+            assertEquals(4, stats.getTotalAssigned(), "Total appointments assigned must be 4");
+            assertEquals(1, stats.getPendingCount(), "Pending count must be 1 (a2)");
+            assertEquals(2, stats.getApprovedCount(), "Approved count must be 2 (a1 + follow-up)");
+            assertEquals(1, stats.getRejectedCount(), "Rejected count must be 1 (a3)");
+            assertEquals(1, stats.getCompletedConsultations(), "Completed consultations must be 1");
+            assertEquals(1, stats.getScheduledFollowUps(), "Follow-ups must be 1");
+            assertEquals(50.0, stats.getConsultationCompletionRatePercent(), "50% of approved appointments consulted");
+        });
+    }
+
+    private static void testDoctorConsultationHistory() {
+        runTest("TC-12: Doctor consultation history isolation", () -> {
+            InMemoryRepository repo = createRepoWithSeed();
+            repo.addDoctor(new Doctor(2, "Pooja Verma", "Cardiology"));
+            AppointmentService apptSvc = new AppointmentService(repo);
+            ConsultationService consSvc = new ConsultationService(repo);
+
+            Appointment a1 = apptSvc.requestAppointment(1, 1, LocalDateTime.now().plusDays(1));
+            Appointment a2 = apptSvc.requestAppointment(2, 2, LocalDateTime.now().plusDays(2));
+
+            apptSvc.updateDecision(a1.getAppointmentId(), true);
+            apptSvc.updateDecision(a2.getAppointmentId(), true);
+
+            consSvc.recordConsultation(a1.getAppointmentId(), "Asthma", "Inhaler", LocalDateTime.now().plusWeeks(1));
+            consSvc.recordConsultation(a2.getAppointmentId(), "Arrhythmia", "Beta-blocker", LocalDateTime.now().plusWeeks(2));
+
+            List<Consultation> doc1Consults = consSvc.getConsultationsForDoctor(1);
+            List<Consultation> doc2Consults = consSvc.getConsultationsForDoctor(2);
+
+            assertEquals(1, doc1Consults.size(), "Doctor 1 must have exactly 1 consultation");
+            assertEquals(1, doc2Consults.size(), "Doctor 2 must have exactly 1 consultation");
+            assertEquals("Asthma", doc1Consults.get(0).getDiagnosis(), "Diagnosis for Doctor 1 must match");
+            assertEquals("Arrhythmia", doc2Consults.get(0).getDiagnosis(), "Diagnosis for Doctor 2 must match");
+        });
+    }
+
+    private static void testDoctorRejectionWithReason() {
+        runTest("TC-13: Rejection with custom clinical audit reason", () -> {
+            InMemoryRepository repo = createRepoWithSeed();
+            AppointmentService apptSvc = new AppointmentService(repo);
+
+            Appointment a = apptSvc.requestAppointment(1, 1, LocalDateTime.now().plusDays(1));
+            String reason = "Emergency ICU round callout";
+            Appointment rejected = apptSvc.updateDecision(a.getAppointmentId(), false, reason);
+
+            assertEquals(AppointmentStatus.REJECTED, rejected.getStatus(), "Status must be REJECTED");
+            assertEquals(reason, rejected.getRejectionReason(), "Rejection reason must be preserved");
+        });
+    }
+
+    private static void testPolymorphicPersonAbstraction() {
+        runTest("TC-14: Polymorphic Person hierarchy validation", () -> {
+            Person patientPerson = new Patient(10, "Dev Mehta", "9876543210");
+            Person doctorPerson = new Doctor(20, "Ananya Roy", "Neurology");
+
+            assertEquals("PATIENT", patientPerson.getRole(), "Patient role must be PATIENT");
+            assertEquals("DOCTOR", doctorPerson.getRole(), "Doctor role must be DOCTOR");
+            assertEquals(true, patientPerson.getSummaryDetails().contains("Dev Mehta"), "Summary must contain name");
+            assertEquals(true, doctorPerson.getSummaryDetails().contains("Neurology"), "Summary must contain specialty");
+        });
+    }
+
+    private static void testPrescriptionSlipAndFileExport() {
+        runTest("TC-15: Digital prescription slip generation & disk export", () -> {
+            InMemoryRepository repo = createRepoWithSeed();
+            AppointmentService apptSvc = new AppointmentService(repo);
+            ConsultationService consSvc = new ConsultationService(repo);
+            FilePersistenceService fps = new FilePersistenceService();
+
+            Appointment a = apptSvc.requestAppointment(1, 1, LocalDateTime.now().plusDays(1));
+            apptSvc.updateDecision(a.getAppointmentId(), true);
+
+            Consultation c = consSvc.recordConsultation(a.getAppointmentId(), "Bronchitis", "Azithromycin 500mg OD", LocalDateTime.now().plusDays(7));
+            String slip = c.generatePrescriptionSlip();
+
+            assertEquals(true, slip.contains("SMART CLINIC MEDICAL PRESCRIPTION SLIP"), "Prescription slip header must exist");
+            assertEquals(true, slip.contains("Azithromycin 500mg OD"), "Prescription contents must exist");
+
+            File exported = fps.savePrescriptionSlip(c);
+            assertEquals(true, exported != null && exported.exists(), "Prescription file must be created on disk");
+        });
+    }
+
+    private static void testThreadSafeAtomicSequenceIds() {
+        runTest("TC-16: Thread-safe Atomic sequence ID generation under concurrency", () -> {
+            InMemoryRepository repo = new InMemoryRepository();
+            int threads = 10;
+            int itemsPerThread = 50;
+            ExecutorService pool = Executors.newFixedThreadPool(threads);
+            CountDownLatch latch = new CountDownLatch(threads);
+
+            List<Integer> generatedIds = java.util.Collections.synchronizedList(new ArrayList<>());
+
+            for (int t = 0; t < threads; t++) {
+                pool.submit(() -> {
+                    try {
+                        for (int i = 0; i < itemsPerThread; i++) {
+                            generatedIds.add(repo.nextAppointmentId());
+                        }
+                    } finally {
+                        latch.countDown();
+                    }
+                });
+            }
+
+            latch.await(5, TimeUnit.SECONDS);
+            pool.shutdown();
+
+            assertEquals(threads * itemsPerThread, generatedIds.size(), "Total IDs generated must match expected");
+            // Verify all IDs are unique (no duplicates due to race conditions)
+            long uniqueCount = generatedIds.stream().distinct().count();
+            assertEquals((long) (threads * itemsPerThread), uniqueCount, "All generated IDs must be strictly unique");
         });
     }
 

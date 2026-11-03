@@ -1,86 +1,94 @@
-# Project Progress Report: Doctor Smart Appointment System
+# Comprehensive Project Progress Report: Doctor Smart Appointment System
 
 **Course:** Core Java / Object-Oriented Programming Laboratory  
-**Project Title:** Doctor Smart Appointment System  
-**Current Milestone:** Week 6–7 Progress Review (Core Workflow Complete & Verified)  
-**Status:** 🟢 **On Track (Ahead of Schedule)**  
+**Project Title:** Doctor Smart Appointment & Clinical Workflow System  
+**Current Milestone:** Week 8 Final Laboratory Evaluation (100% Complete & Verified)  
+**Status:** 🟢 **Production & Evaluation Ready (16/16 Automated Tests Passing)**  
+**Authors:**
+- **Member 1:** Mohit Srivastav (Roll/ID: Member 1) — Patient Domain, Patient Portal UI, Interactive Web Presentation Simulator
+- **Member 2:** Shreyas Tiwari (Roll/ID: Member 2) — Doctor Domain, Clinical Analytics, Follow-up Automation, File Persistence Engine & Rx Generation
 
 ---
 
 ## 1. Executive Summary
 
-The **Doctor Smart Appointment System** is a modular, layered Core Java application designed to coordinate the end-to-end appointment and consultation lifecycle between **Patients** and **Doctors**.
+The **Doctor Smart Appointment System** is an enterprise-pattern Core Java application designed to coordinate the end-to-end appointment, clinical decision, and consultation lifecycle between **Patients** and **Medical Practitioners**.
 
 ### Key Deliverables Completed:
-- ✅ **Layered Architecture:** Clear separation between Presentation (`ui`), Business Logic (`service`), Data Access (`repository`), and Domain Entities (`model`).
-- ✅ **Complete 4-Step Lifecycle:**
+- ✅ **Polymorphic Domain Architecture:** Abstract base class `Person` extended by specialized actors `Patient` and `Doctor` featuring dynamic method dispatch.
+- ✅ **Interface-Driven Design (SOLID / DIP):** Data access decoupled via `IDataRepository`, ensuring services depend strictly on storage abstractions.
+- ✅ **Complete 5-Step Clinical Lifecycle:**
   1. **Request:** Patient requests an appointment with preferred date/time (initial status `PENDING`).
-  2. **Review & Decision:** Doctor approves or rejects the request; patient view updates immediately.
+  2. **Review & Decision:** Doctor approves or rejects the request (with documented clinical audit reasons).
   3. **Consultation Entry:** Doctor records clinical diagnosis and prescription for the approved visit.
   4. **Automatic Follow-Up Booking:** Doctor enters next-visit date/time, triggering automatic creation of a follow-up appointment with status `APPROVED`.
-- ✅ **Domain Integrity & Custom Exceptions:** Robust input and state validation guards against invalid state transitions and invalid date scheduling.
-- ✅ **Automated Testing Suite:** 10/10 automated tests passing (`SystemWorkflowTest.java`) with zero third-party dependencies.
-- ✅ **1-Click Interactive Presentation Runner:** Built-in automated presentation mode (`DemoRunner.java` / `java -cp out Main --demo`) to showcase live execution to the evaluator.
+  5. **Digital Prescription Slip & Persistence:** Generates official formatted Rx slips and snapshots system state to local disk.
+- ✅ **Thread-Safety & Concurrency Hardening:** Lock-free sequence generation via `AtomicInteger` and thread-safe collections (`ConcurrentHashMap`, synchronized map wrappers).
+- ✅ **Zero-Dependency File Persistence:** Automated snapshot export and graceful state preservation via a JVM shutdown hook (`FilePersistenceService.java`).
+- ✅ **Automated Testing Suite:** 16/16 automated unit, integration, and concurrency tests passing (`SystemWorkflowTest.java`) with zero third-party dependencies.
+- ✅ **1-Click Interactive Presentation Runner:** Built-in automated presentation mode (`DemoRunner.java` / `java -cp out Main --demo`) demonstrating all 8 clinical workflow stages.
+- ✅ **Interactive Visual Web Dashboard:** Standalone presentation simulator (`web/index.html`) featuring live state visualization, architecture diagrams, and test runner.
 
 ---
 
 ## 2. System Architecture & Class Design
 
-The project strictly follows the **Separation of Concerns** principle:
+The project strictly adheres to the **Separation of Concerns (SoC)** and **Layered Architecture** principles:
 
 ```
 src/
-├── Main.java               # Application bootstrap & interactive menu / demo trigger
-├── DemoRunner.java         # Automated end-to-end presentation runner with colored telemetry
-├── SystemWorkflowTest.java # 10-point unit & integration verification suite
-├── model/                  # Domain entities & Enums
-│   ├── Appointment.java
-│   ├── AppointmentStatus.java (Enum: PENDING, APPROVED, REJECTED)
-│   ├── Consultation.java
-│   ├── Doctor.java
-│   └── Patient.java
-├── repository/             # In-memory data store using Java Collections
-│   └── InMemoryRepository.java
-├── service/                # Business logic & workflow rules
-│   ├── AppointmentService.java
-│   └── ConsultationService.java
-├── ui/                     # Terminal user interface & input parsing
-│   ├── DoctorMenu.java
-│   ├── PatientMenu.java
-│   └── InputHelper.java
-└── exception/              # Custom runtime exception hierarchy
-    ├── InvalidInputException.java
-    ├── InvalidStateException.java
-    └── NotFoundException.java
+├── Main.java                        # System bootstrap, CLI routing & JVM shutdown hook
+├── DemoRunner.java                  # Automated 8-stage live evaluator presentation walkthrough
+├── SystemWorkflowTest.java          # 16-point unit, integration & concurrency verification suite
+├── model/                           # Domain Entities, DTOs & Enums
+│   ├── Person.java                  # Abstract base class (Abstraction & Inheritance)
+│   ├── Patient.java                 # Patient entity (Inherits Person)
+│   ├── Doctor.java                  # Doctor entity (Inherits Person)
+│   ├── Appointment.java             # Scheduling entity & status transition guards
+│   ├── AppointmentStatus.java       # Strongly typed Enum (PENDING, APPROVED, REJECTED)
+│   ├── Consultation.java            # Clinical notes & digital Rx slip generator
+│   └── DoctorStats.java             # DTO aggregating practitioner analytics
+├── repository/                      # Data Access Layer & Storage Engines
+│   ├── IDataRepository.java         # DAO interface abstraction (Dependency Inversion Principle)
+│   ├── InMemoryRepository.java      # Thread-safe repository (ConcurrentHashMap, AtomicInteger)
+│   └── FilePersistenceService.java  # Zero-dependency file persistence & audit logger
+├── service/                         # Business Logic & Clinical Validation
+│   ├── AppointmentService.java      # Queue management, decisioning & doctor analytics
+│   └── ConsultationService.java     # Clinical consultation recording & follow-up generator
+└── ui/                              # Presentation Layer (Console CLI)
+    ├── PatientMenu.java             # Patient portal & prescription download
+    ├── DoctorMenu.java              # Doctor workspace, analytics & decisioning
+    └── InputHelper.java             # Date parsing, input sanitation & exception wrappers
 ```
 
-### UML Class Diagram
+### UML Class Hierarchy & Domain Interaction
 
 ```mermaid
 classDiagram
+    class Person {
+        <<abstract>>
+        #int id
+        #String name
+        +getId() int
+        +getName() String
+        +getRole()* String
+        +getSummaryDetails()* String
+    }
+
     class Patient {
-        -int patientId
-        -String name
         -String contact
         +getPatientId() int
-        +getName() String
         +getContact() String
+        +getRole() String
+        +getSummaryDetails() String
     }
 
     class Doctor {
-        -int doctorId
-        -String name
         -String specialty
         +getDoctorId() int
-        +getName() String
         +getSpecialty() String
-    }
-
-    class AppointmentStatus {
-        <<enumeration>>
-        PENDING
-        APPROVED
-        REJECTED
+        +getRole() String
+        +getSummaryDetails() String
     }
 
     class Appointment {
@@ -90,9 +98,9 @@ classDiagram
         -LocalDateTime dateTime
         -AppointmentStatus status
         -boolean followUp
-        +updateDecision(AppointmentStatus) void
-        +getStatus() AppointmentStatus
-        +isFollowUp() boolean
+        -String rejectionReason
+        +updateDecision(AppointmentStatus)
+        +updateDecision(AppointmentStatus, String)
     }
 
     class Consultation {
@@ -101,130 +109,92 @@ classDiagram
         -String diagnosis
         -String prescription
         -LocalDateTime nextVisitDateTime
-        +getConsultationId() int
-        +getDiagnosis() String
-        +getPrescription() String
-        +getNextVisitDateTime() LocalDateTime
+        +generatePrescriptionSlip() String
+    }
+
+    class IDataRepository {
+        <<interface>>
+        +addPatient(Patient)
+        +addDoctor(Doctor)
+        +saveAppointment(Appointment)
+        +saveConsultation(Consultation)
     }
 
     class InMemoryRepository {
-        -Map~Integer, Patient~ patients
-        -Map~Integer, Doctor~ doctors
-        -Map~Integer, Appointment~ appointments
-        -List~Consultation~ consultations
-        +saveAppointment(Appointment) void
-        +saveConsultation(Consultation) void
-        +getAppointment(int) Appointment
+        -Map patients
+        -Map doctors
+        -Map appointments
+        -List consultations
+        -AtomicInteger nextAppointmentIdSequence
     }
 
-    class AppointmentService {
-        -InMemoryRepository repo
-        +requestAppointment(int, int, LocalDateTime) Appointment
-        +updateDecision(int, boolean) Appointment
-        +getPendingForDoctor(int) List~Appointment~
-        +getAppointmentsForPatient(int) List~Appointment~
-    }
-
-    class ConsultationService {
-        -InMemoryRepository repo
-        +recordConsultation(int, String, String, LocalDateTime) Consultation
-        +getConsultationsForPatient(int) List~Consultation~
-    }
-
+    Person <|-- Patient
+    Person <|-- Doctor
     Appointment --> Patient
     Appointment --> Doctor
-    Appointment --> AppointmentStatus
     Consultation --> Appointment
-    AppointmentService --> InMemoryRepository
-    ConsultationService --> InMemoryRepository
+    IDataRepository <|.. InMemoryRepository
 ```
 
 ---
 
-## 3. Workflow Sequence Diagram
+## 3. Team Member Division & Responsibilities
 
-The following sequence illustrates the complete end-to-end appointment lifecycle from request to auto-follow-up:
-
-```mermaid
-sequenceDiagram
-    autonumber
-    actor Patient as Patient (Aman)
-    participant UI as Patient / Doctor UI
-    participant ApptSvc as AppointmentService
-    participant ConsSvc as ConsultationService
-    participant Repo as InMemoryRepository
-    actor Doctor as Doctor (Dr. Sharma)
-
-    Note over Patient, Repo: Step 1: Appointment Request
-    Patient->>UI: Request Appointment (Doctor ID: 1, DateTime: Tomorrow 10:30)
-    UI->>ApptSvc: requestAppointment(patientId, doctorId, dateTime)
-    ApptSvc->>ApptSvc: Validate date is NOT in past
-    ApptSvc->>Repo: saveAppointment(status = PENDING, followUp = false)
-    ApptSvc-->>UI: Return Appointment #1
-
-    Note over Doctor, Repo: Step 2: Doctor Decision
-    Doctor->>UI: View Pending Requests
-    UI->>ApptSvc: getPendingForDoctor(doctorId = 1)
-    ApptSvc-->>UI: List [Appointment #1]
-    Doctor->>UI: Approve Appointment #1
-    UI->>ApptSvc: updateDecision(1, approve = true)
-    ApptSvc->>Repo: Update Appointment #1 status = APPROVED
-
-    Note over Doctor, Repo: Step 3: Consultation & Automatic Follow-Up
-    Doctor->>UI: Record Consultation (Diagnosis, Prescription, Next Visit: +14 days)
-    UI->>ConsSvc: recordConsultation(apptId, diagnosis, prescription, nextVisit)
-    ConsSvc->>ConsSvc: Verify Appt #1 is APPROVED & no existing consultation
-    ConsSvc->>ConsSvc: Verify nextVisit is after appt dateTime
-    ConsSvc->>Repo: saveConsultation(Consultation #1)
-    ConsSvc->>Repo: saveAppointment(Appointment #2, status = APPROVED, followUp = true)
-    ConsSvc-->>UI: Return Consultation #1 & Follow-up Notice
-
-    Note over Patient, Repo: Step 4: Patient View Synchronized
-    Patient->>UI: View my appointments & consultations
-    UI->>ApptSvc: getAppointmentsForPatient(patientId = 1)
-    UI->>ConsSvc: getConsultationsForPatient(patientId = 1)
-    UI-->>Patient: Displays Original Appt (APPROVED), Consultation (Diagnosis/Rx), and Auto Follow-Up (#2 APPROVED)
-```
-
----
-
-## 4. Core Java Concepts Demonstrated
-
-| Core Java Concept | Implementation in Project | Code Reference |
+| Contributor | Role & Package Responsibility | Concrete Modules Implemented |
 |---|---|---|
-| **Encapsulation** | Private fields, immutable identifiers (`final int appointmentId`), controlled mutations through guarded methods (`updateDecision`). | [`Appointment.java`](file:///Users/mohitsrivastav/Desktop/smart-appointment-system/Smart-Appointment-System/src/model/Appointment.java) |
-| **Collections Framework** | `HashMap` for $O(1)$ patient/doctor lookups; `LinkedHashMap` for order-preserving appointment index; `ArrayList` for consultations and filtered queries. | [`InMemoryRepository.java`](file:///Users/mohitsrivastav/Desktop/smart-appointment-system/Smart-Appointment-System/src/repository/InMemoryRepository.java) |
-| **Enums** | Strongly typed `AppointmentStatus` (PENDING, APPROVED, REJECTED) replacing magic strings and preventing illegal status assignments. | [`AppointmentStatus.java`](file:///Users/mohitsrivastav/Desktop/smart-appointment-system/Smart-Appointment-System/src/model/AppointmentStatus.java) |
-| **Modern Date/Time API** | `java.time.LocalDateTime` and `DateTimeFormatter` (`dd-MM-yyyy HH:mm`) for robust time comparisons (`isBefore`, `isAfter`) without deprecated `java.util.Date`. | [`AppointmentService.java`](file:///Users/mohitsrivastav/Desktop/smart-appointment-system/Smart-Appointment-System/src/service/AppointmentService.java), [`InputHelper.java`](file:///Users/mohitsrivastav/Desktop/smart-appointment-system/Smart-Appointment-System/src/ui/InputHelper.java) |
-| **Custom Exception Hierarchy** | Extends `RuntimeException` into distinct semantic types: `InvalidInputException` (validation), `InvalidStateException` (business rules), `NotFoundException` (entity lookup). | [`exception/`](file:///Users/mohitsrivastav/Desktop/smart-appointment-system/Smart-Appointment-System/src/exception) |
-| **Separation of Concerns** | Isolated layers ensure business rules remain independent of console I/O; services can be reused by a web or GUI front-end without modification. | [`service/`](file:///Users/mohitsrivastav/Desktop/smart-appointment-system/Smart-Appointment-System/src/service) |
+| **Mohit Srivastav** | **Member 1 (Patient Portal & Presentation)** | - `Patient.java` entity model.<br>- `PatientMenu.java` interactive patient CLI.<br>- `web/` HTML5/CSS3/JS interactive evaluation simulator.<br>- Presets and patient date/time input validation. |
+| **Shreyas Tiwari** | **Member 2 (Doctor Engine & Persistence)** | - `Doctor.java`, `Appointment.java`, `Consultation.java` domain models.<br>- `DoctorMenu.java` practitioner workspace.<br>- `DoctorStats.java` clinical performance analytics.<br>- Automatic follow-up appointment generation engine.<br>- `FilePersistenceService.java` local persistence & digital Rx slip exporter. |
+| **Collaborative** | **Architecture & Quality Assurance** | - `Person.java` abstract base class.<br>- `IDataRepository.java` DAO interface abstraction.<br>- `SystemWorkflowTest.java` 16-point automated test suite.<br>- Concurrency hardening and evaluation defense documentation. |
 
 ---
 
-## 5. Verification & Testing Matrix
+## 4. Core Java & Object-Oriented Principles Demonstrated
 
-All 10 unit and integration tests execute successfully without third-party frameworks:
+| Core Java Principle | Implementation Mechanism | Direct Code Reference |
+|---|---|---|
+| **Abstraction & Inheritance** | Abstract base class `Person` provides common identity and defines abstract contracts overridden by `Patient` and `Doctor`. | [`src/model/Person.java`](src/model/Person.java), [`src/model/Doctor.java`](src/model/Doctor.java) |
+| **Dynamic Polymorphism** | Polymorphic method dispatch via `person.getRole()` and `person.getSummaryDetails()`. | [`src/model/Patient.java`](src/model/Patient.java), [`src/model/Doctor.java`](src/model/Doctor.java) |
+| **Encapsulation & Immutability** | Private fields, final identifiers (`final int appointmentId`), and guarded state mutations (`updateDecision`). | [`src/model/Appointment.java`](src/model/Appointment.java) |
+| **Interface-Driven Design (DIP)** | High-level services depend on `IDataRepository` interface rather than concrete in-memory or database classes. | [`src/repository/IDataRepository.java`](src/repository/IDataRepository.java), [`src/service/AppointmentService.java`](src/service/AppointmentService.java) |
+| **Collections Framework** | `ConcurrentHashMap` for $O(1)$ lookups, `LinkedHashMap` for order preservation, `ArrayList` for dynamic filtering. | [`src/repository/InMemoryRepository.java`](src/repository/InMemoryRepository.java) |
+| **Thread-Safety & Concurrency** | Lock-free primary key generation using `AtomicInteger` and thread-safe synchronized collections. | [`src/repository/InMemoryRepository.java`](src/repository/InMemoryRepository.java) |
+| **Modern Date/Time API** | `java.time.LocalDateTime` and `DateTimeFormatter` (`dd-MM-yyyy HH:mm`) for robust chronological comparisons. | [`src/service/AppointmentService.java`](src/service/AppointmentService.java), [`src/ui/InputHelper.java`](src/ui/InputHelper.java) |
+| **File I/O & Persistence** | Zero-dependency file persistence using `PrintWriter`, `FileWriter`, and `Files.createDirectories`. | [`src/repository/FilePersistenceService.java`](src/repository/FilePersistenceService.java) |
+| **JVM Shutdown Hook** | Registered hook on `Runtime.getRuntime().addShutdownHook(...)` snapshots database automatically upon program termination. | [`src/Main.java`](src/Main.java) |
+| **Custom Exception Hierarchy** | Semantic exceptions extending `RuntimeException`: `InvalidInputException`, `InvalidStateException`, `NotFoundException`. | [`src/exception/`](src/exception/) |
 
-| Test ID | Test Scenario | Expected Outcome | Result |
+---
+
+## 5. Automated Verification & Testing Matrix (16/16 PASS)
+
+Every unit, integration, and security guard test executes without third-party frameworks:
+
+| Test ID | Test Scenario | Verified Rule & Invariant | Result |
 |---|---|---|:---:|
-| **TC-01** | Create appointment request | Status is `PENDING`, `isFollowUp == false` | ✅ **PASS** |
-| **TC-02** | Schedule appointment in the past | Throws `InvalidInputException` | ✅ **PASS** |
-| **TC-03** | Doctor approves pending request | Status updates to `APPROVED` | ✅ **PASS** |
-| **TC-04** | Doctor rejects pending request | Status updates to `REJECTED` | ✅ **PASS** |
-| **TC-05** | Attempt to re-decide non-pending appointment | Throws `InvalidStateException` | ✅ **PASS** |
-| **TC-06** | Record consultation and verify auto follow-up | Creates Consultation + Follow-up with status `APPROVED` | ✅ **PASS** |
-| **TC-07** | Attempt consultation on PENDING appointment | Throws `InvalidStateException` | ✅ **PASS** |
-| **TC-08** | Attempt duplicate consultation on same appointment | Throws `InvalidStateException` | ✅ **PASS** |
-| **TC-09** | Set next-visit date before appointment date | Throws `InvalidInputException` | ✅ **PASS** |
-| **TC-10** | Verify patient data isolation & invalid ID checks | Throws `NotFoundException` for non-existent IDs | ✅ **PASS** |
+| **TC-01** | Create appointment request | Initial status is `PENDING`, `isFollowUp == false` | ✅ **PASS** |
+| **TC-02** | Schedule appointment in the past | Throws `InvalidInputException` ("cannot be in the past") | ✅ **PASS** |
+| **TC-03** | Doctor approves pending request | Status updates cleanly to `APPROVED` | ✅ **PASS** |
+| **TC-04** | Doctor rejects pending request | Status updates cleanly to `REJECTED` | ✅ **PASS** |
+| **TC-05** | Attempt to re-decide decided appointment | Guard prevents state mutation; throws `InvalidStateException` | ✅ **PASS** |
+| **TC-06** | Record consultation & auto follow-up | Creates Consultation + Follow-up with status `APPROVED` | ✅ **PASS** |
+| **TC-07** | Attempt consultation on PENDING visit | Throws `InvalidStateException` ("only for APPROVED appointment") | ✅ **PASS** |
+| **TC-08** | Attempt duplicate consultation on same visit | Throws `InvalidStateException` ("already recorded") | ✅ **PASS** |
+| **TC-09** | Set next-visit date before appointment date | Throws `InvalidInputException` ("must be after current appointment") | ✅ **PASS** |
+| **TC-10** | Verify patient data isolation & invalid ID checks | Throws `NotFoundException` for unmapped patient/doctor IDs | ✅ **PASS** |
+| **TC-11** | Doctor clinical analytics calculation | Aggregates approval %, completed consults, and follow-ups | ✅ **PASS** |
+| **TC-12** | Doctor consultation history isolation | Restricts consultation query results to calling doctor | ✅ **PASS** |
+| **TC-13** | Rejection with clinical audit reason | Captures and persists clinical justification for rejection | ✅ **PASS** |
+| **TC-14** | Polymorphic `Person` abstraction checks | Verifies dynamic dispatch of `getRole()` and `getSummaryDetails()` | ✅ **PASS** |
+| **TC-15** | Digital prescription slip export & file generation | Generates formatted Rx slip and saves to `records/prescriptions/` | ✅ **PASS** |
+| **TC-16** | Concurrency & Atomic sequence ID verification | 500 concurrent appointment creations with zero ID collisions | ✅ **PASS** |
 
 ---
 
 ## 6. How to Run the Demonstration
 
-### 1. Run Automated Test Suite (Fast Verification)
+### 1. Run Automated Test Suite (Fast 16-Point Verification)
 ```bash
-javac -d out $(find src -name "*.java")
+javac -d out src/exception/*.java src/model/*.java src/repository/*.java src/service/*.java src/ui/*.java src/*.java
 java -cp out SystemWorkflowTest
 ```
 
@@ -239,22 +209,25 @@ java -cp out DemoRunner
 ```bash
 java -cp out Main
 ```
-- Choose `1` to interact as Patient (Aman: ID 1, Riya: ID 2).
-- Choose `2` to interact as Doctor (Dr. Sharma: ID 1).
-- Choose `3` to trigger the automated walkthrough.
+- Option `1`: Patient Portal (Member 1).
+- Option `2`: Doctor Workspace & Analytics (Member 2).
+- Option `3`: Automated Presentation Walkthrough.
+- Option `4`: Export System Diagnostic Database Snapshot.
 
 ---
 
-## 7. Viva / Evaluator Q&A Preparation
+## 7. Viva / Evaluator Q&A Preparation Summary
+
+*(For exhaustive 1-hour viva preparation, refer to [docs/VIVA_PREPARATION_GUIDE.md](VIVA_PREPARATION_GUIDE.md))*
 
 **Q1: Why did you use `LinkedHashMap` for appointments in `InMemoryRepository`?**  
-> *Answer:* `LinkedHashMap` provides fast $O(1)$ key lookup by `appointmentId` while maintaining predictable insertion order, ensuring that appointment lists and queries display chronologically.
+> *Answer:* `LinkedHashMap` provides fast $O(1)$ key lookup by `appointmentId` while maintaining predictable chronological insertion order, ensuring appointment queues display in the exact sequence they were submitted.
 
 **Q2: How does the system guarantee that a follow-up appointment is not accidentally rejected?**  
 > *Answer:* The follow-up appointment is instantiated by `ConsultationService` directly with `AppointmentStatus.APPROVED` and `followUp = true`, reflecting that it was scheduled by the medical doctor during consultation.
 
-**Q3: How are invalid inputs like past dates handled?**  
-> *Answer:* In `AppointmentService.requestAppointment()`, we check `dateTime.isBefore(LocalDateTime.now())` and immediately throw a custom `InvalidInputException`, which is caught by the UI layer to display a clean error message without crashing.
+**Q3: How is data preserved without a heavy SQL database?**  
+> *Answer:* We engineered `FilePersistenceService` and hooked it into the JVM lifecycle via `Runtime.getRuntime().addShutdownHook(...)`. On shutdown, it serializes entities to `records/database_snapshot.txt` and outputs printable prescription files without external database overhead.
 
-**Q4: Can a doctor record two consultations for the same visit?**  
-> *Answer:* No, `ConsultationService.recordConsultation()` inspects existing consultations and throws `InvalidStateException("Consultation already recorded for this appointment")`.
+**Q4: How did you ensure thread-safety during concurrent bookings?**  
+> *Answer:* We replaced standard integer sequence counters with `AtomicInteger` for lock-free sequence increments and utilized `ConcurrentHashMap` combined with thread-synchronized collection wrappers to eliminate race conditions.
