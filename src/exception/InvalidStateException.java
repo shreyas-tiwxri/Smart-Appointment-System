@@ -1,6 +1,8 @@
 package exception;
 
-/** Operation violates business rules (e.g. approving a non-pending appointment). */
+/**
+ * Operation violates business rules (e.g. approving a non-pending appointment).
+ */
 public class InvalidStateException extends RuntimeException {
     private static final long serialVersionUID = 1L;
 

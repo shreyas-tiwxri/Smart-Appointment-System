@@ -1,5 +1,6 @@
 import exception.InvalidInputException;
 import exception.InvalidStateException;
+
 import model.Appointment;
 import model.AppointmentStatus;
 import model.Consultation;
