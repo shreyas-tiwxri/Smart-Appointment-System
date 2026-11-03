@@ -51,7 +51,7 @@ public class DoctorStats {
         return String.format(
             """
             ================================================================================
-                           CLINICAL PERFORMANCE & APPOINTMENT ANALYTICS                     
+                           CLINICAL PERFORMANCE & APPOINTMENT ANALYTICS
             ================================================================================
             Practitioner       : Dr. %s (ID: #%d)
             Total Appointments : %d
@@ -71,4 +71,3 @@ public class DoctorStats {
         );
     }
 }
-

@@ -31,7 +31,6 @@ public class DemoRunner {
     private static final String GREEN = "\u001B[32m";
     private static final String YELLOW = "\u001B[33m";
     private static final String BLUE = "\u001B[34m";
-    private static final String MAGENTA = "\u001B[35m";
     private static final String RED = "\u001B[31m";
 
     public static void runDemo() {

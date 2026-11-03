@@ -228,6 +228,7 @@ public class SystemWorkflowTest {
             Appointment a2 = apptSvc.requestAppointment(2, 1, LocalDateTime.now().plusDays(2));
             Appointment a3 = apptSvc.requestAppointment(1, 1, LocalDateTime.now().plusDays(3));
 
+            assertEquals(AppointmentStatus.PENDING, a2.getStatus(), "a2 must remain PENDING");
             apptSvc.updateDecision(a1.getAppointmentId(), true);
             apptSvc.updateDecision(a3.getAppointmentId(), false, "Doctor unavailable");
 
