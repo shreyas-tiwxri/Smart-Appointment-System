@@ -193,3 +193,4 @@ Is project me:
 - **Modern Java:** Streams, Lambdas, LocalDateTime, Text Blocks, Switch Expressions
 - **Real-World Engineering:** Concurrency (`AtomicInteger`), File Persistence, Shutdown Hooks, Automated Tests (16/16)
 - **Documentation & Presentation:** Detailed reports, web visualizer, and 1-click CLI demo runner.
+

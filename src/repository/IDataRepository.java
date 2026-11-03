@@ -31,3 +31,4 @@ public interface IDataRepository {
     void saveConsultation(Consultation c);
     List<Consultation> getAllConsultations();
 }
+
