@@ -12,7 +12,7 @@ import java.util.List;
 /**
  * Interactive CLI menu for Doctors.
  * Designed and implemented by Member 2 (Shreyas Tiwari).
- * Features clinical decisioning, consultation recording, analytics, and Rx export.
+ * Features clinical decisioning, consultation recording, analytics, billing, and Rx export.
  */
 public class DoctorMenu {
     private final IDataRepository repo;
@@ -56,11 +56,13 @@ public class DoctorMenu {
             System.out.println("=======================================================");
             System.out.println("1. View Pending Requests Queue");
             System.out.println("2. Review & Decide on Appointment (Approve / Reject)");
-            System.out.println("3. Record Consultation (Diagnosis, Rx & Next Visit)");
+            System.out.println("3. Record Consultation (Diagnosis, Rx, Billing & Next Visit)");
             System.out.println("4. View Full Clinical Schedule / Patient Roster");
             System.out.println("5. View Completed Consultation History");
             System.out.println("6. View Clinical Analytics & Performance Metrics");
             System.out.println("7. Export / Print Digital Prescription Slip");
+            System.out.println("8. View Practice Revenue & Medical Invoices");
+            System.out.println("9. View Doctor Notification Alerts");
             System.out.println("0. Back to Main Menu");
             System.out.println("-------------------------------------------------------");
 
@@ -75,7 +77,9 @@ public class DoctorMenu {
                     case 5 -> showConsultationHistory(doctorId);
                     case 6 -> showDoctorAnalytics(doctorId);
                     case 7 -> exportPrescription(doctorId);
-                    default -> System.out.println("Invalid choice. Please enter 0-7.");
+                    case 8 -> showDoctorInvoices(doctorId);
+                    case 9 -> showNotifications(doctorId);
+                    default -> System.out.println("Invalid choice. Please enter 0-9.");
                 }
             } catch (RuntimeException e) {
                 System.out.println("Error: " + e.getMessage());
@@ -132,8 +136,10 @@ public class DoctorMenu {
         String diagnosis = in.readLine("Clinical Diagnosis: ");
         String prescription = in.readLine("Prescription & Dosage: ");
         var next = in.readDateTime("Next Follow-up Visit");
+        String payment = in.readLine("Payment Mode (UPI/Cash/Card) [Default: UPI]: ");
+        if (payment.isBlank()) payment = "UPI";
 
-        Consultation c = consultationService.recordConsultation(id, diagnosis, prescription, next);
+        Consultation c = consultationService.recordConsultation(id, diagnosis, prescription, next, payment);
         System.out.println("\n✔ Consultation Recorded Successfully!");
         System.out.println(c);
         System.out.println("✔ Automatic follow-up appointment generated with status APPROVED.");
@@ -142,6 +148,13 @@ public class DoctorMenu {
         File rxFile = persistenceService.savePrescriptionSlip(c);
         if (rxFile != null) {
             System.out.println("✔ Digital Rx Slip exported to: " + rxFile.getPath());
+        }
+
+        // Automatically archive medical invoice
+        Invoice inv = consultationService.getInvoiceByConsultationId(c.getConsultationId());
+        File invFile = persistenceService.saveInvoiceReceipt(inv);
+        if (invFile != null) {
+            System.out.println("✔ Medical Invoice generated: " + invFile.getPath() + " (Total: ₹" + inv.getTotalAmount() + ")");
         }
     }
 
@@ -206,6 +219,36 @@ public class DoctorMenu {
         File f = persistenceService.savePrescriptionSlip(selected);
         if (f != null) {
             System.out.println("Prescription saved to disk at: " + f.getAbsolutePath());
+        }
+    }
+
+    private void showDoctorInvoices(int doctorId) {
+        System.out.println("\n[Practice Billing Records & Revenue]");
+        double totalRevenue = 0.0;
+        int count = 0;
+        for (Invoice inv : repo.getAllInvoices()) {
+            if (inv.getConsultation().getAppointment().getDoctor().getDoctorId() == doctorId) {
+                System.out.println(inv);
+                totalRevenue += inv.getTotalAmount();
+                count++;
+            }
+        }
+        if (count == 0) {
+            System.out.println("  No billing records generated yet.");
+        } else {
+            System.out.printf("\nTotal Invoices Issued: %d | Gross Revenue Collected: ₹%.2f\n", count, totalRevenue);
+        }
+    }
+
+    private void showNotifications(int doctorId) {
+        System.out.println("\n[Doctor Clinical Alert Inbox]");
+        List<NotificationEvent> events = appointmentService.getNotificationService().getNotificationsForDoctor(doctorId);
+        if (events.isEmpty()) {
+            System.out.println("  No alerts at this time.");
+            return;
+        }
+        for (NotificationEvent ev : events) {
+            System.out.println("  " + ev);
         }
     }
 }

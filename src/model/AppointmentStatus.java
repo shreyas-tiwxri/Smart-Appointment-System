@@ -1,8 +1,12 @@
 package model;
 
-/** Possible states of an appointment request. */
+/**
+ * Strongly typed Enumeration representing appointment lifecycle states.
+ * Enforces business domain integrity across scheduling, decisioning, and cancellation.
+ */
 public enum AppointmentStatus {
     PENDING,
     APPROVED,
-    REJECTED
+    REJECTED,
+    CANCELLED
 }

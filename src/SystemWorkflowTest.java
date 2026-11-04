@@ -6,6 +6,7 @@ import repository.FilePersistenceService;
 import repository.InMemoryRepository;
 import service.AppointmentService;
 import service.ConsultationService;
+import service.NotificationService;
 
 import java.io.File;
 import java.time.LocalDateTime;
@@ -31,7 +32,7 @@ public class SystemWorkflowTest {
     private static final String BOLD = "\u001B[1m";
 
     public static void main(String[] args) {
-        System.out.println(BOLD + "\nRunning Core Java System Workflow Test Suite (16 Test Scenarios)..." + RESET);
+        System.out.println(BOLD + "\nRunning Core Java System Workflow Test Suite (20 Test Scenarios)..." + RESET);
         System.out.println("-----------------------------------------------------------------");
 
         testAppointmentCreation();
@@ -45,13 +46,19 @@ public class SystemWorkflowTest {
         testNextVisitTimingGuard();
         testPatientDataIsolation();
 
-        // New Tests for Member 2 & Persistence Enhancements
+        // Tests for Member 2 & Persistence Enhancements
         testDoctorClinicalAnalytics();
         testDoctorConsultationHistory();
         testDoctorRejectionWithReason();
         testPolymorphicPersonAbstraction();
         testPrescriptionSlipAndFileExport();
         testThreadSafeAtomicSequenceIds();
+
+        // Advanced Clinical Suite (Slot Collision, Invoicing, Cancellation & Observers)
+        testSlotConflictDetection();
+        testAppointmentCancellation();
+        testAppointmentRescheduling();
+        testMedicalInvoicingAndReceipt();
 
         System.out.println("-----------------------------------------------------------------");
         if (failed == 0) {
@@ -66,7 +73,7 @@ public class SystemWorkflowTest {
         runTest("TC-01: Appointment request created with PENDING status", () -> {
             InMemoryRepository repo = createRepoWithSeed();
             AppointmentService svc = new AppointmentService(repo);
-            LocalDateTime dt = LocalDateTime.now().plusDays(2);
+            LocalDateTime dt = LocalDateTime.now().plusDays(2).withHour(10).withMinute(0);
             Appointment a = svc.requestAppointment(1, 1, dt);
 
             assertEquals(AppointmentStatus.PENDING, a.getStatus(), "Initial status must be PENDING");
@@ -90,7 +97,7 @@ public class SystemWorkflowTest {
         runTest("TC-03: Doctor can approve pending appointment", () -> {
             InMemoryRepository repo = createRepoWithSeed();
             AppointmentService svc = new AppointmentService(repo);
-            Appointment a = svc.requestAppointment(1, 1, LocalDateTime.now().plusDays(1));
+            Appointment a = svc.requestAppointment(1, 1, LocalDateTime.now().plusDays(1).withHour(10).withMinute(0));
             Appointment approved = svc.updateDecision(a.getAppointmentId(), true);
 
             assertEquals(AppointmentStatus.APPROVED, approved.getStatus(), "Status should be APPROVED");
@@ -101,7 +108,7 @@ public class SystemWorkflowTest {
         runTest("TC-04: Doctor can reject pending appointment", () -> {
             InMemoryRepository repo = createRepoWithSeed();
             AppointmentService svc = new AppointmentService(repo);
-            Appointment a = svc.requestAppointment(1, 1, LocalDateTime.now().plusDays(1));
+            Appointment a = svc.requestAppointment(1, 1, LocalDateTime.now().plusDays(1).withHour(10).withMinute(0));
             Appointment rejected = svc.updateDecision(a.getAppointmentId(), false);
 
             assertEquals(AppointmentStatus.REJECTED, rejected.getStatus(), "Status should be REJECTED");
@@ -112,7 +119,7 @@ public class SystemWorkflowTest {
         runTest("TC-05: Modifying already decided appointment throws InvalidStateException", () -> {
             InMemoryRepository repo = createRepoWithSeed();
             AppointmentService svc = new AppointmentService(repo);
-            Appointment a = svc.requestAppointment(1, 1, LocalDateTime.now().plusDays(1));
+            Appointment a = svc.requestAppointment(1, 1, LocalDateTime.now().plusDays(1).withHour(10).withMinute(0));
             svc.updateDecision(a.getAppointmentId(), true);
 
             assertThrows(InvalidStateException.class, () -> {
@@ -127,7 +134,7 @@ public class SystemWorkflowTest {
             AppointmentService apptSvc = new AppointmentService(repo);
             ConsultationService consSvc = new ConsultationService(repo);
 
-            LocalDateTime apptTime = LocalDateTime.now().plusDays(1);
+            LocalDateTime apptTime = LocalDateTime.now().plusDays(1).withHour(10).withMinute(0);
             Appointment a = apptSvc.requestAppointment(1, 1, apptTime);
             apptSvc.updateDecision(a.getAppointmentId(), true);
 
@@ -153,12 +160,12 @@ public class SystemWorkflowTest {
             AppointmentService apptSvc = new AppointmentService(repo);
             ConsultationService consSvc = new ConsultationService(repo);
 
-            Appointment pending = apptSvc.requestAppointment(1, 1, LocalDateTime.now().plusDays(1));
+            Appointment pending = apptSvc.requestAppointment(1, 1, LocalDateTime.now().plusDays(1).withHour(10).withMinute(0));
             assertThrows(InvalidStateException.class, () -> {
                 consSvc.recordConsultation(pending.getAppointmentId(), "Headache", "Rest", LocalDateTime.now().plusDays(5));
             }, "Cannot record consultation on PENDING appointment");
 
-            Appointment rejected = apptSvc.requestAppointment(2, 1, LocalDateTime.now().plusDays(2));
+            Appointment rejected = apptSvc.requestAppointment(2, 1, LocalDateTime.now().plusDays(2).withHour(10).withMinute(0));
             apptSvc.updateDecision(rejected.getAppointmentId(), false);
             assertThrows(InvalidStateException.class, () -> {
                 consSvc.recordConsultation(rejected.getAppointmentId(), "Headache", "Rest", LocalDateTime.now().plusDays(5));
@@ -172,7 +179,7 @@ public class SystemWorkflowTest {
             AppointmentService apptSvc = new AppointmentService(repo);
             ConsultationService consSvc = new ConsultationService(repo);
 
-            LocalDateTime apptTime = LocalDateTime.now().plusDays(1);
+            LocalDateTime apptTime = LocalDateTime.now().plusDays(1).withHour(10).withMinute(0);
             Appointment a = apptSvc.requestAppointment(1, 1, apptTime);
             apptSvc.updateDecision(a.getAppointmentId(), true);
 
@@ -190,7 +197,7 @@ public class SystemWorkflowTest {
             AppointmentService apptSvc = new AppointmentService(repo);
             ConsultationService consSvc = new ConsultationService(repo);
 
-            LocalDateTime apptTime = LocalDateTime.now().plusDays(5);
+            LocalDateTime apptTime = LocalDateTime.now().plusDays(5).withHour(10).withMinute(0);
             Appointment a = apptSvc.requestAppointment(1, 1, apptTime);
             apptSvc.updateDecision(a.getAppointmentId(), true);
 
@@ -205,8 +212,8 @@ public class SystemWorkflowTest {
             InMemoryRepository repo = createRepoWithSeed();
             AppointmentService apptSvc = new AppointmentService(repo);
 
-            apptSvc.requestAppointment(1, 1, LocalDateTime.now().plusDays(1));
-            apptSvc.requestAppointment(2, 1, LocalDateTime.now().plusDays(2));
+            apptSvc.requestAppointment(1, 1, LocalDateTime.now().plusDays(1).withHour(10).withMinute(0));
+            apptSvc.requestAppointment(2, 1, LocalDateTime.now().plusDays(2).withHour(10).withMinute(0));
 
             assertEquals(1, apptSvc.getAppointmentsForPatient(1).size(), "Patient 1 should have exactly 1 appointment");
             assertEquals(1, apptSvc.getAppointmentsForPatient(2).size(), "Patient 2 should have exactly 1 appointment");
@@ -223,10 +230,10 @@ public class SystemWorkflowTest {
             AppointmentService apptSvc = new AppointmentService(repo);
             ConsultationService consSvc = new ConsultationService(repo);
 
-            // Create 3 appointments: 1 pending, 1 approved & consulted, 1 rejected
-            Appointment a1 = apptSvc.requestAppointment(1, 1, LocalDateTime.now().plusDays(1));
-            Appointment a2 = apptSvc.requestAppointment(2, 1, LocalDateTime.now().plusDays(2));
-            Appointment a3 = apptSvc.requestAppointment(1, 1, LocalDateTime.now().plusDays(3));
+            // Create 3 appointments on separate days to avoid collision
+            Appointment a1 = apptSvc.requestAppointment(1, 1, LocalDateTime.now().plusDays(1).withHour(10).withMinute(0));
+            Appointment a2 = apptSvc.requestAppointment(2, 1, LocalDateTime.now().plusDays(2).withHour(10).withMinute(0));
+            Appointment a3 = apptSvc.requestAppointment(1, 1, LocalDateTime.now().plusDays(3).withHour(10).withMinute(0));
 
             assertEquals(AppointmentStatus.PENDING, a2.getStatus(), "a2 must remain PENDING");
             apptSvc.updateDecision(a1.getAppointmentId(), true);
@@ -235,7 +242,6 @@ public class SystemWorkflowTest {
             consSvc.recordConsultation(a1.getAppointmentId(), "Hypertension", "Amlodipine 5mg", LocalDateTime.now().plusWeeks(2));
 
             DoctorStats stats = apptSvc.getDoctorStats(1);
-            // Total should be 3 initial + 1 auto follow-up = 4
             assertEquals(4, stats.getTotalAssigned(), "Total appointments assigned must be 4");
             assertEquals(1, stats.getPendingCount(), "Pending count must be 1 (a2)");
             assertEquals(2, stats.getApprovedCount(), "Approved count must be 2 (a1 + follow-up)");
@@ -253,8 +259,8 @@ public class SystemWorkflowTest {
             AppointmentService apptSvc = new AppointmentService(repo);
             ConsultationService consSvc = new ConsultationService(repo);
 
-            Appointment a1 = apptSvc.requestAppointment(1, 1, LocalDateTime.now().plusDays(1));
-            Appointment a2 = apptSvc.requestAppointment(2, 2, LocalDateTime.now().plusDays(2));
+            Appointment a1 = apptSvc.requestAppointment(1, 1, LocalDateTime.now().plusDays(1).withHour(10).withMinute(0));
+            Appointment a2 = apptSvc.requestAppointment(2, 2, LocalDateTime.now().plusDays(2).withHour(10).withMinute(0));
 
             apptSvc.updateDecision(a1.getAppointmentId(), true);
             apptSvc.updateDecision(a2.getAppointmentId(), true);
@@ -277,7 +283,7 @@ public class SystemWorkflowTest {
             InMemoryRepository repo = createRepoWithSeed();
             AppointmentService apptSvc = new AppointmentService(repo);
 
-            Appointment a = apptSvc.requestAppointment(1, 1, LocalDateTime.now().plusDays(1));
+            Appointment a = apptSvc.requestAppointment(1, 1, LocalDateTime.now().plusDays(1).withHour(10).withMinute(0));
             String reason = "Emergency ICU round callout";
             Appointment rejected = apptSvc.updateDecision(a.getAppointmentId(), false, reason);
 
@@ -289,7 +295,7 @@ public class SystemWorkflowTest {
     private static void testPolymorphicPersonAbstraction() {
         runTest("TC-14: Polymorphic Person hierarchy validation", () -> {
             Person patientPerson = new Patient(10, "Dev Mehta", "9876543210");
-            Person doctorPerson = new Doctor(20, "Ananya Roy", "Neurology");
+            Person doctorPerson = new Doctor(20, "Ananya Roy", "Neurology", 750.0);
 
             assertEquals("PATIENT", patientPerson.getRole(), "Patient role must be PATIENT");
             assertEquals("DOCTOR", doctorPerson.getRole(), "Doctor role must be DOCTOR");
@@ -305,7 +311,7 @@ public class SystemWorkflowTest {
             ConsultationService consSvc = new ConsultationService(repo);
             FilePersistenceService fps = new FilePersistenceService();
 
-            Appointment a = apptSvc.requestAppointment(1, 1, LocalDateTime.now().plusDays(1));
+            Appointment a = apptSvc.requestAppointment(1, 1, LocalDateTime.now().plusDays(1).withHour(10).withMinute(0));
             apptSvc.updateDecision(a.getAppointmentId(), true);
 
             Consultation c = consSvc.recordConsultation(a.getAppointmentId(), "Bronchitis", "Azithromycin 500mg OD", LocalDateTime.now().plusDays(7));
@@ -345,9 +351,75 @@ public class SystemWorkflowTest {
             pool.shutdown();
 
             assertEquals(threads * itemsPerThread, generatedIds.size(), "Total IDs generated must match expected");
-            // Verify all IDs are unique (no duplicates due to race conditions)
             long uniqueCount = generatedIds.stream().distinct().count();
             assertEquals((long) (threads * itemsPerThread), uniqueCount, "All generated IDs must be strictly unique");
+        });
+    }
+
+    private static void testSlotConflictDetection() {
+        runTest("TC-17: Double-booking doctor within 30 minutes rejected by Slot Guard", () -> {
+            InMemoryRepository repo = createRepoWithSeed();
+            AppointmentService svc = new AppointmentService(repo);
+
+            LocalDateTime baseTime = LocalDateTime.now().plusDays(2).withHour(11).withMinute(0);
+            svc.requestAppointment(1, 1, baseTime);
+
+            // Attempt to book same doctor 15 minutes later (violates 30-min buffer)
+            assertThrows(InvalidStateException.class, () -> {
+                svc.requestAppointment(2, 1, baseTime.plusMinutes(15));
+            }, "Should throw InvalidStateException for double-booking within 30-min window");
+        });
+    }
+
+    private static void testAppointmentCancellation() {
+        runTest("TC-18: Patient can cancel pending or approved appointment with reason audit", () -> {
+            InMemoryRepository repo = createRepoWithSeed();
+            AppointmentService svc = new AppointmentService(repo);
+
+            Appointment a = svc.requestAppointment(1, 1, LocalDateTime.now().plusDays(1).withHour(10).withMinute(0));
+            svc.cancelAppointment(a.getAppointmentId(), "Patient has out-of-town travel");
+
+            assertEquals(AppointmentStatus.CANCELLED, a.getStatus(), "Status must update to CANCELLED");
+            assertEquals("Patient has out-of-town travel", a.getCancellationReason(), "Cancellation reason must be recorded");
+
+            assertThrows(InvalidStateException.class, () -> {
+                svc.cancelAppointment(a.getAppointmentId(), "Again");
+            }, "Cannot re-cancel an already CANCELLED appointment");
+        });
+    }
+
+    private static void testAppointmentRescheduling() {
+        runTest("TC-19: Appointment rescheduling updates time and validates collision", () -> {
+            InMemoryRepository repo = createRepoWithSeed();
+            AppointmentService svc = new AppointmentService(repo);
+
+            LocalDateTime originalTime = LocalDateTime.now().plusDays(1).withHour(10).withMinute(0);
+            Appointment a = svc.requestAppointment(1, 1, originalTime);
+
+            LocalDateTime newTime = LocalDateTime.now().plusDays(2).withHour(15).withMinute(30);
+            svc.rescheduleAppointment(a.getAppointmentId(), newTime);
+
+            assertEquals(newTime, a.getDateTime(), "Appointment time must update to rescheduled slot");
+        });
+    }
+
+    private static void testMedicalInvoicingAndReceipt() {
+        runTest("TC-20: Medical billing invoice and GST calculation generated on consultation", () -> {
+            InMemoryRepository repo = createRepoWithSeed();
+            AppointmentService apptSvc = new AppointmentService(repo);
+            ConsultationService consSvc = new ConsultationService(repo);
+
+            LocalDateTime dt = LocalDateTime.now().plusDays(1).withHour(10).withMinute(0);
+            Appointment a = apptSvc.requestAppointment(1, 1, dt);
+            apptSvc.updateDecision(a.getAppointmentId(), true);
+
+            Consultation c = consSvc.recordConsultation(a.getAppointmentId(), "Migraine", "Tab Rizatriptan", dt.plusWeeks(2), "Credit Card");
+            Invoice inv = consSvc.getInvoiceByConsultationId(c.getConsultationId());
+
+            assertEquals(500.0, inv.getBaseFee(), "Doctor default fee must be ₹500.0");
+            assertEquals(25.0, inv.getTaxAmount(), "5% GST on ₹500 must be ₹25.0");
+            assertEquals(525.0, inv.getTotalAmount(), "Total invoice amount must be ₹525.0");
+            assertEquals(true, inv.generateReceipt().contains("SMART CLINIC MEDICAL INVOICE"), "Receipt header must exist");
         });
     }
 
@@ -357,7 +429,7 @@ public class SystemWorkflowTest {
         InMemoryRepository repo = new InMemoryRepository();
         repo.addPatient(new Patient(1, "Aman", "9876500001"));
         repo.addPatient(new Patient(2, "Riya", "9876500002"));
-        repo.addDoctor(new Doctor(1, "Dr. Sharma", "General Physician"));
+        repo.addDoctor(new Doctor(1, "Dr. Sharma", "General Physician", 500.0));
         return repo;
     }
 

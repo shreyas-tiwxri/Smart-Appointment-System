@@ -4,6 +4,7 @@ import repository.FilePersistenceService;
 import repository.InMemoryRepository;
 import service.AppointmentService;
 import service.ConsultationService;
+import service.NotificationService;
 import ui.DoctorMenu;
 import ui.InputHelper;
 import ui.PatientMenu;
@@ -24,6 +25,7 @@ public class Main {
 
         InMemoryRepository repo = new InMemoryRepository();
         FilePersistenceService persistenceService = new FilePersistenceService();
+        NotificationService notificationService = new NotificationService();
         seed(repo);
 
         // Register Graceful JVM Shutdown Hook to snapshot clinical database
@@ -32,8 +34,8 @@ public class Main {
             persistenceService.logAudit("System gracefully shut down and state snapshot saved.");
         }));
 
-        AppointmentService appointmentService = new AppointmentService(repo);
-        ConsultationService consultationService = new ConsultationService(repo);
+        AppointmentService appointmentService = new AppointmentService(repo, notificationService);
+        ConsultationService consultationService = new ConsultationService(repo, notificationService);
         Scanner sc = new Scanner(System.in);
         InputHelper in = new InputHelper(sc);
 
@@ -80,7 +82,7 @@ public class Main {
         repo.addPatient(new Patient(2, "Riya Patel", "+91 98765 00002"));
         repo.addPatient(new Patient(3, "Kabir Mehta", "+91 98765 00003"));
 
-        repo.addDoctor(new Doctor(1, "Rajesh Sharma", "Senior General Physician"));
-        repo.addDoctor(new Doctor(2, "Pooja Verma", "Cardiology Specialist"));
+        repo.addDoctor(new Doctor(1, "Rajesh Sharma", "Senior General Physician", 600.0));
+        repo.addDoctor(new Doctor(2, "Pooja Verma", "Cardiology Specialist", 850.0));
     }
 }

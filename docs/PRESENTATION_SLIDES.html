@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Doctor Smart Appointment System — Evaluator Presentation Deck</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #090d16;
+      --card-bg: #111827;
+      --border: #1f2937;
+      --text: #f9fafb;
+      --text-muted: #9ca3af;
+      --primary: #3b82f6;
+      --accent: #10b981;
+      --warning: #f59e0b;
+      --purple: #8b5cf6;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      overflow: hidden;
+    }
+    header {
+      padding: 16px 32px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid var(--border);
+      background: rgba(17, 24, 39, 0.8);
+      backdrop-filter: blur(8px);
+    }
+    .logo-area { display: flex; align-items: center; gap: 12px; font-weight: 700; font-size: 1.15rem; }
+    .badge {
+      background: rgba(16, 185, 129, 0.15);
+      color: #34d399;
+      padding: 4px 12px;
+      border-radius: 9999px;
+      font-size: 0.8rem;
+      border: 1px solid rgba(16, 185, 129, 0.3);
+      font-weight: 600;
+    }
+    .slide-viewport {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 40px;
+      position: relative;
+    }
+    .slide {
+      display: none;
+      width: 100%;
+      max-width: 1080px;
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      padding: 48px;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+      animation: fadeIn 0.3s ease-in-out;
+    }
+    .slide.active { display: block; }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .slide-title { font-size: 2.2rem; font-weight: 800; margin-bottom: 12px; background: linear-gradient(135deg, #60a5fa, #34d399); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    .slide-subtitle { font-size: 1.1rem; color: var(--text-muted); margin-bottom: 32px; line-height: 1.5; }
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+    .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+    .card { background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 16px; padding: 24px; }
+    .card h3 { color: #60a5fa; margin-bottom: 8px; font-size: 1.1rem; }
+    .card p, .card li { font-size: 0.95rem; color: #d1d5db; line-height: 1.6; }
+    .code-box { background: #030712; border: 1px solid #1f2937; border-radius: 12px; padding: 16px; font-family: 'JetBrains Mono', monospace; font-size: 0.85rem; color: #a7f3d0; margin-top: 12px; }
+    footer {
+      padding: 16px 32px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-top: 1px solid var(--border);
+      background: var(--card-bg);
+    }
+    .controls { display: flex; gap: 12px; align-items: center; }
+    button.btn {
+      background: var(--primary);
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 10px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    button.btn:hover { background: #2563eb; }
+    button.btn-outline { background: transparent; border: 1px solid var(--border); color: var(--text); }
+    button.btn-outline:hover { background: rgba(255, 255, 255, 0.05); }
+    .counter { color: var(--text-muted); font-size: 0.9rem; font-weight: 600; }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="logo-area">
+      <span>🩺</span> Doctor Smart Appointment System
+      <span class="badge">Evaluation Defense Presentation</span>
+    </div>
+    <div class="counter" id="slide-num-top">Slide 1 of 6</div>
+  </header>
+
+  <main class="slide-viewport">
+    <!-- SLIDE 1: INTRO -->
+    <section class="slide active">
+      <div class="slide-title">Doctor Smart Appointment System</div>
+      <div class="slide-subtitle">A Layered, Enterprise-Pattern Core Java Clinical Lifecycle & Scheduling System</div>
+      <div class="grid-2">
+        <div class="card">
+          <h3>👨‍💻 Engineering Team</h3>
+          <p><strong>Member 1: Mohit Srivastav</strong><br>Patient Portal, Web Visual Simulator, Domain Entities, Input Parsing.</p>
+          <br>
+          <p><strong>Member 2: Shreyas Tiwari</strong><br>Doctor Clinical Workspace, Appointment/Consultation Engine, Follow-up Automation, File Persistence, Medical Invoicing.</p>
+        </div>
+        <div class="card">
+          <h3>🌟 Core System Highlights</h3>
+          <ul>
+            <li>✔ Pure Core Java — 0 Third-Party Dependencies</li>
+            <li>✔ 4-Layer Separation of Concerns (SOLID Architecture)</li>
+            <li>✔ Slot Conflict Detection (30-Minute Buffer Guard)</li>
+            <li>✔ Automated Follow-up Booking & Invoicing Engine</li>
+            <li>✔ 20/20 Automated Tests Passing (100% Pass Rate)</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 2: WORKFLOW -->
+    <section class="slide">
+      <div class="slide-title">5-Stage Clinical Lifecycle Pipeline</div>
+      <div class="slide-subtitle">Deterministic state machine transitions preventing invalid workflows</div>
+      <div class="grid-3">
+        <div class="card">
+          <h3>1. Request</h3>
+          <p>Patient selects practitioner and submits preferred date/time. Initial state: <code>PENDING</code>.</p>
+        </div>
+        <div class="card">
+          <h3>2. Decisioning</h3>
+          <p>Doctor approves or rejects with clinical audit justification. Transitions to <code>APPROVED</code> / <code>REJECTED</code>.</p>
+        </div>
+        <div class="card">
+          <h3>3. Consultation</h3>
+          <p>Doctor records diagnosis & prescription. System verifies visit was approved and not duplicate.</p>
+        </div>
+        <div class="card">
+          <h3>4. Auto Follow-Up</h3>
+          <p>Doctor enters next visit date -> system automatically books follow-up with status <code>APPROVED</code>.</p>
+        </div>
+        <div class="card">
+          <h3>5. Billing & Invoicing</h3>
+          <p>Itemized medical bill generated (Doctor fee + 5% Healthcare GST). Exported to <code>records/invoices/</code>.</p>
+        </div>
+        <div class="card">
+          <h3>6. Digital Rx Slip</h3>
+          <p>Official clinical discharge slip with digital cryptographic verification hash saved to disk.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 3: OOP & ARCHITECTURE -->
+    <section class="slide">
+      <div class="slide-title">Object-Oriented Design & SOLID Principles</div>
+      <div class="slide-subtitle">Applying foundational design patterns without external framework bloat</div>
+      <div class="grid-2">
+        <div class="card">
+          <h3>Polymorphic Domain Abstraction</h3>
+          <p>Abstract base class <code>Person</code> extended by <code>Patient</code> and <code>Doctor</code>.</p>
+          <div class="code-box">
+Person p = doctor;
+System.out.println(p.getRole()); // "DOCTOR"
+System.out.println(p.getSummaryDetails()); // Dynamic dispatch
+          </div>
+        </div>
+        <div class="card">
+          <h3>Dependency Inversion Principle (DIP)</h3>
+          <p>Services depend strictly on the <code>IDataRepository</code> interface rather than concrete in-memory collections, ensuring modularity.</p>
+          <div class="code-box">
+public class AppointmentService {
+    private final IDataRepository repo;
+    // Decoupled from physical storage implementation
+}
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 4: CONCURRENCY & PERSISTENCE -->
+    <section class="slide">
+      <div class="slide-title">Concurrency & Zero-Dependency Persistence</div>
+      <div class="slide-subtitle">Production-grade safety under concurrent multi-threaded execution</div>
+      <div class="grid-2">
+        <div class="card">
+          <h3>Thread-Safety & Race Condition Immunity</h3>
+          <ul>
+            <li><code>AtomicInteger</code> for lock-free sequence ID generation (verified in TC-16 under 10 parallel threads).</li>
+            <li><code>ConcurrentHashMap</code> for high-concurrency patient/doctor queries.</li>
+            <li><code>Collections.synchronizedMap</code> for order-preserving appointment queues.</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3>Graceful Shutdown & Snapshot Engine</h3>
+          <ul>
+            <li><code>FilePersistenceService</code> serializes database snapshots without SQL drivers.</li>
+            <li><code>Runtime.getRuntime().addShutdownHook(...)</code> ensures state is automatically saved even if terminated via Ctrl+C.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 5: TEST SUITE -->
+    <section class="slide">
+      <div class="slide-title">Automated Verification Suite (20/20 PASS)</div>
+      <div class="slide-subtitle">Zero-dependency automated assertion engine verifying all edge cases</div>
+      <div class="grid-2">
+        <div class="card">
+          <h3>Functional & Security Test Coverage</h3>
+          <ul>
+            <li><strong>TC-01 to TC-05:</strong> Appointment requests, past-date guards, approval/rejection state lock.</li>
+            <li><strong>TC-06 to TC-10:</strong> Consultation recording, auto follow-up, duplicate consult prevention.</li>
+            <li><strong>TC-11 to TC-16:</strong> Clinical analytics, doctor history, OOP polymorphism, Atomic concurrency.</li>
+            <li><strong>TC-17 to TC-20:</strong> Slot collision guard, appointment cancellation, medical billing & GST.</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3>Fast Verification Command</h3>
+          <div class="code-box">
+javac -d out src/exception/*.java src/model/*.java \
+      src/repository/*.java src/service/*.java \
+      src/ui/*.java src/*.java
+
+java -cp out SystemWorkflowTest
+          </div>
+          <p style="margin-top:12px; color:#34d399; font-weight:700;">✔ ALL 20 TESTS PASSED (100% Pass Rate)</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 6: DEMO COMMANDS -->
+    <section class="slide">
+      <div class="slide-title">Demonstration Commands for Evaluator</div>
+      <div class="slide-subtitle">Execute live directly in any standard terminal</div>
+      <div class="grid-3">
+        <div class="card">
+          <h3>1. Automated Demo</h3>
+          <p>Runs the 10-stage colored presentation walkthrough:</p>
+          <div class="code-box">java -cp out Main --demo</div>
+        </div>
+        <div class="card">
+          <h3>2. Interactive Console</h3>
+          <p>Launch patient & doctor terminal interfaces:</p>
+          <div class="code-box">java -cp out Main</div>
+        </div>
+        <div class="card">
+          <h3>3. Web Presentation</h3>
+          <p>Launch interactive visual simulator:</p>
+          <div class="code-box">start web/index.html</div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="counter" id="slide-num-bottom">Slide 1 of 6</div>
+    <div class="controls">
+      <button class="btn btn-outline" id="btn-prev" onclick="changeSlide(-1)">◀ Previous</button>
+      <button class="btn" id="btn-next" onclick="changeSlide(1)">Next ▶</button>
+    </div>
+  </footer>
+
+  <script>
+    const slides = document.querySelectorAll('.slide');
+    let currentSlide = 0;
+
+    function showSlide(n) {
+      slides[currentSlide].classList.remove('active');
+      currentSlide = (n + slides.length) % slides.length;
+      slides[currentSlide].classList.add('active');
+      const counterText = `Slide ${currentSlide + 1} of ${slides.length}`;
+      document.getElementById('slide-num-top').textContent = counterText;
+      document.getElementById('slide-num-bottom').textContent = counterText;
+    }
+
+    function changeSlide(dir) {
+      showSlide(currentSlide + dir);
+    }
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowRight' || e.key === ' ') changeSlide(1);
+      if (e.key === 'ArrowLeft') changeSlide(-1);
+    });
+  </script>
+</body>
+</html>
+

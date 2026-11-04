@@ -16,9 +16,11 @@ public class InMemoryRepository implements IDataRepository {
     // LinkedHashMap wrapped in Collections.synchronizedMap to maintain chronological insertion order safely
     private final Map<Integer, Appointment> appointments = Collections.synchronizedMap(new LinkedHashMap<>());
     private final List<Consultation> consultations = Collections.synchronizedList(new ArrayList<>());
+    private final List<Invoice> invoices = Collections.synchronizedList(new ArrayList<>());
 
     private final AtomicInteger nextAppointmentIdSequence = new AtomicInteger(1);
     private final AtomicInteger nextConsultationIdSequence = new AtomicInteger(1);
+    private final AtomicInteger nextInvoiceIdSequence = new AtomicInteger(1001);
 
     // ---- patients / doctors ----
     @Override
@@ -96,5 +98,35 @@ public class InMemoryRepository implements IDataRepository {
         synchronized (consultations) {
             return new ArrayList<>(consultations); 
         }
+    }
+
+    // ---- invoices ----
+    @Override
+    public int nextInvoiceId() {
+        return nextInvoiceIdSequence.getAndIncrement();
+    }
+
+    @Override
+    public void saveInvoice(Invoice invoice) {
+        invoices.add(invoice);
+    }
+
+    @Override
+    public List<Invoice> getAllInvoices() {
+        synchronized (invoices) {
+            return new ArrayList<>(invoices);
+        }
+    }
+
+    @Override
+    public Invoice getInvoiceByConsultationId(int consultationId) {
+        synchronized (invoices) {
+            for (Invoice inv : invoices) {
+                if (inv.getConsultation().getConsultationId() == consultationId) {
+                    return inv;
+                }
+            }
+        }
+        throw new NotFoundException("No billing invoice found for consultation #" + consultationId);
     }
 }

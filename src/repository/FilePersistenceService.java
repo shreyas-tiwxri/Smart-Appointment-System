@@ -3,6 +3,7 @@ package repository;
 import model.Appointment;
 import model.Consultation;
 import model.Doctor;
+import model.Invoice;
 import model.Patient;
 
 import java.io.File;
@@ -22,6 +23,7 @@ import java.util.List;
 public class FilePersistenceService {
     private static final String DATA_DIR = "records";
     private static final String PRESCRIPTION_DIR = "records/prescriptions";
+    private static final String INVOICE_DIR = "records/invoices";
     private static final String AUDIT_LOG_FILE = "records/system_audit_log.txt";
     private static final DateTimeFormatter FMT = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss");
 
@@ -33,6 +35,7 @@ public class FilePersistenceService {
         try {
             Files.createDirectories(Paths.get(DATA_DIR));
             Files.createDirectories(Paths.get(PRESCRIPTION_DIR));
+            Files.createDirectories(Paths.get(INVOICE_DIR));
         } catch (IOException e) {
             System.err.println("Warning: Unable to create records directory: " + e.getMessage());
         }
@@ -71,6 +74,26 @@ public class FilePersistenceService {
     }
 
     /**
+     * Saves an official medical billing receipt to the local disk.
+     */
+    public File saveInvoiceReceipt(Invoice invoice) {
+        initDirectories();
+        String filename = String.format("%s/%s_Patient%d.txt",
+                INVOICE_DIR,
+                invoice.getInvoiceId(),
+                invoice.getConsultation().getAppointment().getPatient().getPatientId());
+        File file = new File(filename);
+        try (PrintWriter pw = new PrintWriter(new FileWriter(file))) {
+            pw.print(invoice.generateReceipt());
+            logAudit("Exported Medical Invoice " + invoice.getInvoiceId() + " to " + filename);
+            return file;
+        } catch (IOException e) {
+            System.err.println("Failed to write invoice: " + e.getMessage());
+            return null;
+        }
+    }
+
+    /**
      * Exports a complete human-readable diagnostic snapshot of the repository state.
      */
     public File exportDatabaseSnapshot(IDataRepository repo) {
@@ -90,7 +113,8 @@ public class FilePersistenceService {
 
             pw.println("\n--- REGISTERED DOCTORS ---");
             for (Doctor d : repo.getAllDoctors()) {
-                pw.printf("ID: %-4d | Name: Dr. %-21s | Specialty: %s\n", d.getDoctorId(), d.getName(), d.getSpecialty());
+                pw.printf("ID: %-4d | Name: Dr. %-21s | Specialty: %-25s | Fee: ₹%.2f\n",
+                        d.getDoctorId(), d.getName(), d.getSpecialty(), d.getConsultationFee());
             }
 
             pw.println("\n--- APPOINTMENTS RECORD ---");
@@ -115,8 +139,18 @@ public class FilePersistenceService {
                 }
             }
 
+            pw.println("\n--- MEDICAL BILLING & INVOICES ---");
+            List<Invoice> invoices = repo.getAllInvoices();
+            if (invoices.isEmpty()) {
+                pw.println("No invoices issued.");
+            } else {
+                for (Invoice inv : invoices) {
+                    pw.println(inv.toString());
+                }
+            }
+
             pw.println("\n================================================================================");
-            pw.println("End of Snapshot. Total Appts: " + appts.size() + ", Total Consultations: " + consults.size());
+            pw.println("End of Snapshot. Total Appts: " + appts.size() + ", Consultations: " + consults.size() + ", Invoices: " + invoices.size());
             pw.println("================================================================================");
 
             logAudit("Exported complete database snapshot to " + filename);
@@ -127,4 +161,3 @@ public class FilePersistenceService {
         }
     }
 }
-

@@ -1,16 +1,18 @@
 import exception.InvalidInputException;
 import exception.InvalidStateException;
-
 import model.Appointment;
 import model.AppointmentStatus;
 import model.Consultation;
 import model.Doctor;
 import model.DoctorStats;
+import model.Invoice;
+import model.NotificationEvent;
 import model.Patient;
 import repository.FilePersistenceService;
 import repository.InMemoryRepository;
 import service.AppointmentService;
 import service.ConsultationService;
+import service.NotificationService;
 
 import java.io.File;
 import java.time.LocalDateTime;
@@ -20,7 +22,7 @@ import java.util.List;
 /**
  * Automated demo script and presentation runner.
  * Demonstrates the full clinical lifecycle, Member 1 (Mohit) Patient Portal,
- * Member 2 (Shreyas) Doctor Analytics & Prescription Engine, and File Persistence.
+ * Member 2 (Shreyas) Doctor Analytics, Invoicing, Slot Collision Prevention, and File Persistence.
  */
 public class DemoRunner {
     private static final DateTimeFormatter FMT = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm");
@@ -43,14 +45,15 @@ public class DemoRunner {
 
         InMemoryRepository repo = new InMemoryRepository();
         FilePersistenceService persistenceService = new FilePersistenceService();
-        AppointmentService appointmentService = new AppointmentService(repo);
-        ConsultationService consultationService = new ConsultationService(repo);
+        NotificationService notificationService = new NotificationService();
+        AppointmentService appointmentService = new AppointmentService(repo, notificationService);
+        ConsultationService consultationService = new ConsultationService(repo, notificationService);
 
         // Stage 1: Seeding
         header("STAGE 1: System Initialization & Polymorphic Domain Entities");
         Patient aman = new Patient(1, "Aman Sharma", "+91 98765 00001");
         Patient riya = new Patient(2, "Riya Patel", "+91 98765 00002");
-        Doctor drSharma = new Doctor(1, "Rajesh Sharma", "Senior General Physician");
+        Doctor drSharma = new Doctor(1, "Rajesh Sharma", "Senior General Physician", 600.0);
 
         repo.addPatient(aman);
         repo.addPatient(riya);
@@ -82,7 +85,7 @@ public class DemoRunner {
         System.out.println(YELLOW + "  ✔ Doctor action: REJECTED with Reason -> " + RESET + rejectedApptTest);
 
         // Stage 4: Doctor Records Consultation & Next Visit Date
-        header("STAGE 4: Consultation & Automatic Follow-up Scheduling");
+        header("STAGE 4: Consultation, Automatic Follow-up Scheduling & Invoicing");
         System.out.println("  Patient attends the visit. Doctor records diagnosis, prescription, & next visit...");
         String diagnosis = "Acute Upper Respiratory Infection & Seasonal Asthma flare-up";
         String prescription = "1. Tab Amoxicillin 500mg TDS x 5 days\n"
@@ -94,7 +97,8 @@ public class DemoRunner {
                 approvedAppt.getAppointmentId(),
                 diagnosis,
                 prescription,
-                nextVisitTime
+                nextVisitTime,
+                "UPI Online Payment"
         );
 
         System.out.println(GREEN + "  ✔ Consultation Record Created (ID #" + consultation.getConsultationId() + "):" + RESET);
@@ -136,7 +140,7 @@ public class DemoRunner {
         }
 
         // Stage 6: Business Rules & Validation Integrity
-        header("STAGE 6: Enforcing Clinical Business Rules & Custom Exceptions");
+        header("STAGE 6: Enforcing Clinical Business Rules & Validation Guards");
 
         // Rule 1: No past dates
         testRule("Rule 1: Past appointment date rejected", () -> {
@@ -154,13 +158,18 @@ public class DemoRunner {
         }, InvalidStateException.class);
 
         // Rule 4: Next visit must be strictly after appointment date
-        LocalDateTime futureTime = LocalDateTime.now().plusDays(3);
+        LocalDateTime futureTime = LocalDateTime.now().plusDays(3).withHour(14).withMinute(0);
         Appointment testAppt = appointmentService.requestAppointment(riya.getPatientId(), drSharma.getDoctorId(), futureTime);
         appointmentService.updateDecision(testAppt.getAppointmentId(), true);
 
         testRule("Rule 4: Next visit before appointment date rejected", () -> {
             consultationService.recordConsultation(testAppt.getAppointmentId(), "Flu", "Rest", futureTime.minusHours(2));
         }, InvalidInputException.class);
+
+        // Rule 5: Slot Collision Guard (Double booking within 30 minutes prevented)
+        testRule("Rule 5: Double-booking within 30-minute buffer rejected", () -> {
+            appointmentService.requestAppointment(riya.getPatientId(), drSharma.getDoctorId(), futureTime.plusMinutes(15));
+        }, InvalidStateException.class);
 
         // Stage 7: Doctor Analytics & Clinical Workload
         header("STAGE 7: Doctor Clinical Workload & Analytics (Member 2 Module - Shreyas)");
@@ -174,8 +183,18 @@ public class DemoRunner {
         System.out.println("  - Completed Consultations: " + stats.getCompletedConsultations());
         System.out.println("  - Auto Follow-ups Booked:  " + stats.getScheduledFollowUps());
 
-        // Stage 8: Prescription Generation & Local File Persistence
-        header("STAGE 8: Digital Prescription Generation & Zero-Dependency File Persistence");
+        // Stage 8: Medical Invoicing & Clinical Billing
+        header("STAGE 8: Automated Medical Invoicing & Billing Receipts");
+        Invoice invoice = consultationService.getInvoiceByConsultationId(consultation.getConsultationId());
+        System.out.println(GREEN + "  ✔ Clinical Billing Receipt Generated:" + RESET);
+        System.out.println(invoice.generateReceipt());
+        File invFile = persistenceService.saveInvoiceReceipt(invoice);
+        if (invFile != null) {
+            System.out.println(GREEN + "  ✔ Invoice receipt exported to: " + RESET + invFile.getAbsolutePath());
+        }
+
+        // Stage 9: Prescription Generation & Local File Persistence
+        header("STAGE 9: Digital Prescription Generation & Local File Persistence");
         File rxFile = persistenceService.savePrescriptionSlip(consultation);
         System.out.println(GREEN + "  ✔ Formatted Clinical Prescription Slip Generated:" + RESET);
         System.out.println(consultation.generatePrescriptionSlip());
@@ -187,9 +206,17 @@ public class DemoRunner {
             System.out.println(GREEN + "  ✔ Local database snapshot archived:   " + RESET + snap.getAbsolutePath());
         }
 
+        // Stage 10: Event Notification Dispatcher (Observer Pattern)
+        header("STAGE 10: Real-Time Event Notifications (Observer Pattern)");
+        List<NotificationEvent> patientAlerts = notificationService.getNotificationsForPatient(aman.getPatientId());
+        System.out.println("  Recent Notification Alerts for Patient Aman (Total: " + patientAlerts.size() + "):");
+        for (NotificationEvent ev : patientAlerts) {
+            System.out.println("    " + ev);
+        }
+
         // Summary Banner
         System.out.println("\n" + BOLD + GREEN + "=================================================================" + RESET);
-        System.out.println(BOLD + GREEN + "  ✔ ALL 8 WORKFLOW STAGES & CORE SYSTEM VALIDATIONS VERIFIED!    " + RESET);
+        System.out.println(BOLD + GREEN + "  ✔ ALL 10 CLINICAL STAGES & VALIDATION GUARDS 100% VERIFIED!    " + RESET);
         System.out.println(BOLD + GREEN + "=================================================================" + RESET);
         System.out.println("Ready for Evaluator / Teacher Demonstration.\n");
     }

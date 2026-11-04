@@ -30,5 +30,10 @@ public interface IDataRepository {
     int nextConsultationId();
     void saveConsultation(Consultation c);
     List<Consultation> getAllConsultations();
-}
 
+    // Invoicing Operations
+    int nextInvoiceId();
+    void saveInvoice(Invoice invoice);
+    List<Invoice> getAllInvoices();
+    Invoice getInvoiceByConsultationId(int consultationId);
+}

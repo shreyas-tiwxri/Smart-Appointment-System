@@ -12,7 +12,7 @@ import java.util.List;
 /**
  * Interactive CLI menu for Patients.
  * Maintained by Member 1 (Mohit Srivastav).
- * Provides booking, appointment tracking, and clinical consultation reviews.
+ * Provides booking, tracking, cancellation, medical invoices, and notification alerts.
  */
 public class PatientMenu {
     private final IDataRepository repo;
@@ -55,9 +55,12 @@ public class PatientMenu {
             System.out.println("             PATIENT APPOINTMENT & HEALTH PORTAL       ");
             System.out.println("=======================================================");
             System.out.println("1. Request New Doctor Appointment");
-            System.out.println("2. View My Appointments (Track Pending, Approved, Follow-up)");
-            System.out.println("3. View Medical Diagnoses & Prescriptions");
-            System.out.println("4. Download / Print Official Prescription Slip");
+            System.out.println("2. View My Appointments (Track Status & Follow-ups)");
+            System.out.println("3. Cancel or Reschedule an Appointment");
+            System.out.println("4. View Medical Diagnoses & Prescriptions");
+            System.out.println("5. Download / Print Official Prescription Slip");
+            System.out.println("6. View Medical Invoices & Billing Receipts");
+            System.out.println("7. View Notification & Status Alerts");
             System.out.println("0. Back to Main Menu");
             System.out.println("-------------------------------------------------------");
 
@@ -67,9 +70,12 @@ public class PatientMenu {
                 switch (ch) {
                     case 1 -> requestAppointment(patientId);
                     case 2 -> viewAppointments(patientId);
-                    case 3 -> viewConsultations(patientId);
-                    case 4 -> downloadPrescriptionSlip(patientId);
-                    default -> System.out.println("Invalid choice. Please enter 0-4.");
+                    case 3 -> cancelOrReschedule(patientId);
+                    case 4 -> viewConsultations(patientId);
+                    case 5 -> downloadPrescriptionSlip(patientId);
+                    case 6 -> viewInvoices(patientId);
+                    case 7 -> viewNotifications(patientId);
+                    default -> System.out.println("Invalid choice. Please enter 0-7.");
                 }
             } catch (RuntimeException e) {
                 System.out.println("Error: " + e.getMessage());
@@ -99,6 +105,37 @@ public class PatientMenu {
             return;
         }
         list.forEach(a -> System.out.println("  -> " + a));
+    }
+
+    private void cancelOrReschedule(int patientId) {
+        List<Appointment> list = appointmentService.getAppointmentsForPatient(patientId);
+        if (list.isEmpty()) {
+            System.out.println("No appointments available to modify.");
+            return;
+        }
+        System.out.println("\n[Select Appointment to Cancel or Reschedule]");
+        for (Appointment a : list) {
+            if (a.getStatus() == AppointmentStatus.PENDING || a.getStatus() == AppointmentStatus.APPROVED) {
+                System.out.println("  -> " + a);
+            }
+        }
+
+        int apptId = in.readInt("Enter Appointment ID: ");
+        String action = in.readLine("Choose action - Cancel (c) or Reschedule (r)? ").toLowerCase();
+
+        if (action.equals("c")) {
+            String reason = in.readLine("Enter reason for cancellation: ");
+            Appointment cancelled = appointmentService.cancelAppointment(apptId, reason);
+            System.out.println("✔ Appointment successfully cancelled: " + cancelled);
+            persistenceService.logAudit("Patient #" + patientId + " cancelled Appointment #" + apptId);
+        } else if (action.equals("r")) {
+            var newDt = in.readDateTime("Enter new preferred date & time");
+            Appointment rescheduled = appointmentService.rescheduleAppointment(apptId, newDt);
+            System.out.println("✔ Appointment successfully rescheduled: " + rescheduled);
+            persistenceService.logAudit("Patient #" + patientId + " rescheduled Appointment #" + apptId + " to " + newDt);
+        } else {
+            System.out.println("Invalid choice. Enter 'c' or 'r'.");
+        }
     }
 
     private void viewConsultations(int patientId) {
@@ -147,6 +184,31 @@ public class PatientMenu {
         File f = persistenceService.savePrescriptionSlip(selected);
         if (f != null) {
             System.out.println("Prescription slip archived to disk: " + f.getAbsolutePath());
+        }
+    }
+
+    private void viewInvoices(int patientId) {
+        System.out.println("\n[Medical Invoices & Payment Receipts]");
+        List<Invoice> invoices = consultationService.getInvoicesForPatient(patientId);
+        if (invoices.isEmpty()) {
+            System.out.println("  No invoices issued yet.");
+            return;
+        }
+        for (Invoice inv : invoices) {
+            System.out.println(inv.generateReceipt());
+            persistenceService.saveInvoiceReceipt(inv);
+        }
+    }
+
+    private void viewNotifications(int patientId) {
+        System.out.println("\n[Patient Real-Time Notification Alerts]");
+        List<NotificationEvent> events = appointmentService.getNotificationService().getNotificationsForPatient(patientId);
+        if (events.isEmpty()) {
+            System.out.println("  No new notification alerts.");
+            return;
+        }
+        for (NotificationEvent ev : events) {
+            System.out.println("  " + ev);
         }
     }
 }

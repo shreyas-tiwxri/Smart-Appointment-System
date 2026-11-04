@@ -28,7 +28,7 @@
         <button class="nav-tab active" data-tab="simulator">Live Simulator</button>
         <button class="nav-tab" data-tab="architecture">UML & Architecture</button>
         <button class="nav-tab" data-tab="concepts">Core Java Matrix</button>
-        <button class="nav-tab" data-tab="tests">Test Suite (16/16)</button>
+        <button class="nav-tab" data-tab="tests">Test Suite (20/20)</button>
         <button class="nav-tab" data-tab="viva">Viva Q&A</button>
       </div>
     </div>
@@ -220,6 +220,25 @@
               <p>Both <code>Patient</code> and <code>Doctor</code> extend the abstract base class <code>Person</code>, which defines shared identity state and abstract methods <code>getRole()</code> and <code>getSummaryDetails()</code>. This demonstrates abstraction, inheritance, and dynamic runtime polymorphism.</p>
             </div>
           </div>
+          <div class="viva-item">
+            <div class="viva-question">
+              <span>Q9. How does the system prevent doctor double-booking and slot clashes?</span>
+              <span class="chevron">?</span>
+            </div>
+            <div class="viva-answer">
+              <p>In <code>AppointmentService.checkSlotAvailability()</code>, the system computes <code>Duration.between(existing.getDateTime(), requestedTime).abs().toMinutes()</code> across all active appointments for that practitioner. If another appointment exists within 30 minutes, it immediately aborts with an <code>InvalidStateException</code>, guaranteeing a collision-free clinical consultation buffer.</p>
+            </div>
+          </div>
+
+          <div class="viva-item">
+            <div class="viva-question">
+              <span>Q10. How are medical invoices and real-time alerts implemented?</span>
+              <span class="chevron">?</span>
+            </div>
+            <div class="viva-answer">
+              <p>Upon consultation completion, <code>ConsultationService</code> computes itemized healthcare charges including doctor consultation fee and 5% GST, generating an official <code>Invoice</code> stored in <code>records/invoices/</code>. Simultaneously, an event-driven <code>NotificationService</code> (Observer Pattern) dispatches state alerts to patient and doctor inboxes without coupling UI to services.</p>
+            </div>
+          </div>
         </div>
       </div>
     </section>
@@ -379,6 +398,25 @@
               <p>Both <code>Patient</code> and <code>Doctor</code> extend the abstract base class <code>Person</code>, which defines shared identity state and abstract methods <code>getRole()</code> and <code>getSummaryDetails()</code>. This demonstrates abstraction, inheritance, and dynamic runtime polymorphism.</p>
             </div>
           </div>
+          <div class="viva-item">
+            <div class="viva-question">
+              <span>Q9. How does the system prevent doctor double-booking and slot clashes?</span>
+              <span class="chevron">?</span>
+            </div>
+            <div class="viva-answer">
+              <p>In <code>AppointmentService.checkSlotAvailability()</code>, the system computes <code>Duration.between(existing.getDateTime(), requestedTime).abs().toMinutes()</code> across all active appointments for that practitioner. If another appointment exists within 30 minutes, it immediately aborts with an <code>InvalidStateException</code>, guaranteeing a collision-free clinical consultation buffer.</p>
+            </div>
+          </div>
+
+          <div class="viva-item">
+            <div class="viva-question">
+              <span>Q10. How are medical invoices and real-time alerts implemented?</span>
+              <span class="chevron">?</span>
+            </div>
+            <div class="viva-answer">
+              <p>Upon consultation completion, <code>ConsultationService</code> computes itemized healthcare charges including doctor consultation fee and 5% GST, generating an official <code>Invoice</code> stored in <code>records/invoices/</code>. Simultaneously, an event-driven <code>NotificationService</code> (Observer Pattern) dispatches state alerts to patient and doctor inboxes without coupling UI to services.</p>
+            </div>
+          </div>
         </div>
       </div>
     </section>
@@ -474,6 +512,25 @@
               <p>Both <code>Patient</code> and <code>Doctor</code> extend the abstract base class <code>Person</code>, which defines shared identity state and abstract methods <code>getRole()</code> and <code>getSummaryDetails()</code>. This demonstrates abstraction, inheritance, and dynamic runtime polymorphism.</p>
             </div>
           </div>
+          <div class="viva-item">
+            <div class="viva-question">
+              <span>Q9. How does the system prevent doctor double-booking and slot clashes?</span>
+              <span class="chevron">?</span>
+            </div>
+            <div class="viva-answer">
+              <p>In <code>AppointmentService.checkSlotAvailability()</code>, the system computes <code>Duration.between(existing.getDateTime(), requestedTime).abs().toMinutes()</code> across all active appointments for that practitioner. If another appointment exists within 30 minutes, it immediately aborts with an <code>InvalidStateException</code>, guaranteeing a collision-free clinical consultation buffer.</p>
+            </div>
+          </div>
+
+          <div class="viva-item">
+            <div class="viva-question">
+              <span>Q10. How are medical invoices and real-time alerts implemented?</span>
+              <span class="chevron">?</span>
+            </div>
+            <div class="viva-answer">
+              <p>Upon consultation completion, <code>ConsultationService</code> computes itemized healthcare charges including doctor consultation fee and 5% GST, generating an official <code>Invoice</code> stored in <code>records/invoices/</code>. Simultaneously, an event-driven <code>NotificationService</code> (Observer Pattern) dispatches state alerts to patient and doctor inboxes without coupling UI to services.</p>
+            </div>
+          </div>
         </div>
       </div>
     </section>
@@ -485,7 +542,7 @@
           <div class="header-with-action">
             <div>
               <h2>Zero-Dependency Automated Test Suite</h2>
-              <p>16 automated test cases verifying functional rules, boundaries, and security guards.</p>
+              <p>20 automated test cases verifying functional rules, boundaries, and security guards.</p>
             </div>
             <button id="btn-run-tests" class="btn btn-primary">⚡ Run All Tests in Browser</button>
           </div>
@@ -493,7 +550,7 @@
 
         <div class="test-results-summary">
           <div class="summary-stat">
-            <span class="stat-value" id="test-pass-count">16</span>
+            <span class="stat-value" id="test-pass-count">20</span>
             <span class="stat-label">Tests Passing</span>
           </div>
           <div class="summary-stat">
@@ -552,6 +609,25 @@
             </div>
             <div class="viva-answer">
               <p>Both <code>Patient</code> and <code>Doctor</code> extend the abstract base class <code>Person</code>, which defines shared identity state and abstract methods <code>getRole()</code> and <code>getSummaryDetails()</code>. This demonstrates abstraction, inheritance, and dynamic runtime polymorphism.</p>
+            </div>
+          </div>
+          <div class="viva-item">
+            <div class="viva-question">
+              <span>Q9. How does the system prevent doctor double-booking and slot clashes?</span>
+              <span class="chevron">?</span>
+            </div>
+            <div class="viva-answer">
+              <p>In <code>AppointmentService.checkSlotAvailability()</code>, the system computes <code>Duration.between(existing.getDateTime(), requestedTime).abs().toMinutes()</code> across all active appointments for that practitioner. If another appointment exists within 30 minutes, it immediately aborts with an <code>InvalidStateException</code>, guaranteeing a collision-free clinical consultation buffer.</p>
+            </div>
+          </div>
+
+          <div class="viva-item">
+            <div class="viva-question">
+              <span>Q10. How are medical invoices and real-time alerts implemented?</span>
+              <span class="chevron">?</span>
+            </div>
+            <div class="viva-answer">
+              <p>Upon consultation completion, <code>ConsultationService</code> computes itemized healthcare charges including doctor consultation fee and 5% GST, generating an official <code>Invoice</code> stored in <code>records/invoices/</code>. Simultaneously, an event-driven <code>NotificationService</code> (Observer Pattern) dispatches state alerts to patient and doctor inboxes without coupling UI to services.</p>
             </div>
           </div>
         </div>
@@ -643,6 +719,25 @@
             </div>
             <div class="viva-answer">
               <p>Both <code>Patient</code> and <code>Doctor</code> extend the abstract base class <code>Person</code>, which defines shared identity state and abstract methods <code>getRole()</code> and <code>getSummaryDetails()</code>. This demonstrates abstraction, inheritance, and dynamic runtime polymorphism.</p>
+            </div>
+          </div>
+          <div class="viva-item">
+            <div class="viva-question">
+              <span>Q9. How does the system prevent doctor double-booking and slot clashes?</span>
+              <span class="chevron">?</span>
+            </div>
+            <div class="viva-answer">
+              <p>In <code>AppointmentService.checkSlotAvailability()</code>, the system computes <code>Duration.between(existing.getDateTime(), requestedTime).abs().toMinutes()</code> across all active appointments for that practitioner. If another appointment exists within 30 minutes, it immediately aborts with an <code>InvalidStateException</code>, guaranteeing a collision-free clinical consultation buffer.</p>
+            </div>
+          </div>
+
+          <div class="viva-item">
+            <div class="viva-question">
+              <span>Q10. How are medical invoices and real-time alerts implemented?</span>
+              <span class="chevron">?</span>
+            </div>
+            <div class="viva-answer">
+              <p>Upon consultation completion, <code>ConsultationService</code> computes itemized healthcare charges including doctor consultation fee and 5% GST, generating an official <code>Invoice</code> stored in <code>records/invoices/</code>. Simultaneously, an event-driven <code>NotificationService</code> (Observer Pattern) dispatches state alerts to patient and doctor inboxes without coupling UI to services.</p>
             </div>
           </div>
         </div>

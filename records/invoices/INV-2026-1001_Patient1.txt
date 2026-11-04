@@ -1,0 +1,17 @@
+================================================================================
+                       SMART CLINIC MEDICAL INVOICE & RECEIPT                   
+================================================================================
+Invoice Number  : INV-2026-1001             Date: 04-11-2026 12:53
+Consultation Ref: #1                        Appointment Ref: #1
+--------------------------------------------------------------------------------
+PATIENT NAME    : Aman Sharma                    ID  : #1
+CONTACT NUMBER  : +91 98765 00001                Type: Primary Visit
+ATTENDING DOCTOR: Dr. Rajesh Sharma              Specialty: Senior General Physician
+--------------------------------------------------------------------------------
+ITEMIZED CLINICAL CHARGES:
+  1. Specialist Consultation Fee (Dr. Rajesh Sharma  ) : ₹  600.00
+  2. Healthcare Service GST (5%)                          : ₹   30.00
+--------------------------------------------------------------------------------
+TOTAL AMOUNT PAID                                        : ₹  630.00
+PAYMENT STATUS : [PAID - UPI Online Payment] (Confirmed)
+================================================================================
