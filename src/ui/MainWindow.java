@@ -22,14 +22,15 @@ import java.util.List;
  *
  * Developed for Course Evaluation by Mohit Srivastav (M1) & Shreyas Tiwari (M2).
  */
-public class MainWindow extends JFrame {
+public final class MainWindow extends JFrame {
+    private static final long serialVersionUID = 1L;
     private static final DateTimeFormatter FMT = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm");
 
-    private final InMemoryRepository repo;
-    private final AppointmentService appointmentService;
-    private final ConsultationService consultationService;
-    private final FilePersistenceService persistenceService;
-    private final NotificationService notificationService;
+    private final transient InMemoryRepository repo;
+    private final transient AppointmentService appointmentService;
+    private final transient ConsultationService consultationService;
+    private final transient FilePersistenceService persistenceService;
+    private final transient NotificationService notificationService;
 
     // UI Components
     private JComboBox<String> patientCombo;
@@ -276,7 +277,7 @@ public class MainWindow extends JFrame {
         }
     }
 
-    public void refreshTables() {
+    public final void refreshTables() {
         appointmentTableModel.setRowCount(0);
         for (Appointment a : repo.getAllAppointments()) {
             appointmentTableModel.addRow(new Object[]{

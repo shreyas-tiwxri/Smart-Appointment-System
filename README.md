@@ -54,10 +54,14 @@ src/
 │   ├── AppointmentService.java      # Queue management, slot collision guard & doctor analytics
 │   ├── ConsultationService.java     # Clinical consultation recording & invoicing
 │   └── NotificationService.java     # Real-time event dispatcher (Observer Pattern)
-└── ui/                              # Presentation Layer (Console CLI)
-    ├── PatientMenu.java             # Patient portal, appointment modification & billing
-    ├── DoctorMenu.java              # Doctor workspace, analytics, decisioning & revenue
-    └── InputHelper.java             # Date parsing, input sanitation & exception wrappers
+├── ui/                              # Presentation Layer (Console CLI & Desktop GUI)
+│   ├── MainWindow.java              # 100% Core Java Swing Multi-Tab Desktop Application
+│   ├── PatientMenu.java             # Patient portal, appointment modification & billing
+│   ├── DoctorMenu.java              # Doctor workspace, analytics, decisioning & revenue
+│   └── InputHelper.java             # Date parsing, input sanitation & exception wrappers
+└── util/                            # Utilities & Configuration
+    ├── Logger.java                  # ANSI colour-coded diagnostic logger with timestamping
+    └── Config.java                  # Centralised configuration loader (slot buffer, GST, formats)
 docs/
 ├── PRESENTATION_SLIDES.html         # Interactive slide deck for evaluator defense
 ├── TEACHER_PROGRESS_REPORT.md       # Comprehensive milestone report with architecture & metrics
@@ -97,8 +101,16 @@ java -cp out Main
 - Select `2` for Doctor Clinical Workspace (Dr. Sharma: ID 1, Dr. Verma: ID 2).
 - Select `3` for 1-Click Automated Presentation Walkthrough (10 Stages).
 - Select `4` to export system diagnostic database snapshot to disk.
+- Select `5` to launch Core Java Swing Desktop Application.
 
-### 4. Interactive Presentation Slides (For Teacher Viva)
+### 4. Launch Desktop GUI Application (100% Core Java Swing)
+```bash
+java -cp out Main --gui
+# OR directly
+java -cp out ui.MainWindow
+```
+
+### 5. Interactive Presentation Slides (For Teacher Viva)
 Open [`docs/PRESENTATION_SLIDES.html`](docs/PRESENTATION_SLIDES.html) in your browser:
 ```bash
 start docs/PRESENTATION_SLIDES.html   # On Windows
