@@ -7,16 +7,24 @@
 const state = {
   patients: [
     { id: 1, name: "Aman Sharma", contact: "+91 98765 00001" },
-    { id: 2, name: "Riya Patel", contact: "+91 98765 00002" }
+    { id: 2, name: "Riya Patel", contact: "+91 98765 00002" },
+    { id: 3, name: "Kabir Mehta", contact: "+91 98765 00003" },
+    { id: 4, name: "Sneha Reddy", contact: "+91 98765 00004" },
+    { id: 5, name: "Vikram Malhotra", contact: "+91 98765 00005" }
   ],
   doctors: [
-    { id: 1, name: "Dr. Rajesh Sharma", specialty: "Senior General Physician" }
+    { id: 1, name: "Dr. Rajesh Sharma", specialty: "Senior General Physician", fee: 600 },
+    { id: 2, name: "Dr. Pooja Verma", specialty: "Specialist Cardiologist", fee: 850 },
+    { id: 3, name: "Dr. Arjun Kapoor", specialty: "Orthopedic Surgeon", fee: 750 },
+    { id: 4, name: "Dr. Ananya Iyer", specialty: "Consultant Neurologist", fee: 900 }
   ],
   appointments: [],
   consultations: [],
   nextAppointmentId: 1,
   nextConsultationId: 1,
   selectedPatientId: 1,
+  selectedDoctorId: 1,
+  activeRole: null,
   currentTourStep: 0,
   isTourRunning: false
 };
@@ -201,9 +209,77 @@ function escapeHtml(str) {
     .replace(/"/g, "&quot;");
 }
 
+// --- Role-Based Portal Separation & Navigation ---
+
+function setRoleView(role) {
+  state.activeRole = role;
+  const authGate = document.getElementById("view-auth-gate");
+  const portalsContainer = document.getElementById("view-active-portals");
+  const patientPortal = document.getElementById("view-patient-portal");
+  const doctorPortal = document.getElementById("view-doctor-portal");
+
+  if (!role) {
+    if (authGate) authGate.classList.remove("hidden");
+    if (portalsContainer) portalsContainer.classList.add("hidden");
+    if (patientPortal) patientPortal.classList.add("hidden");
+    if (doctorPortal) doctorPortal.classList.add("hidden");
+    logTelemetry("system", "Session ended. Returned to Common Role Authentication Gateway.");
+    return;
+  }
+
+  if (authGate) authGate.classList.add("hidden");
+  if (portalsContainer) portalsContainer.classList.remove("hidden");
+
+  if (role === "patient") {
+    if (patientPortal) patientPortal.classList.remove("hidden");
+    if (doctorPortal) doctorPortal.classList.add("hidden");
+    updatePatientHeader();
+    renderPatientPortal();
+    logTelemetry("patient", `Signed in to Patient Portal as Patient #${state.selectedPatientId}`);
+  } else if (role === "doctor") {
+    if (patientPortal) patientPortal.classList.add("hidden");
+    if (doctorPortal) doctorPortal.classList.remove("hidden");
+    updateDoctorHeader();
+    renderDoctorPortal();
+    renderConsultationDropdown();
+    const doc = state.doctors.find(d => d.id === state.selectedDoctorId) || state.doctors[0];
+    logTelemetry("doctor", `Signed in to Doctor Clinical Workspace (${doc.name}).`);
+  }
+}
+
+function updatePatientHeader() {
+  const patient = state.patients.find(p => p.id === state.selectedPatientId);
+  const label = document.getElementById("patient-active-label");
+  if (label && patient) {
+    label.textContent = `${patient.name} (ID #${patient.id})`;
+  }
+  const select = document.getElementById("patient-select");
+  if (select) {
+    select.value = state.selectedPatientId;
+  }
+}
+
+function updateDoctorHeader() {
+  const doc = state.doctors.find(d => d.id === state.selectedDoctorId) || state.doctors[0];
+  const label = document.getElementById("doctor-active-label");
+  if (label && doc) {
+    label.innerHTML = `${doc.name} <small>(${doc.specialty} • ID #${doc.id})</small>`;
+  }
+  const select = document.getElementById("doctor-select");
+  if (select) {
+    select.value = state.selectedDoctorId;
+  }
+  const signinDoc = document.getElementById("signin-doctor-select");
+  if (signinDoc) {
+    signinDoc.value = state.selectedDoctorId;
+  }
+}
+
 // --- UI Rendering ---
 
 function render() {
+  updatePatientHeader();
+  updateDoctorHeader();
   renderPatientPortal();
   renderDoctorPortal();
   renderConsultationDropdown();
@@ -261,12 +337,13 @@ function renderPatientPortal() {
 }
 
 function renderDoctorPortal() {
-  const pendingAppts = state.appointments.filter(a => a.status === "PENDING");
+  const docId = state.selectedDoctorId || 1;
+  const pendingAppts = state.appointments.filter(a => a.status === "PENDING" && a.doctor.id === docId);
   document.getElementById("count-doctor-pending").textContent = `${pendingAppts.length} Pending`;
 
   const pendingContainer = document.getElementById("doctor-pending-list");
   if (pendingAppts.length === 0) {
-    pendingContainer.innerHTML = `<div class="empty-state">No pending appointment requests in queue.</div>`;
+    pendingContainer.innerHTML = `<div class="empty-state">No pending appointment requests in queue for this practitioner.</div>`;
   } else {
     pendingContainer.innerHTML = pendingAppts.map(a => `
       <div class="data-card">
@@ -288,9 +365,11 @@ function renderDoctorPortal() {
 }
 
 function renderConsultationDropdown() {
+  const docId = state.selectedDoctorId || 1;
   const select = document.getElementById("select-consult-appt");
   const approvedWithoutConsult = state.appointments.filter(a => {
     if (a.status !== "APPROVED") return false;
+    if (a.doctor.id !== docId) return false;
     const hasConsult = state.consultations.some(c => c.appointmentId === a.id);
     return !hasConsult;
   });
@@ -357,11 +436,11 @@ function runBrowserTests() {
 const tourSteps = [
   {
     title: "Step 1: Patient Aman Requests an Appointment",
-    narration: "Aman Sharma submits an initial request for tomorrow 10:30 AM. Initial state is set to PENDING.",
+    narration: "Switched to <strong>Patient Portal</strong>: Aman Sharma submits an initial request for tomorrow 10:30 AM. Initial state is set to <code>PENDING</code>.",
     action: () => {
       document.querySelector('[data-tab="simulator"]').click();
       state.selectedPatientId = 1;
-      document.getElementById("patient-select").value = "1";
+      setRoleView("patient");
       const tmrw = new Date();
       tmrw.setDate(tmrw.getDate() + 1);
       tmrw.setHours(10, 30, 0, 0);
@@ -371,8 +450,9 @@ const tourSteps = [
   },
   {
     title: "Step 2: Doctor Reviews & Approves Appointment",
-    narration: "Dr. Sharma opens the pending queue and approves Appointment #1. The status transitions from PENDING -> APPROVED.",
+    narration: "Switched to <strong>Doctor Workspace</strong>: Dr. Sharma reviews the triage queue and approves Appointment #1. The status transitions from <code>PENDING</code> -> <code>APPROVED</code>.",
     action: () => {
+      setRoleView("doctor");
       const pending = state.appointments.find(a => a.status === "PENDING");
       if (pending) updateDecision(pending.id, true);
       render();
@@ -380,8 +460,9 @@ const tourSteps = [
   },
   {
     title: "Step 3: Doctor Records Clinical Consultation & Prescription",
-    narration: "Visit completes. Dr. Sharma inputs diagnosis ('Seasonal Allergic Bronchitis') and prescription, then specifies next visit in 14 days.",
+    narration: "In <strong>Doctor Workspace</strong>: Visit completes. Dr. Sharma inputs clinical diagnosis and prescription, then specifies next visit in 14 days.",
     action: () => {
+      setRoleView("doctor");
       const approved = state.appointments.find(a => a.status === "APPROVED" && !state.consultations.some(c => c.appointmentId === a.id));
       if (approved) {
         const next = new Date(approved.dateTime);
@@ -398,8 +479,9 @@ const tourSteps = [
   },
   {
     title: "Step 4: System Automatically Schedules Follow-Up Appointment",
-    narration: "Notice Appointment #2 in Patient's portal! The system generated it automatically with status APPROVED and flag FOLLOW-UP.",
+    narration: "Switched to <strong>Patient Portal</strong>: Notice Appointment #2! The system generated it automatically with status <code>APPROVED</code> and flag <code>AUTO FOLLOW-UP</code>.",
     action: () => {
+      setRoleView("patient");
       render();
       // Switch patient subtab to view consultations
       document.querySelector('[data-subtab="patient-consults"]').click();
@@ -456,25 +538,38 @@ function seedDemoData() {
   state.nextAppointmentId = 1;
   state.nextConsultationId = 1;
 
-  // Initial request by Aman
+  // 1. Aman requests Dr. Rajesh Sharma (General Physician)
   const dt1 = new Date();
   dt1.setDate(dt1.getDate() + 1);
   dt1.setHours(10, 30, 0, 0);
   requestAppointment(1, 1, dt1.toISOString());
 
-  // Initial request by Riya
+  // 2. Riya requests Dr. Rajesh Sharma (General Physician)
   const dt2 = new Date();
   dt2.setDate(dt2.getDate() + 2);
   dt2.setHours(14, 0, 0, 0);
   requestAppointment(2, 1, dt2.toISOString());
 
+  // 3. Kabir requests Dr. Pooja Verma (Specialist Cardiologist)
+  const dt3 = new Date();
+  dt3.setDate(dt3.getDate() + 1);
+  dt3.setHours(11, 0, 0, 0);
+  requestAppointment(3, 2, dt3.toISOString());
+
+  // 4. Sneha requests Dr. Arjun Kapoor (Orthopedic Surgeon)
+  const dt4 = new Date();
+  dt4.setDate(dt4.getDate() + 3);
+  dt4.setHours(15, 30, 0, 0);
+  requestAppointment(4, 3, dt4.toISOString());
+
   render();
-  logTelemetry("success", "System initialized with 2 Patients (Aman, Riya) and 1 Doctor (Dr. Sharma).");
+  logTelemetry("success", "System initialized with 5 Patients and 4 Doctors.");
 }
 
 document.addEventListener("DOMContentLoaded", () => {
   seedDemoData();
   renderTestSuite();
+  setRoleView(null);
 
   // Navigation Tabs
   document.querySelectorAll(".nav-tab").forEach(tab => {
@@ -498,9 +593,95 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   });
 
+  // Role Sign-In Toggle & Form Submit Handlers
+  let selectedRole = "patient";
+  const btnRolePatient = document.getElementById("btn-role-patient");
+  const btnRoleDoctor = document.getElementById("btn-role-doctor");
+  const fieldPatient = document.getElementById("field-patient-user");
+  const fieldDoctor = document.getElementById("field-doctor-user");
+  const btnLoginSubmit = document.getElementById("btn-login-submit");
+
+  function switchRoleToggle(role) {
+    selectedRole = role;
+    if (role === "patient") {
+      if (btnRolePatient) btnRolePatient.classList.add("active");
+      if (btnRoleDoctor) btnRoleDoctor.classList.remove("active");
+      if (fieldPatient) fieldPatient.classList.remove("hidden");
+      if (fieldDoctor) fieldDoctor.classList.add("hidden");
+      if (btnLoginSubmit) {
+        btnLoginSubmit.className = "btn btn-login-action btn-patient-action";
+        btnLoginSubmit.innerHTML = "Sign In as Patient ➔";
+      }
+    } else {
+      if (btnRoleDoctor) btnRoleDoctor.classList.add("active");
+      if (btnRolePatient) btnRolePatient.classList.remove("active");
+      if (fieldDoctor) fieldDoctor.classList.remove("hidden");
+      if (fieldPatient) fieldPatient.classList.add("hidden");
+      if (btnLoginSubmit) {
+        btnLoginSubmit.className = "btn btn-login-action btn-doctor-action";
+        btnLoginSubmit.innerHTML = "Sign In as Doctor ➔";
+      }
+    }
+  }
+
+  if (btnRolePatient) {
+    btnRolePatient.addEventListener("click", () => switchRoleToggle("patient"));
+  }
+  if (btnRoleDoctor) {
+    btnRoleDoctor.addEventListener("click", () => switchRoleToggle("doctor"));
+  }
+
+  const formLogin = document.getElementById("form-login");
+  if (formLogin) {
+    formLogin.addEventListener("submit", (e) => {
+      e.preventDefault();
+      if (selectedRole === "patient") {
+        const sel = document.getElementById("signin-patient-select");
+        if (sel) state.selectedPatientId = parseInt(sel.value);
+        setRoleView("patient");
+      } else {
+        const selDoc = document.getElementById("signin-doctor-select");
+        if (selDoc) state.selectedDoctorId = parseInt(selDoc.value);
+        setRoleView("doctor");
+      }
+    });
+  }
+
+  const btnSignoutPatient = document.getElementById("btn-signout-patient");
+  if (btnSignoutPatient) {
+    btnSignoutPatient.addEventListener("click", () => {
+      setRoleView(null);
+    });
+  }
+
+  const btnSignoutDoctor = document.getElementById("btn-signout-doctor");
+  if (btnSignoutDoctor) {
+    btnSignoutDoctor.addEventListener("click", () => {
+      setRoleView(null);
+    });
+  }
+
+  // Doctor Select Switcher inside Doctor Portal
+  const docSelect = document.getElementById("doctor-select");
+  if (docSelect) {
+    docSelect.addEventListener("change", (e) => {
+      state.selectedDoctorId = parseInt(e.target.value);
+      const signinDoc = document.getElementById("signin-doctor-select");
+      if (signinDoc) signinDoc.value = e.target.value;
+      updateDoctorHeader();
+      renderDoctorPortal();
+      renderConsultationDropdown();
+      const doc = state.doctors.find(d => d.id === state.selectedDoctorId) || state.doctors[0];
+      logTelemetry("doctor", `Switched active clinical workspace to ${doc.name} (ID #${doc.id})`);
+    });
+  }
+
   // Patient Select
   document.getElementById("patient-select").addEventListener("change", (e) => {
     state.selectedPatientId = parseInt(e.target.value);
+    const signinSel = document.getElementById("signin-patient-select");
+    if (signinSel) signinSel.value = e.target.value;
+    updatePatientHeader();
     renderPatientPortal();
     logTelemetry("patient", `Active user switched to Patient #${state.selectedPatientId}`);
   });
@@ -581,10 +762,13 @@ document.addEventListener("DOMContentLoaded", () => {
     document.getElementById("input-next-visit").value = toLocalDatetimeInput(d);
   });
 
-  // Tour Controls
-  document.getElementById("btn-quick-tour").addEventListener("click", startTour);
-  document.getElementById("btn-tour-next").addEventListener("click", nextTourStep);
-  document.getElementById("btn-tour-stop").addEventListener("click", stopTour);
+  // Tour Controls (if present)
+  const btnQuickTour = document.getElementById("btn-quick-tour");
+  if (btnQuickTour) btnQuickTour.addEventListener("click", startTour);
+  const btnTourNext = document.getElementById("btn-tour-next");
+  if (btnTourNext) btnTourNext.addEventListener("click", nextTourStep);
+  const btnTourStop = document.getElementById("btn-tour-stop");
+  if (btnTourStop) btnTourStop.addEventListener("click", stopTour);
 
   // Telemetry Actions
   document.getElementById("btn-clear-telemetry").addEventListener("click", () => {
@@ -596,13 +780,6 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   // Test Runner Button
-  document.getElementById("btn-run-tests").addEventListener("click", runBrowserTests);
-
-  // Viva Accordion
-  document.querySelectorAll(".viva-question").forEach(q => {
-    q.addEventListener("click", () => {
-      const parent = q.parentElement;
-      parent.classList.toggle("active");
-    });
-  });
+  const btnRunTests = document.getElementById("btn-run-tests");
+  if (btnRunTests) btnRunTests.addEventListener("click", runBrowserTests);
 });

@@ -81,8 +81,12 @@ public class Main {
         repo.addPatient(new Patient(1, "Aman Sharma", "+91 98765 00001"));
         repo.addPatient(new Patient(2, "Riya Patel", "+91 98765 00002"));
         repo.addPatient(new Patient(3, "Kabir Mehta", "+91 98765 00003"));
+        repo.addPatient(new Patient(4, "Sneha Reddy", "+91 98765 00004"));
+        repo.addPatient(new Patient(5, "Vikram Malhotra", "+91 98765 00005"));
 
         repo.addDoctor(new Doctor(1, "Rajesh Sharma", "Senior General Physician", 600.0));
-        repo.addDoctor(new Doctor(2, "Pooja Verma", "Cardiology Specialist", 850.0));
+        repo.addDoctor(new Doctor(2, "Pooja Verma", "Specialist Cardiologist", 850.0));
+        repo.addDoctor(new Doctor(3, "Arjun Kapoor", "Orthopedic Surgeon", 750.0));
+        repo.addDoctor(new Doctor(4, "Ananya Iyer", "Consultant Neurologist", 900.0));
     }
 }
