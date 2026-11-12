@@ -13,6 +13,8 @@ import repository.InMemoryRepository;
 import service.AppointmentService;
 import service.ConsultationService;
 import service.NotificationService;
+import util.Config;
+import util.Logger;
 
 import java.io.File;
 import java.time.LocalDateTime;
@@ -25,7 +27,7 @@ import java.util.List;
  * Member 2 (Shreyas) Doctor Analytics, Invoicing, Slot Collision Prevention, and File Persistence.
  */
 public class DemoRunner {
-    private static final DateTimeFormatter FMT = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm");
+    private static final DateTimeFormatter FMT = DateTimeFormatter.ofPattern(Config.DATETIME_FORMAT);
 
     // ANSI Colors for console presentation
     private static final String RESET = "\u001B[0m";

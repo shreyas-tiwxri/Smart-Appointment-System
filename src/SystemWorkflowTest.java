@@ -6,7 +6,6 @@ import repository.FilePersistenceService;
 import repository.InMemoryRepository;
 import service.AppointmentService;
 import service.ConsultationService;
-import service.NotificationService;
 
 import java.io.File;
 import java.time.LocalDateTime;

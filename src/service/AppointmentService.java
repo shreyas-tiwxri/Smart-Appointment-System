@@ -4,6 +4,8 @@ import exception.InvalidInputException;
 import exception.InvalidStateException;
 import model.*;
 import repository.IDataRepository;
+import util.Config;
+import util.Logger;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
@@ -17,7 +19,7 @@ import java.util.List;
  * Engineered by Member 2 (Shreyas Tiwari).
  */
 public class AppointmentService {
-    private static final DateTimeFormatter FMT = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm");
+    private static final DateTimeFormatter FMT = DateTimeFormatter.ofPattern(Config.DATETIME_FORMAT);
     private final IDataRepository repo;
     private final NotificationService notificationService;
 
@@ -68,7 +70,7 @@ public class AppointmentService {
             if (existing.getStatus() != AppointmentStatus.PENDING && existing.getStatus() != AppointmentStatus.APPROVED) continue;
 
             long minuteDiff = Math.abs(Duration.between(existing.getDateTime(), dateTime).toMinutes());
-            if (minuteDiff < 30) {
+            if (minuteDiff < Config.SLOT_BUFFER_MINUTES) {
                 throw new InvalidStateException(
                     String.format("Slot Conflict: Dr. %s already has an active appointment (#%d at %s). A 30-minute consultation buffer is required.",
                             d.getName(), existing.getAppointmentId(), existing.getDateTime().format(FMT))

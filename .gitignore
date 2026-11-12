@@ -9,5 +9,12 @@ bin/
 # Runtime generated records (keep directory structure)
 records/*.txt
 records/prescriptions/*.txt
+records/invoices/*.txt
 !records/.gitkeep
 !records/prescriptions/.gitkeep
+!records/invoices/.gitkeep
+*.log
+sources.txt
+test_results.txt
+test_output.txt
+test_full.log

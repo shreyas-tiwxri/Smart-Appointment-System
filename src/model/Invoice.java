@@ -2,13 +2,14 @@ package model;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import util.Config;
 
 /**
  * Represents an official clinical billing invoice and receipt.
  * Generated automatically upon medical consultation completion.
  */
 public class Invoice {
-    private static final DateTimeFormatter FMT = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm");
+    private static final DateTimeFormatter FMT = DateTimeFormatter.ofPattern(Config.DATETIME_FORMAT);
 
     private final String invoiceId;
     private final Consultation consultation;
