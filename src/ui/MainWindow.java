@@ -11,9 +11,9 @@ import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
+import java.io.File;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.List;
 
 /**
  * Desktop Clinical GUI Application built with 100% Core Java Swing.
@@ -155,14 +155,20 @@ public final class MainWindow extends JFrame {
         rejectBtn.setForeground(Color.WHITE);
         rejectBtn.addActionListener(e -> handleDecision(false));
 
-        JButton cancelBtn = new JButton("🚫 Cancel Appointment");
+        JButton cancelBtn = new JButton("🚫 Cancel");
         cancelBtn.setBackground(new Color(108, 117, 125));
         cancelBtn.setForeground(Color.WHITE);
         cancelBtn.addActionListener(e -> handleCancel());
 
+        JButton consultBtn = new JButton("🩺 Record Consultation");
+        consultBtn.setBackground(new Color(13, 110, 253));
+        consultBtn.setForeground(Color.WHITE);
+        consultBtn.addActionListener(e -> handleConsultation());
+
         topBar.add(approveBtn);
         topBar.add(rejectBtn);
         topBar.add(cancelBtn);
+        topBar.add(consultBtn);
 
         JTable table = new JTable(appointmentTableModel);
         table.setRowHeight(24);
@@ -202,6 +208,16 @@ public final class MainWindow extends JFrame {
         JPanel panel = new JPanel(new BorderLayout(10, 10));
         panel.setBorder(new EmptyBorder(15, 20, 15, 20));
 
+        JPanel controlBar = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 5));
+        JButton snapshotBtn = new JButton("💾 Export Database Snapshot");
+        snapshotBtn.addActionListener(e -> handleSnapshot());
+
+        JButton alertsBtn = new JButton("🔔 View Notification Count");
+        alertsBtn.addActionListener(e -> handleAlerts());
+
+        controlBar.add(snapshotBtn);
+        controlBar.add(alertsBtn);
+
         logArea = new JTextArea();
         logArea.setEditable(false);
         logArea.setFont(new Font("Consolas", Font.PLAIN, 12));
@@ -210,6 +226,7 @@ public final class MainWindow extends JFrame {
         JScrollPane scroll = new JScrollPane(logArea);
         scroll.setBorder(BorderFactory.createTitledBorder("Audit Trail & Clinical Event Log"));
 
+        panel.add(controlBar, BorderLayout.NORTH);
         panel.add(scroll, BorderLayout.CENTER);
         return panel;
     }
@@ -275,6 +292,50 @@ public final class MainWindow extends JFrame {
         } catch (Exception ex) {
             JOptionPane.showMessageDialog(this, "Cancellation Failed: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
         }
+    }
+
+    private void handleConsultation() {
+        String input = JOptionPane.showInputDialog(this, "Enter APPROVED Appointment ID for Consultation:");
+        if (input == null || input.isBlank()) return;
+
+        try {
+            int id = Integer.parseInt(input.trim());
+            String diag = JOptionPane.showInputDialog(this, "Enter Clinical Diagnosis:");
+            if (diag == null || diag.isBlank()) return;
+
+            String rx = JOptionPane.showInputDialog(this, "Enter Prescription & Medication Instructions:");
+            if (rx == null || rx.isBlank()) return;
+
+            LocalDateTime nextVisit = LocalDateTime.now().plusWeeks(2).withHour(11).withMinute(0);
+            Consultation c = consultationService.recordConsultation(id, diag, rx, nextVisit);
+            File rxFile = persistenceService.savePrescriptionSlip(c);
+            log("Consultation recorded for Appt #" + id + " (Ref #" + c.getConsultationId() + "). Rx exported to: "
+                    + (rxFile != null ? rxFile.getName() : "disk"));
+            JOptionPane.showMessageDialog(this,
+                    "Consultation recorded successfully!\nAuto follow-up scheduled for: " + nextVisit.format(FMT),
+                    "Consultation Complete", JOptionPane.INFORMATION_MESSAGE);
+            refreshTables();
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(this, "Consultation Failed: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
+    private void handleSnapshot() {
+        try {
+            File f = persistenceService.exportDatabaseSnapshot(repo);
+            if (f != null) {
+                log("Database snapshot saved to: " + f.getAbsolutePath());
+                JOptionPane.showMessageDialog(this, "Snapshot generated:\n" + f.getAbsolutePath(), "Snapshot Saved", JOptionPane.INFORMATION_MESSAGE);
+            }
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(this, "Export Error: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
+    private void handleAlerts() {
+        int count = notificationService.getAllNotifications().size();
+        log("Notification Engine Active: " + count + " total system event alerts logged.");
+        JOptionPane.showMessageDialog(this, "Notification Service Status: ACTIVE\nTotal Clinical Event Alerts: " + count, "System Alerts", JOptionPane.INFORMATION_MESSAGE);
     }
 
     public final void refreshTables() {

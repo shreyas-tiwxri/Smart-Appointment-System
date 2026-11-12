@@ -14,7 +14,6 @@ import service.AppointmentService;
 import service.ConsultationService;
 import service.NotificationService;
 import util.Config;
-import util.Logger;
 
 import java.io.File;
 import java.time.LocalDateTime;

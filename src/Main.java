@@ -13,7 +13,6 @@ import ui.PatientMenu;
 import java.io.File;
 import java.util.Scanner;
 import util.Logger;
-import util.Config;
 
 /**
  * Main application bootstrap for the Doctor Smart Appointment System.
