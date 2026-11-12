@@ -7,7 +7,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="style.css?v=2.3">
 </head>
 <body>
   <!-- Header / Navigation Bar -->
@@ -16,54 +16,107 @@
       <div class="logo-icon">🩺</div>
       <div class="logo-meta">
         <div class="logo-title">Doctor Smart Appointment System</div>
-        <div class="logo-subtitle">Core Java Course Project • Milestone Review</div>
+        <div class="logo-subtitle">Core Java Clinical Portal</div>
       </div>
-      <span class="status-badge live-pulse">System Active • 100% Tests Passing</span>
+      <span class="status-badge live-pulse">System Online • 20/20 Tests Passing</span>
     </div>
     <div class="nav-right">
-      <button id="btn-quick-tour" class="btn btn-primary glow-btn">
-        <span class="icon">▶</span> Run 60s Teacher Demo
-      </button>
       <div class="tab-pill-group">
         <button class="nav-tab active" data-tab="simulator">Live Simulator</button>
         <button class="nav-tab" data-tab="architecture">UML & Architecture</button>
         <button class="nav-tab" data-tab="concepts">Core Java Matrix</button>
         <button class="nav-tab" data-tab="tests">Test Suite (20/20)</button>
-        <button class="nav-tab" data-tab="viva">Viva Q&A</button>
       </div>
     </div>
   </header>
 
-  <!-- Presentation Stage Alert / Tour Banner -->
-  <div id="tour-banner" class="tour-banner hidden">
-    <div class="tour-indicator">
-      <span class="tour-step-badge" id="tour-step-num">Step 1 of 5</span>
-      <span class="tour-step-title" id="tour-step-title">Patient Aman submits appointment request</span>
-    </div>
-    <div class="tour-narration" id="tour-narration">
-      Invoking <code>AppointmentService.requestAppointment(patientId=1, doctorId=1, dateTime)</code>. Status is initialized to <code>PENDING</code>.
-    </div>
-    <div class="tour-controls">
-      <button id="btn-tour-next" class="btn btn-sm btn-accent">Next Step ➔</button>
-      <button id="btn-tour-stop" class="btn btn-sm btn-outline">Exit Walkthrough</button>
-    </div>
-  </div>
-
   <main class="main-content">
     <!-- TAB 1: LIVE SIMULATOR -->
     <section id="tab-simulator" class="tab-pane active">
-      <div class="simulator-layout">
-        
-        <!-- Left Panel: Patient Portal -->
-        <div class="portal-card patient-portal">
-          <div class="portal-header">
-            <div class="portal-badge patient-badge">Patient Portal</div>
-            <div class="portal-user-select">
-              <label for="patient-select">Logged in as:</label>
-              <select id="patient-select">
-                <option value="1">Aman Sharma (ID #1)</option>
-                <option value="2">Riya Patel (ID #2)</option>
+
+      <!-- 1. Clean Role Sign-In Card -->
+      <div id="view-auth-gate" class="login-wrapper">
+        <div class="login-card">
+          <div class="login-header">
+            <div class="login-icon-box">🩺</div>
+            <h2 class="login-title">Account Sign In</h2>
+            <p class="login-subtitle">Doctor Smart Appointment System</p>
+          </div>
+
+          <!-- Doctor or Patient Role Toggle Buttons -->
+          <div class="login-role-toggle">
+            <button type="button" class="role-toggle-btn active" id="btn-role-patient">
+              <span class="role-icon">👤</span> Patient
+            </button>
+            <button type="button" class="role-toggle-btn" id="btn-role-doctor">
+              <span class="role-icon">👨‍⚕️</span> Doctor
+            </button>
+          </div>
+
+          <!-- Login Form -->
+          <form id="form-login" class="login-form">
+            <!-- Patient account selection -->
+            <div class="login-field" id="field-patient-user">
+              <label for="signin-patient-select">Patient Account</label>
+              <select id="signin-patient-select" class="form-input">
+                <option value="1">Aman Sharma (ID #1 • Primary)</option>
+                <option value="2">Riya Patel (ID #2 • General)</option>
+                <option value="3">Kabir Mehta (ID #3 • Executive)</option>
+                <option value="4">Sneha Reddy (ID #4 • Ortho Care)</option>
+                <option value="5">Vikram Malhotra (ID #5 • Pediatric)</option>
               </select>
+            </div>
+
+            <!-- Doctor account selection (hidden by default) -->
+            <div class="login-field hidden" id="field-doctor-user">
+              <label for="signin-doctor-select">Doctor Account</label>
+              <select id="signin-doctor-select" class="form-input">
+                <option value="1">Dr. Rajesh Sharma (ID #1 • Senior General Physician)</option>
+                <option value="2">Dr. Pooja Verma (ID #2 • Specialist Cardiologist)</option>
+                <option value="3">Dr. Arjun Kapoor (ID #3 • Orthopedic Surgeon)</option>
+                <option value="4">Dr. Ananya Iyer (ID #4 • Consultant Neurologist)</option>
+              </select>
+            </div>
+
+            <div class="login-field">
+              <label for="login-password">Password</label>
+              <input type="password" id="login-password" class="form-input" placeholder="Enter password" value="password123" required autocomplete="current-password">
+            </div>
+
+            <button type="submit" id="btn-login-submit" class="btn btn-login-action btn-patient-action">
+              Sign In as Patient ➔
+            </button>
+          </form>
+        </div>
+      </div>
+
+      <!-- 2. Active Portals Container (Shown once signed in) -->
+      <div id="view-active-portals" class="portals-container hidden">
+
+        <!-- Dedicated Patient Portal -->
+        <div id="view-patient-portal" class="portal-card patient-portal single-portal hidden">
+          <div class="portal-header">
+            <div class="portal-header-left">
+              <div class="portal-badge patient-badge">Patient Portal</div>
+              <div class="portal-user-meta">
+                <span class="avatar-pill">👤</span>
+                <span id="patient-active-label" class="active-user-name">Aman Sharma (ID #1)</span>
+              </div>
+            </div>
+            <div class="portal-header-right">
+              <div class="portal-user-select">
+                <label for="patient-select">Switch Patient:</label>
+                <select id="patient-select">
+                  <option value="1">Aman Sharma (ID #1)</option>
+                  <option value="2">Riya Patel (ID #2)</option>
+                  <option value="3">Kabir Mehta (ID #3)</option>
+                  <option value="4">Sneha Reddy (ID #4)</option>
+                  <option value="5">Vikram Malhotra (ID #5)</option>
+                </select>
+              </div>
+              <button type="button" class="btn btn-sm btn-outline btn-signout" id="btn-signout-patient">
+                🚪 Sign Out / Switch Portal
+              </button>
             </div>
           </div>
 
@@ -76,7 +129,10 @@
                   <div class="form-group">
                     <label>Select Doctor</label>
                     <select id="input-doctor-id">
-                      <option value="1">Dr. Rajesh Sharma (General Physician)</option>
+                      <option value="1">Dr. Rajesh Sharma (General Physician - ₹600)</option>
+                      <option value="2">Dr. Pooja Verma (Specialist Cardiologist - ₹850)</option>
+                      <option value="3">Dr. Arjun Kapoor (Orthopedic Surgeon - ₹750)</option>
+                      <option value="4">Dr. Ananya Iyer (Consultant Neurologist - ₹900)</option>
                     </select>
                   </div>
                   <div class="form-group">
@@ -116,16 +172,29 @@
           </div>
         </div>
 
-        <!-- Right Panel: Doctor Portal -->
-        <div class="portal-card doctor-portal">
+        <!-- Dedicated Doctor Portal -->
+        <div id="view-doctor-portal" class="portal-card doctor-portal single-portal hidden">
           <div class="portal-header">
-            <div class="portal-badge doctor-badge">Doctor Portal</div>
-            <div class="portal-user-info">
-              <span class="doc-avatar">👨‍⚕️</span>
-              <div class="doc-meta">
-                <strong>Dr. Rajesh Sharma</strong>
-                <small>General Physician • ID #1</small>
+            <div class="portal-header-left">
+              <div class="portal-badge doctor-badge">Doctor Clinical Workspace</div>
+              <div class="portal-user-meta">
+                <span class="avatar-pill">👨‍⚕️</span>
+                <span id="doctor-active-label" class="active-user-name">Dr. Rajesh Sharma <small>(Senior General Physician • ID #1)</small></span>
               </div>
+            </div>
+            <div class="portal-header-right">
+              <div class="portal-user-select">
+                <label for="doctor-select">Switch Doctor:</label>
+                <select id="doctor-select">
+                  <option value="1">Dr. Rajesh Sharma (ID #1)</option>
+                  <option value="2">Dr. Pooja Verma (ID #2)</option>
+                  <option value="3">Dr. Arjun Kapoor (ID #3)</option>
+                  <option value="4">Dr. Ananya Iyer (ID #4)</option>
+                </select>
+              </div>
+              <button type="button" class="btn btn-sm btn-outline btn-signout" id="btn-signout-doctor">
+                🚪 Sign Out / Switch Portal
+              </button>
             </div>
           </div>
 
@@ -191,54 +260,6 @@
         </div>
         <div id="telemetry-log" class="telemetry-content">
           <!-- Populated dynamically -->
-          <div class="viva-item">
-            <div class="viva-question">
-              <span>Q6. How is data persisted when the application shuts down?</span>
-              <span class="chevron">?</span>
-            </div>
-            <div class="viva-answer">
-              <p>We designed a zero-dependency <code>FilePersistenceService</code> with a <code>Runtime.getRuntime().addShutdownHook(...)</code> thread. When the JVM exits, it automatically exports a structured snapshot of all in-memory entities to <code>records/database_snapshot.txt</code> and writes clinical prescription slips to <code>records/prescriptions/</code> without external database dependencies.</p>
-            </div>
-          </div>
-
-          <div class="viva-item">
-            <div class="viva-question">
-              <span>Q7. How does the system handle multi-threaded concurrency and race conditions?</span>
-              <span class="chevron">?</span>
-            </div>
-            <div class="viva-answer">
-              <p><code>InMemoryRepository</code> implements thread-safe collections using <code>ConcurrentHashMap</code> for patient and doctor lookups, synchronized wrappers for appointment ordering, and <code>AtomicInteger</code> for thread-safe lock-free primary key generation, verified by test scenario TC-16 under concurrent executor threads.</p>
-            </div>
-          </div>
-
-          <div class="viva-item">
-            <div class="viva-question">
-              <span>Q8. Where is OOP Inheritance and Polymorphism applied in your domain model?</span>
-              <span class="chevron">?</span>
-            </div>
-            <div class="viva-answer">
-              <p>Both <code>Patient</code> and <code>Doctor</code> extend the abstract base class <code>Person</code>, which defines shared identity state and abstract methods <code>getRole()</code> and <code>getSummaryDetails()</code>. This demonstrates abstraction, inheritance, and dynamic runtime polymorphism.</p>
-            </div>
-          </div>
-          <div class="viva-item">
-            <div class="viva-question">
-              <span>Q9. How does the system prevent doctor double-booking and slot clashes?</span>
-              <span class="chevron">?</span>
-            </div>
-            <div class="viva-answer">
-              <p>In <code>AppointmentService.checkSlotAvailability()</code>, the system computes <code>Duration.between(existing.getDateTime(), requestedTime).abs().toMinutes()</code> across all active appointments for that practitioner. If another appointment exists within 30 minutes, it immediately aborts with an <code>InvalidStateException</code>, guaranteeing a collision-free clinical consultation buffer.</p>
-            </div>
-          </div>
-
-          <div class="viva-item">
-            <div class="viva-question">
-              <span>Q10. How are medical invoices and real-time alerts implemented?</span>
-              <span class="chevron">?</span>
-            </div>
-            <div class="viva-answer">
-              <p>Upon consultation completion, <code>ConsultationService</code> computes itemized healthcare charges including doctor consultation fee and 5% GST, generating an official <code>Invoice</code> stored in <code>records/invoices/</code>. Simultaneously, an event-driven <code>NotificationService</code> (Observer Pattern) dispatches state alerts to patient and doctor inboxes without coupling UI to services.</p>
-            </div>
-          </div>
         </div>
       </div>
     </section>
@@ -369,54 +390,6 @@
               <p>System automatically books new APPROVED appointment for next visit.</p>
             </div>
           </div>
-          <div class="viva-item">
-            <div class="viva-question">
-              <span>Q6. How is data persisted when the application shuts down?</span>
-              <span class="chevron">?</span>
-            </div>
-            <div class="viva-answer">
-              <p>We designed a zero-dependency <code>FilePersistenceService</code> with a <code>Runtime.getRuntime().addShutdownHook(...)</code> thread. When the JVM exits, it automatically exports a structured snapshot of all in-memory entities to <code>records/database_snapshot.txt</code> and writes clinical prescription slips to <code>records/prescriptions/</code> without external database dependencies.</p>
-            </div>
-          </div>
-
-          <div class="viva-item">
-            <div class="viva-question">
-              <span>Q7. How does the system handle multi-threaded concurrency and race conditions?</span>
-              <span class="chevron">?</span>
-            </div>
-            <div class="viva-answer">
-              <p><code>InMemoryRepository</code> implements thread-safe collections using <code>ConcurrentHashMap</code> for patient and doctor lookups, synchronized wrappers for appointment ordering, and <code>AtomicInteger</code> for thread-safe lock-free primary key generation, verified by test scenario TC-16 under concurrent executor threads.</p>
-            </div>
-          </div>
-
-          <div class="viva-item">
-            <div class="viva-question">
-              <span>Q8. Where is OOP Inheritance and Polymorphism applied in your domain model?</span>
-              <span class="chevron">?</span>
-            </div>
-            <div class="viva-answer">
-              <p>Both <code>Patient</code> and <code>Doctor</code> extend the abstract base class <code>Person</code>, which defines shared identity state and abstract methods <code>getRole()</code> and <code>getSummaryDetails()</code>. This demonstrates abstraction, inheritance, and dynamic runtime polymorphism.</p>
-            </div>
-          </div>
-          <div class="viva-item">
-            <div class="viva-question">
-              <span>Q9. How does the system prevent doctor double-booking and slot clashes?</span>
-              <span class="chevron">?</span>
-            </div>
-            <div class="viva-answer">
-              <p>In <code>AppointmentService.checkSlotAvailability()</code>, the system computes <code>Duration.between(existing.getDateTime(), requestedTime).abs().toMinutes()</code> across all active appointments for that practitioner. If another appointment exists within 30 minutes, it immediately aborts with an <code>InvalidStateException</code>, guaranteeing a collision-free clinical consultation buffer.</p>
-            </div>
-          </div>
-
-          <div class="viva-item">
-            <div class="viva-question">
-              <span>Q10. How are medical invoices and real-time alerts implemented?</span>
-              <span class="chevron">?</span>
-            </div>
-            <div class="viva-answer">
-              <p>Upon consultation completion, <code>ConsultationService</code> computes itemized healthcare charges including doctor consultation fee and 5% GST, generating an official <code>Invoice</code> stored in <code>records/invoices/</code>. Simultaneously, an event-driven <code>NotificationService</code> (Observer Pattern) dispatches state alerts to patient and doctor inboxes without coupling UI to services.</p>
-            </div>
-          </div>
         </div>
       </div>
     </section>
@@ -483,54 +456,6 @@
               <code>UI ➔ Service ➔ Repository ➔ Model</code>
             </div>
           </div>
-          <div class="viva-item">
-            <div class="viva-question">
-              <span>Q6. How is data persisted when the application shuts down?</span>
-              <span class="chevron">?</span>
-            </div>
-            <div class="viva-answer">
-              <p>We designed a zero-dependency <code>FilePersistenceService</code> with a <code>Runtime.getRuntime().addShutdownHook(...)</code> thread. When the JVM exits, it automatically exports a structured snapshot of all in-memory entities to <code>records/database_snapshot.txt</code> and writes clinical prescription slips to <code>records/prescriptions/</code> without external database dependencies.</p>
-            </div>
-          </div>
-
-          <div class="viva-item">
-            <div class="viva-question">
-              <span>Q7. How does the system handle multi-threaded concurrency and race conditions?</span>
-              <span class="chevron">?</span>
-            </div>
-            <div class="viva-answer">
-              <p><code>InMemoryRepository</code> implements thread-safe collections using <code>ConcurrentHashMap</code> for patient and doctor lookups, synchronized wrappers for appointment ordering, and <code>AtomicInteger</code> for thread-safe lock-free primary key generation, verified by test scenario TC-16 under concurrent executor threads.</p>
-            </div>
-          </div>
-
-          <div class="viva-item">
-            <div class="viva-question">
-              <span>Q8. Where is OOP Inheritance and Polymorphism applied in your domain model?</span>
-              <span class="chevron">?</span>
-            </div>
-            <div class="viva-answer">
-              <p>Both <code>Patient</code> and <code>Doctor</code> extend the abstract base class <code>Person</code>, which defines shared identity state and abstract methods <code>getRole()</code> and <code>getSummaryDetails()</code>. This demonstrates abstraction, inheritance, and dynamic runtime polymorphism.</p>
-            </div>
-          </div>
-          <div class="viva-item">
-            <div class="viva-question">
-              <span>Q9. How does the system prevent doctor double-booking and slot clashes?</span>
-              <span class="chevron">?</span>
-            </div>
-            <div class="viva-answer">
-              <p>In <code>AppointmentService.checkSlotAvailability()</code>, the system computes <code>Duration.between(existing.getDateTime(), requestedTime).abs().toMinutes()</code> across all active appointments for that practitioner. If another appointment exists within 30 minutes, it immediately aborts with an <code>InvalidStateException</code>, guaranteeing a collision-free clinical consultation buffer.</p>
-            </div>
-          </div>
-
-          <div class="viva-item">
-            <div class="viva-question">
-              <span>Q10. How are medical invoices and real-time alerts implemented?</span>
-              <span class="chevron">?</span>
-            </div>
-            <div class="viva-answer">
-              <p>Upon consultation completion, <code>ConsultationService</code> computes itemized healthcare charges including doctor consultation fee and 5% GST, generating an official <code>Invoice</code> stored in <code>records/invoices/</code>. Simultaneously, an event-driven <code>NotificationService</code> (Observer Pattern) dispatches state alerts to patient and doctor inboxes without coupling UI to services.</p>
-            </div>
-          </div>
         </div>
       </div>
     </section>
@@ -582,164 +507,6 @@
               <!-- Rendered via JS -->
             </tbody>
           </table>
-          <div class="viva-item">
-            <div class="viva-question">
-              <span>Q6. How is data persisted when the application shuts down?</span>
-              <span class="chevron">?</span>
-            </div>
-            <div class="viva-answer">
-              <p>We designed a zero-dependency <code>FilePersistenceService</code> with a <code>Runtime.getRuntime().addShutdownHook(...)</code> thread. When the JVM exits, it automatically exports a structured snapshot of all in-memory entities to <code>records/database_snapshot.txt</code> and writes clinical prescription slips to <code>records/prescriptions/</code> without external database dependencies.</p>
-            </div>
-          </div>
-
-          <div class="viva-item">
-            <div class="viva-question">
-              <span>Q7. How does the system handle multi-threaded concurrency and race conditions?</span>
-              <span class="chevron">?</span>
-            </div>
-            <div class="viva-answer">
-              <p><code>InMemoryRepository</code> implements thread-safe collections using <code>ConcurrentHashMap</code> for patient and doctor lookups, synchronized wrappers for appointment ordering, and <code>AtomicInteger</code> for thread-safe lock-free primary key generation, verified by test scenario TC-16 under concurrent executor threads.</p>
-            </div>
-          </div>
-
-          <div class="viva-item">
-            <div class="viva-question">
-              <span>Q8. Where is OOP Inheritance and Polymorphism applied in your domain model?</span>
-              <span class="chevron">?</span>
-            </div>
-            <div class="viva-answer">
-              <p>Both <code>Patient</code> and <code>Doctor</code> extend the abstract base class <code>Person</code>, which defines shared identity state and abstract methods <code>getRole()</code> and <code>getSummaryDetails()</code>. This demonstrates abstraction, inheritance, and dynamic runtime polymorphism.</p>
-            </div>
-          </div>
-          <div class="viva-item">
-            <div class="viva-question">
-              <span>Q9. How does the system prevent doctor double-booking and slot clashes?</span>
-              <span class="chevron">?</span>
-            </div>
-            <div class="viva-answer">
-              <p>In <code>AppointmentService.checkSlotAvailability()</code>, the system computes <code>Duration.between(existing.getDateTime(), requestedTime).abs().toMinutes()</code> across all active appointments for that practitioner. If another appointment exists within 30 minutes, it immediately aborts with an <code>InvalidStateException</code>, guaranteeing a collision-free clinical consultation buffer.</p>
-            </div>
-          </div>
-
-          <div class="viva-item">
-            <div class="viva-question">
-              <span>Q10. How are medical invoices and real-time alerts implemented?</span>
-              <span class="chevron">?</span>
-            </div>
-            <div class="viva-answer">
-              <p>Upon consultation completion, <code>ConsultationService</code> computes itemized healthcare charges including doctor consultation fee and 5% GST, generating an official <code>Invoice</code> stored in <code>records/invoices/</code>. Simultaneously, an event-driven <code>NotificationService</code> (Observer Pattern) dispatches state alerts to patient and doctor inboxes without coupling UI to services.</p>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- TAB 5: VIVA PREP -->
-    <section id="tab-viva" class="tab-pane">
-      <div class="viva-container">
-        <div class="section-header">
-          <h2>Teacher Viva & Evaluation Oral Questions</h2>
-          <p>Quick reference answers for teacher evaluations and laboratory assessments.</p>
-        </div>
-
-        <div class="viva-accordion">
-          <div class="viva-item active">
-            <div class="viva-question">
-              <span>Q1. What is the core workflow and main problem solved by this project?</span>
-              <span class="chevron">▼</span>
-            </div>
-            <div class="viva-answer">
-              <p>The system connects appointment requesting, doctor approval, clinical consultation recording, and automatic follow-up booking into a single coherent lifecycle. It eliminates manual follow-up scheduling errors by automatically creating an APPROVED follow-up appointment when the doctor inputs the next-visit date.</p>
-            </div>
-          </div>
-
-          <div class="viva-item">
-            <div class="viva-question">
-              <span>Q2. Why is in-memory storage used instead of a relational database like MySQL?</span>
-              <span class="chevron">▼</span>
-            </div>
-            <div class="viva-answer">
-              <p>In accordance with Core Java course guidelines, using in-memory Java Collections (<code>HashMap</code>, <code>LinkedHashMap</code>, <code>ArrayList</code>) demonstrates mastery of data structures, references, and memory management without introducing external driver dependencies.</p>
-            </div>
-          </div>
-
-          <div class="viva-item">
-            <div class="viva-question">
-              <span>Q3. Why is the automatic follow-up appointment created with status APPROVED?</span>
-              <span class="chevron">▼</span>
-            </div>
-            <div class="viva-answer">
-              <p>Because the doctor themselves evaluated the patient in the consultation room and established the medical need for a follow-up on that specific date. Therefore, it does not require a second doctor approval step and is directly booked as <code>APPROVED</code>.</p>
-            </div>
-          </div>
-
-          <div class="viva-item">
-            <div class="viva-question">
-              <span>Q4. How do you prevent an appointment from being approved multiple times?</span>
-              <span class="chevron">▼</span>
-            </div>
-            <div class="viva-answer">
-              <p>In <code>Appointment.updateDecision()</code>, we check <code>if (status != AppointmentStatus.PENDING)</code>. If someone tries to approve an already approved or rejected appointment, it immediately raises an <code>InvalidStateException</code>.</p>
-            </div>
-          </div>
-
-          <div class="viva-item">
-            <div class="viva-question">
-              <span>Q5. How is separation of concerns achieved in this application?</span>
-              <span class="chevron">▼</span>
-            </div>
-            <div class="viva-answer">
-              <p>The code is divided into four distinct layers: <strong>UI</strong> handles input/output; <strong>Service</strong> validates and executes business rules; <strong>Repository</strong> manages data structures; and <strong>Model</strong> encapsulates properties. This allows swapping the console UI for a Web UI or GUI without changing any business logic.</p>
-            </div>
-          </div>
-          <div class="viva-item">
-            <div class="viva-question">
-              <span>Q6. How is data persisted when the application shuts down?</span>
-              <span class="chevron">?</span>
-            </div>
-            <div class="viva-answer">
-              <p>We designed a zero-dependency <code>FilePersistenceService</code> with a <code>Runtime.getRuntime().addShutdownHook(...)</code> thread. When the JVM exits, it automatically exports a structured snapshot of all in-memory entities to <code>records/database_snapshot.txt</code> and writes clinical prescription slips to <code>records/prescriptions/</code> without external database dependencies.</p>
-            </div>
-          </div>
-
-          <div class="viva-item">
-            <div class="viva-question">
-              <span>Q7. How does the system handle multi-threaded concurrency and race conditions?</span>
-              <span class="chevron">?</span>
-            </div>
-            <div class="viva-answer">
-              <p><code>InMemoryRepository</code> implements thread-safe collections using <code>ConcurrentHashMap</code> for patient and doctor lookups, synchronized wrappers for appointment ordering, and <code>AtomicInteger</code> for thread-safe lock-free primary key generation, verified by test scenario TC-16 under concurrent executor threads.</p>
-            </div>
-          </div>
-
-          <div class="viva-item">
-            <div class="viva-question">
-              <span>Q8. Where is OOP Inheritance and Polymorphism applied in your domain model?</span>
-              <span class="chevron">?</span>
-            </div>
-            <div class="viva-answer">
-              <p>Both <code>Patient</code> and <code>Doctor</code> extend the abstract base class <code>Person</code>, which defines shared identity state and abstract methods <code>getRole()</code> and <code>getSummaryDetails()</code>. This demonstrates abstraction, inheritance, and dynamic runtime polymorphism.</p>
-            </div>
-          </div>
-          <div class="viva-item">
-            <div class="viva-question">
-              <span>Q9. How does the system prevent doctor double-booking and slot clashes?</span>
-              <span class="chevron">?</span>
-            </div>
-            <div class="viva-answer">
-              <p>In <code>AppointmentService.checkSlotAvailability()</code>, the system computes <code>Duration.between(existing.getDateTime(), requestedTime).abs().toMinutes()</code> across all active appointments for that practitioner. If another appointment exists within 30 minutes, it immediately aborts with an <code>InvalidStateException</code>, guaranteeing a collision-free clinical consultation buffer.</p>
-            </div>
-          </div>
-
-          <div class="viva-item">
-            <div class="viva-question">
-              <span>Q10. How are medical invoices and real-time alerts implemented?</span>
-              <span class="chevron">?</span>
-            </div>
-            <div class="viva-answer">
-              <p>Upon consultation completion, <code>ConsultationService</code> computes itemized healthcare charges including doctor consultation fee and 5% GST, generating an official <code>Invoice</code> stored in <code>records/invoices/</code>. Simultaneously, an event-driven <code>NotificationService</code> (Observer Pattern) dispatches state alerts to patient and doctor inboxes without coupling UI to services.</p>
-            </div>
-          </div>
         </div>
       </div>
     </section>
@@ -756,6 +523,6 @@
     </div>
   </footer>
 
-  <script src="app.js"></script>
+  <script src="app.js?v=2.3"></script>
 </body>
 </html>
