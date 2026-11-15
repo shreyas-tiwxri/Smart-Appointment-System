@@ -1,0 +1,727 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>UCS553 Mini Project Report - Doctor Smart Appointment & Clinical Workflow System</title>
+  <style>
+    @page {
+      size: A4;
+      margin: 20mm 15mm 20mm 20mm;
+    }
+    body {
+      font-family: "Times New Roman", Times, serif;
+      line-height: 1.5;
+      color: #111;
+      background: #fff;
+      margin: 0;
+      padding: 20px 40px;
+    }
+    .cover-page {
+      text-align: center;
+      min-height: 95vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      page-break-after: always;
+      padding-top: 30px;
+    }
+    .course-header {
+      font-size: 16pt;
+      font-weight: bold;
+      color: #8B0000;
+      letter-spacing: 0.5px;
+      margin-bottom: 5px;
+    }
+    .report-subtitle {
+      font-size: 14pt;
+      font-weight: bold;
+      color: #333;
+      margin-bottom: 25px;
+    }
+    .project-title {
+      font-size: 20pt;
+      font-weight: bold;
+      color: #1a252f;
+      text-transform: uppercase;
+      margin: 20px 0;
+      padding: 15px 0;
+      border-top: 2px solid #8B0000;
+      border-bottom: 2px solid #8B0000;
+    }
+    .guidance-section {
+      font-size: 12pt;
+      margin: 20px 0;
+    }
+    .guidance-section strong {
+      font-size: 13pt;
+      color: #111;
+    }
+    .tiet-logo-box {
+      margin: 25px auto;
+      width: 140px;
+      height: 140px;
+      border-radius: 50%;
+      background: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 3px solid #8B0000;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    }
+    .tiet-logo-box span {
+      font-size: 40pt;
+      font-weight: bold;
+      color: #8B0000;
+      font-family: "Georgia", serif;
+      font-style: italic;
+    }
+    .submission-table {
+      margin: 20px auto;
+      width: 80%;
+      border-collapse: collapse;
+      font-size: 11pt;
+    }
+    .submission-table th, .submission-table td {
+      border: 1px solid #999;
+      padding: 8px 12px;
+      text-align: left;
+    }
+    .submission-table th {
+      background: #f4f4f4;
+      font-weight: bold;
+    }
+    .institute-footer {
+      font-size: 12pt;
+      font-weight: bold;
+      color: #222;
+      line-height: 1.4;
+      margin-top: 20px;
+    }
+    .page-break {
+      page-break-after: always;
+    }
+    h1 {
+      font-size: 18pt;
+      color: #8B0000;
+      border-bottom: 1.5px solid #8B0000;
+      padding-bottom: 6px;
+      margin-top: 35px;
+    }
+    h2 {
+      font-size: 14pt;
+      color: #1a252f;
+      margin-top: 24px;
+      margin-bottom: 8px;
+    }
+    h3 {
+      font-size: 12pt;
+      color: #333;
+      margin-top: 18px;
+      margin-bottom: 6px;
+    }
+    p, li {
+      font-size: 11pt;
+      text-align: justify;
+    }
+    ul, ol {
+      margin-top: 5px;
+      margin-bottom: 10px;
+      padding-left: 25px;
+    }
+    table.data-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 15px 0;
+      font-size: 10.5pt;
+    }
+    table.data-table th, table.data-table td {
+      border: 1px solid #777;
+      padding: 6px 10px;
+      text-align: left;
+    }
+    table.data-table th {
+      background: #e8edf3;
+      color: #1a252f;
+      font-weight: bold;
+    }
+    pre {
+      background: #f8f9fa;
+      border: 1px solid #ccc;
+      border-left: 4px solid #8B0000;
+      padding: 10px 14px;
+      font-family: "Consolas", "Courier New", monospace;
+      font-size: 9.5pt;
+      overflow-x: auto;
+      white-space: pre-wrap;
+      margin: 12px 0;
+    }
+    .badge-pass {
+      color: #0b7a2d;
+      font-weight: bold;
+    }
+    .toc-item {
+      display: flex;
+      justify-content: space-between;
+      margin: 6px 0;
+      font-size: 11pt;
+      border-bottom: 1px dotted #bbb;
+      padding-bottom: 2px;
+    }
+    .abstract-box {
+      background: #fafbfc;
+      border: 1px solid #ddd;
+      border-left: 4px solid #1a252f;
+      padding: 18px;
+      margin: 20px 0;
+      font-style: normal;
+    }
+    .sign-row {
+      margin-top: 50px;
+      display: flex;
+      justify-content: space-between;
+      padding: 0 40px;
+    }
+    .sign-box {
+      text-align: center;
+      border-top: 1px solid #444;
+      width: 200px;
+      padding-top: 5px;
+      font-size: 11pt;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- COVER PAGE -->
+  <div class="cover-page">
+    <div>
+      <div class="course-header">UCS553: ENTERPRISE WEB APPLICATION / CORE JAVA</div>
+      <div class="report-subtitle">MINI PROJECT REPORT</div>
+
+      <div class="project-title">
+        DOCTOR SMART APPOINTMENT & CLINICAL WORKFLOW SYSTEM
+      </div>
+
+      <div class="guidance-section">
+        Under the Guidance of:<br>
+        <strong>Dr. ABC, XYZ</strong><br>
+        Assistant Professor<br>
+        Computer Science & Engineering Department<br>
+        Thapar Institute of Engineering & Technology, Patiala
+      </div>
+    </div>
+
+    <div>
+      <div class="tiet-logo-box">
+        <span>ti</span>
+      </div>
+      <div style="font-weight:bold; font-size:13pt; color:#8B0000; letter-spacing:1px;">
+        THAPAR INSTITUTE OF ENGINEERING & TECHNOLOGY
+      </div>
+      <div style="font-size:10.5pt; color:#444;">(Deemed to be University)</div>
+    </div>
+
+    <div>
+      <div style="font-weight: bold; font-size: 11.5pt; margin-bottom: 8px;">Submitted By:</div>
+      <table class="submission-table">
+        <tr>
+          <th>Roll Number</th>
+          <th>Student Name</th>
+          <th>Department</th>
+        </tr>
+        <tr>
+          <td>[Roll Number 1]</td>
+          <td><strong>Mohit Srivastav</strong></td>
+          <td>Computer Science & Engineering</td>
+        </tr>
+        <tr>
+          <td>[Roll Number 2]</td>
+          <td><strong>Shreyas Tiwari</strong></td>
+          <td>Computer Science & Engineering</td>
+        </tr>
+      </table>
+
+      <div class="institute-footer">
+        Computer Science & Engineering Department<br>
+        Thapar Institute of Engineering & Technology, Patiala - 147004, Punjab, India<br>
+        <span style="font-size: 10.5pt; font-weight: normal;">In Partial Fulfilment of the Requirements for the Degree of Bachelor of Engineering in Computer Engineering</span><br>
+        <strong>November 2026</strong>
+      </div>
+    </div>
+  </div>
+
+  <!-- ABSTRACT -->
+  <div class="page-break">
+    <h1>Abstract</h1>
+    <div class="abstract-box">
+      <p>
+        In outpatient clinical facilities and polyclinics, manual scheduling, decentralized prescription storage, and disconnected follow-up scheduling lead to operational errors including doctor double-booking, treatment delays, and untracked billing discrepancies. The <strong>Doctor Smart Appointment & Clinical Workflow System</strong> is an enterprise-grade Core Java application engineered to automate the complete outpatient consultation lifecycle from booking to discharge.
+      </p>
+      <p>
+        The system implements a decoupled 4-tier layered architecture adhering to Object-Oriented Programming (OOP) and SOLID principles, completely free from external third-party frameworks. Key architectural components include:
+      </p>
+      <ul>
+        <li><strong>Polymorphic Domain Hierarchy:</strong> Abstract class <code>Person</code> extended by concrete actors <code>Patient</code> and <code>Doctor</code> using dynamic method dispatch.</li>
+        <li><strong>Interface-Driven Repository:</strong> <code>IDataRepository</code> implemented by <code>InMemoryRepository</code> using <code>ConcurrentHashMap</code> and <code>AtomicInteger</code> to ensure race condition immunity during concurrent access.</li>
+        <li><strong>30-Minute Slot Collision Prevention:</strong> Automated verification checking doctor availability within a 30-minute consultation window using <code>java.time.Duration</code>.</li>
+        <li><strong>Consultation & Automated Follow-Up Engine:</strong> Automatically generates an <code>APPROVED</code> follow-up visit based on the doctor's review timeline, generates official medical invoices with 5% Healthcare GST, and creates digital prescription slips with cryptographic verification hashes.</li>
+        <li><strong>Decoupled Observer Notifications:</strong> Real-time alert engine delivering asynchronous event updates to patients and doctors.</li>
+        <li><strong>Dual User Interface:</strong> Interactive ANSI-colored command-line interface (CLI) coupled with a 100% Core Java Swing multi-tab desktop application (<code>MainWindow.java</code>).</li>
+        <li><strong>Zero-Loss JVM Shutdown Hook:</strong> Automatic disk snapshotting to flat files on application termination.</li>
+      </ul>
+      <p>
+        The software was rigorously validated against a self-contained 20-scenario automated verification test suite (<code>SystemWorkflowTest.java</code>) covering unit logic, slot conflict guards, and multi-threaded race conditions, achieving a 100% pass rate.
+      </p>
+    </div>
+
+    <h1>Table of Contents</h1>
+    <div style="margin-top: 15px;">
+      <div class="toc-item"><span><strong>Chapter 1: Introduction</strong></span><span>1</span></div>
+      <div class="toc-item"><span style="padding-left: 20px;">1.1 Introduction to the Project</span><span>1</span></div>
+      <div class="toc-item"><span style="padding-left: 20px;">1.2 Problem Statement</span><span>1</span></div>
+      <div class="toc-item"><span style="padding-left: 20px;">1.3 Objectives of the Project</span><span>2</span></div>
+      <div class="toc-item"><span style="padding-left: 20px;">1.4 Scope of the Project</span><span>2</span></div>
+
+      <div class="toc-item"><span><strong>Chapter 2: System Design</strong></span><span>3</span></div>
+      <div class="toc-item"><span style="padding-left: 20px;">2.1 System Architecture</span><span>3</span></div>
+      <div class="toc-item"><span style="padding-left: 20px;">2.2 Use Case Diagram & Actor Descriptions</span><span>4</span></div>
+      <div class="toc-item"><span style="padding-left: 20px;">2.3 Class Diagram & Domain Modeling</span><span>5</span></div>
+      <div class="toc-item"><span style="padding-left: 20px;">2.4 Activity Diagram (Clinical Lifecycle)</span><span>6</span></div>
+      <div class="toc-item"><span style="padding-left: 20px;">2.5 Database & In-Memory Data Structure Design</span><span>7</span></div>
+      <div class="toc-item"><span style="padding-left: 20px;">2.6 Module Descriptions</span><span>7</span></div>
+
+      <div class="toc-item"><span><strong>Chapter 3: Implementation</strong></span><span>8</span></div>
+      <div class="toc-item"><span style="padding-left: 20px;">3.1 Technologies and Tools Used</span><span>8</span></div>
+      <div class="toc-item"><span style="padding-left: 20px;">3.2 Project Directory & Package Structure</span><span>8</span></div>
+      <div class="toc-item"><span style="padding-left: 20px;">3.3 Description of Classes and Interfaces</span><span>9</span></div>
+      <div class="toc-item"><span style="padding-left: 20px;">3.4 Implementation of Major Modules</span><span>10</span></div>
+      <div class="toc-item"><span style="padding-left: 20px;">3.5 Exception Handling Hierarchy</span><span>11</span></div>
+      <div class="toc-item"><span style="padding-left: 20px;">3.6 Collection Framework & Concurrency Usage</span><span>11</span></div>
+      <div class="toc-item"><span style="padding-left: 20px;">3.7 Data Persistence & File Management</span><span>12</span></div>
+      <div class="toc-item"><span style="padding-left: 20px;">3.8 Important Code Snippets</span><span>12</span></div>
+
+      <div class="toc-item"><span><strong>Chapter 4: Results and Output Demonstrations</strong></span><span>14</span></div>
+      <div class="toc-item"><span style="padding-left: 20px;">4.1 Main Application Interfaces (CLI & Core Java Swing GUI)</span><span>14</span></div>
+      <div class="toc-item"><span style="padding-left: 20px;">4.2 Functional Outputs (Booking, Decisions, Consultation, Billing)</span><span>15</span></div>
+      <div class="toc-item"><span style="padding-left: 20px;">4.3 Error Handling & Boundary Validation Demonstrations</span><span>16</span></div>
+      <div class="toc-item"><span style="padding-left: 20px;">4.4 Automated 20-Scenario Test Suite Execution</span><span>17</span></div>
+
+      <div class="toc-item"><span><strong>References</strong></span><span>18</span></div>
+    </div>
+  </div>
+
+  <!-- CHAPTER 1 -->
+  <div class="page-break">
+    <h1>Chapter 1: Introduction</h1>
+    
+    <h2>1.1 Introduction to the Project</h2>
+    <p>
+      Outpatient clinical departments face frequent administrative and operational bottlenecks during doctor-patient coordination. The traditional approach of maintaining manual paper registers, standalone spreadsheets, or fragmented local apps introduces scheduling overlaps, untracked appointment cancellations, manual calculation mistakes during billing, and uncoordinated follow-up treatments.
+    </p>
+    <p>
+      The <strong>Doctor Smart Appointment & Clinical Workflow System</strong> is a standalone Core Java desktop and console coordination application developed to manage the entire outpatient consultation pipeline. Engineered using <strong>Java SE 17+</strong>, the project adheres strictly to Object-Oriented Analysis and Design (OOAD) principles without relying on third-party frameworks like Spring or external database drivers. It coordinates patient appointment requests, doctor review queues, slot conflict guards, diagnosis entry, automated follow-up booking, medical invoicing, and flat-file disk persistence.
+    </p>
+
+    <h2>1.2 Problem Statement</h2>
+    <p>
+      Clinical facilities without unified scheduling software encounter four recurring challenges:
+    </p>
+    <ol>
+      <li><strong>Schedule Collisions & Double-Booking:</strong> When patients request visits without automated collision validation, practitioners receive overlapping appointments for the same hour, causing extended waiting times and clinic congestion.</li>
+      <li><strong>Disconnected Follow-Up Scheduling:</strong> When a practitioner advises a patient to return in 14 days, the manual booking must be separately scheduled by reception, frequently resulting in forgotten reviews or slot unavailability.</li>
+      <li><strong>Manual Billing Inaccuracies:</strong> Manually applying consultation rates, calculating healthcare GST, and printing receipts is time-consuming and prone to arithmetic mistakes.</li>
+      <li><strong>Data Fragility on Abrupt Exit:</strong> In-memory applications risk total state loss if an abrupt shutdown or terminal closure occurs before state is explicitly committed.</li>
+    </ol>
+
+    <h2>1.3 Objectives of the Project</h2>
+    <ul>
+      <li><strong>Pure Core Java Architecture:</strong> Implement all data structures, services, UI interfaces, and testing frameworks relying exclusively on standard JDK libraries.</li>
+      <li><strong>Automated 30-Minute Slot Collision Guard:</strong> Build a schedule validation algorithm preventing overlapping doctor appointments within a 30-minute window.</li>
+      <li><strong>Automated Follow-Up Scheduling:</strong> Automatically generate an <code>APPROVED</code> follow-up appointment upon consultation completion.</li>
+      <li><strong>Medical Invoicing & Healthcare GST:</strong> Automatically compute specialist consultation charges, add 5% healthcare GST, and generate formatted receipts.</li>
+      <li><strong>Thread-Safe Concurrency:</strong> Utilize <code>ConcurrentHashMap</code> and <code>AtomicInteger</code> to guarantee race condition immunity under multi-threaded operations.</li>
+      <li><strong>Dual User Interface:</strong> Provide an interactive terminal CLI alongside a full-featured desktop GUI built with 100% Core Java Swing.</li>
+      <li><strong>100% Test Coverage:</strong> Create a custom 20-test automated verification suite validating all domain rules without external test runners.</li>
+    </ul>
+
+    <h2>1.4 Scope of the Project</h2>
+    <p>
+      The scope encompasses outpatient appointment lifecycle management (<code>PENDING</code>, <code>APPROVED</code>, <code>REJECTED</code>, <code>CANCELLED</code>), doctor analytics, local disk persistence for prescriptions (<code>records/prescriptions/</code>) and invoices (<code>records/invoices/</code>), and automated state snapshotting via JVM shutdown hooks. Network-based payment gateway APIs and cloud-distributed database replication are outside the scope of this Core Java laboratory project.
+    </p>
+  </div>
+
+  <!-- CHAPTER 2 -->
+  <div class="page-break">
+    <h1>Chapter 2: System Design</h1>
+
+    <h2>2.1 System Architecture</h2>
+    <p>
+      The system is structured as a decoupled 4-tier layered architecture:
+    </p>
+    <pre>
+[PRESENTATION LAYER]   --> PatientMenu (CLI), DoctorMenu (CLI), MainWindow (Core Java Swing GUI), DemoRunner
+         |
+         v
+[BUSINESS LOGIC LAYER] --> AppointmentService, ConsultationService, NotificationService (Observer)
+         |
+         v
+[DATA ACCESS LAYER]    --> IDataRepository (Interface), InMemoryRepository, FilePersistenceService
+         |
+         v
+[DOMAIN MODEL LAYER]   --> Person (Abstract), Patient, Doctor, Appointment, Consultation, Invoice
+    </pre>
+
+    <h2>2.2 Use Case Diagram & Actor Descriptions</h2>
+    <p>
+      The system defines three primary actors:
+    </p>
+    <ul>
+      <li><strong>Patient:</strong> Submits appointment requests, views scheduled appointments, reviews clinical prescriptions, and cancels or reschedules upcoming visits.</li>
+      <li><strong>Doctor:</strong> Inspects pending queues, approves or rejects appointments with mandatory clinical audit reasons, conducts consultations, records diagnoses and prescriptions, and views workload analytics.</li>
+      <li><strong>Automated System Engine:</strong> Enforces 30-minute slot buffers, auto-schedules follow-up visits, computes GST, logs audit trails, and exports state snapshots.</li>
+    </ul>
+
+    <h2>2.3 Class Diagram & Domain Modeling</h2>
+    <table class="data-table">
+      <tr>
+        <th>Class Name</th>
+        <th>Superclass / Interface</th>
+        <th>Key Attributes & Methods</th>
+      </tr>
+      <tr>
+        <td><code>Person</code></td>
+        <td><em>Abstract Base Class</em></td>
+        <td><code>id, name, contact</code>; <code>getRole()</code>, <code>getSummaryDetails()</code> (Polymorphic)</td>
+      </tr>
+      <tr>
+        <td><code>Patient</code></td>
+        <td>Extends <code>Person</code></td>
+        <td>Inherits personal details; overrides <code>getRole() -> "Patient"</code></td>
+      </tr>
+      <tr>
+        <td><code>Doctor</code></td>
+        <td>Extends <code>Person</code></td>
+        <td><code>specialty, consultationFee</code>; overrides <code>getRole() -> "Doctor"</code></td>
+      </tr>
+      <tr>
+        <td><code>Appointment</code></td>
+        <td>Domain Entity</td>
+        <td><code>appointmentId, patient, doctor, dateTime, status, followUp, rejectionReason</code>; <code>updateDecision()</code>, <code>cancel()</code>, <code>reschedule()</code></td>
+      </tr>
+      <tr>
+        <td><code>Consultation</code></td>
+        <td>Domain Entity</td>
+        <td><code>consultationId, appointment, diagnosis, prescription, nextVisitDateTime</code>; <code>generatePrescriptionSlip()</code></td>
+      </tr>
+      <tr>
+        <td><code>Invoice</code></td>
+        <td>Financial Entity</td>
+        <td><code>invoiceId, consultation, baseFee, taxRate (5%), taxAmount, totalAmount</code>; <code>generateReceipt()</code></td>
+      </tr>
+      <tr>
+        <td><code>IDataRepository</code></td>
+        <td><em>Interface (DIP)</em></td>
+        <td>Declares CRUD operations for Patients, Doctors, Appointments, Consultations, and Invoices.</td>
+      </tr>
+      <tr>
+        <td><code>InMemoryRepository</code></td>
+        <td>Implements <code>IDataRepository</code></td>
+        <td>Stores entities in thread-safe <code>ConcurrentHashMap</code> collections with <code>AtomicInteger</code> sequences.</td>
+      </tr>
+      <tr>
+        <td><code>MainWindow</code></td>
+        <td>Extends <code>JFrame</code></td>
+        <td>Multi-tab Core Java Swing desktop window with live tabular data views and interactive modals.</td>
+      </tr>
+    </table>
+
+    <h2>2.4 Activity Diagram (Clinical Lifecycle)</h2>
+    <pre>
+[Patient Books Slot] --> [Validate 30-min Buffer] --> <Conflict?>
+                                                          |-- Yes --> [Throw InvalidStateException]
+                                                          |-- No  --> [Create PENDING Appointment]
+                                                                            |
+[Doctor Reviews] <----------------------------------------------------------+
+       |
+  <Decision>
+    |-- Reject  --> [Record Clinical Rejection Reason] --> [Notify Patient: REJECTED]
+    |-- Approve --> [Set Status: APPROVED] --> [Notify Patient: APPROVED]
+                                                       |
+[Conduct Consultation Visit] <-------------------------+
+       |
+[Record Diagnosis, Prescription & Next Visit Date]
+       |
+       +--> [Auto-Schedule Follow-up Appointment (Status: APPROVED)]
+       +--> [Generate Official Medical Invoice (Base Fee + 5% GST)]
+       +--> [Format & Export Digital Prescription Slip to Disk]
+       +--> [Dispatch Real-Time Completion Alerts via Observer Engine]
+    </pre>
+
+    <h2>2.5 Database & In-Memory Data Structure Design</h2>
+    <p>
+      The persistence model uses thread-safe in-memory collections paired with automated file snapshotting:
+    </p>
+    <ul>
+      <li><code>ConcurrentHashMap&lt;Integer, Patient&gt;</code> and <code>ConcurrentHashMap&lt;Integer, Doctor&gt;</code>: High-speed O(1) indexed entity storage.</li>
+      <li><code>ConcurrentHashMap&lt;Integer, Appointment&gt;</code>: Thread-safe appointment record store.</li>
+      <li><code>Collections.synchronizedList(new ArrayList&lt;&gt;())</code>: Preserves chronological order for audit logs and UI display.</li>
+      <li><code>AtomicInteger</code> primary key sequences (<code>nextAppointmentId</code>, etc.): Lock-free atomic increment counters.</li>
+    </ul>
+
+    <h2>2.6 Module Descriptions</h2>
+    <ul>
+      <li><strong>Patient Portal (<code>PatientMenu.java</code>):</strong> Patient console for booking, cancellation, rescheduling, and prescription review.</li>
+      <li><strong>Doctor Workspace (<code>DoctorMenu.java</code>):</strong> Practitioner portal for reviewing queues, recording consultations, and viewing workload analytics.</li>
+      <li><strong>Appointment Service (<code>AppointmentService.java</code>):</strong> Enforces slot conflict guards, status transitions, and doctor analytics.</li>
+      <li><strong>Consultation Service (<code>ConsultationService.java</code>):</strong> Coordinates consultation records, auto follow-up scheduling, and billing invoices.</li>
+      <li><strong>Desktop Swing GUI (<code>MainWindow.java</code>):</strong> Interactive multi-tab desktop window developed in 100% Core Java Swing.</li>
+    </ul>
+  </div>
+
+  <!-- CHAPTER 3 -->
+  <div class="page-break">
+    <h1>Chapter 3: Implementation</h1>
+
+    <h2>3.1 Technologies and Tools Used</h2>
+    <ul>
+      <li><strong>Language:</strong> Core Java (Java SE 17+). Zero third-party dependencies.</li>
+      <li><strong>GUI Framework:</strong> Java Swing (<code>javax.swing.*</code>) and Abstract Window Toolkit (<code>java.awt.*</code>).</li>
+      <li><strong>Concurrency Primitives:</strong> <code>java.util.concurrent.ConcurrentHashMap</code>, <code>java.util.concurrent.atomic.AtomicInteger</code>.</li>
+      <li><strong>Date & Time API:</strong> <code>java.time.LocalDateTime</code>, <code>java.time.Duration</code>, <code>java.time.format.DateTimeFormatter</code>.</li>
+      <li><strong>I/O & Streams:</strong> <code>java.io.File</code>, <code>java.io.FileWriter</code>, <code>java.io.PrintWriter</code>, <code>java.util.Scanner</code>.</li>
+      <li><strong>Build Script:</strong> Custom Windows batch script (<code>build.bat</code>).</li>
+    </ul>
+
+    <h2>3.2 Project Directory & Package Structure</h2>
+    <p>
+      Codebase packages cleanly separate domain models, repositories, business logic, UI, and utilities:
+    </p>
+    <pre>
+src/
+├── exception/          --> InvalidInputException, InvalidStateException, NotFoundException
+├── model/              --> Person, Patient, Doctor, Appointment, AppointmentStatus,
+│                           Consultation, Invoice, DoctorStats, NotificationEvent
+├── repository/         --> IDataRepository, InMemoryRepository, FilePersistenceService
+├── service/            --> AppointmentService, ConsultationService, NotificationService
+├── ui/                 --> MainWindow (Swing GUI), PatientMenu, DoctorMenu, InputHelper
+├── util/               --> Config, Logger
+├── Main.java           --> CLI routing & JVM shutdown hook
+├── DemoRunner.java     --> 10-stage automated presentation demo runner
+└── SystemWorkflowTest.java --> 20-test automated verification suite
+    </pre>
+
+    <h2>3.3 Description of Classes and Interfaces</h2>
+    <p>
+      The system models healthcare interactions using pure OOP abstractions:
+    </p>
+    <ul>
+      <li><code>Person</code>: Abstract base class defining identity encapsulation (<code>id</code>, <code>name</code>, <code>contact</code>) and polymorphic method contracts.</li>
+      <li><code>Patient</code> & <code>Doctor</code>: Concrete subclasses implementing specialized domain logic. <code>Doctor</code> encapsulates specialty and consultation fee attributes.</li>
+      <li><code>Appointment</code>: Encapsulates scheduling state, appointment transitions, and cancellation audit reasons.</li>
+      <li><code>Invoice</code>: Handles financial computation, itemizing specialist consultation charges and 5% healthcare GST.</li>
+      <li><code>IDataRepository</code>: Interface decoupling services from storage implementations (Dependency Inversion Principle).</li>
+    </ul>
+
+    <h2>3.4 Implementation of Major Modules</h2>
+    <h3>3.4.1 30-Minute Slot Collision Detection</h3>
+    <p>
+      The collision guard inspects existing active appointments for the chosen practitioner and verifies that no active booking exists within 30 minutes:
+    </p>
+    <pre>
+public void checkSlotAvailability(int doctorId, LocalDateTime dateTime, int excludeApptId) {
+    Doctor d = repo.getDoctor(doctorId);
+    for (Appointment existing : repo.getAllAppointments()) {
+        if (existing.getAppointmentId() == excludeApptId) continue;
+        if (existing.getDoctor().getDoctorId() != doctorId) continue;
+        if (existing.getStatus() != AppointmentStatus.PENDING && 
+            existing.getStatus() != AppointmentStatus.APPROVED) continue;
+
+        long minuteDiff = Math.abs(Duration.between(existing.getDateTime(), dateTime).toMinutes());
+        if (minuteDiff < Config.SLOT_BUFFER_MINUTES) {
+            throw new InvalidStateException(String.format(
+                "Slot Conflict: Dr. %s already has an active appointment (#%d at %s). A %d-minute consultation buffer is required.",
+                d.getName(), existing.getAppointmentId(), existing.getDateTime().format(FMT), Config.SLOT_BUFFER_MINUTES));
+        }
+    }
+}
+    </pre>
+
+    <h3>3.4.2 Automatic Follow-Up Appointment Generation</h3>
+    <pre>
+// Auto-create follow-up appointment (same patient + doctor)
+Appointment followUp = new Appointment(repo.nextAppointmentId(), a.getPatient(), a.getDoctor(),
+                                       nextVisit, AppointmentStatus.APPROVED, true);
+repo.saveAppointment(followUp);
+    </pre>
+
+    <h2>3.5 Exception Handling Hierarchy</h2>
+    <p>
+      The application implements custom unchecked exceptions extending <code>RuntimeException</code>:
+    </p>
+    <ul>
+      <li><code>InvalidInputException</code>: Thrown when date parsing fails, inputs are blank, or past appointment timestamps are entered.</li>
+      <li><code>InvalidStateException</code>: Thrown on invalid state transitions (e.g., approving an already finalized appointment, scheduling conflicting slots within 30 minutes, or recording duplicate consultations).</li>
+      <li><code>NotFoundException</code>: Thrown when an ID lookup fails.</li>
+    </ul>
+
+    <h2>3.6 Collection Framework & Concurrency Usage</h2>
+    <ul>
+      <li><code>ConcurrentHashMap</code>: Provides lock-striped thread-safe read/write operations without locking the entire storage structure.</li>
+      <li><code>AtomicInteger</code>: Ensures thread-safe sequential primary key increments under multi-threaded concurrency.</li>
+      <li><code>Collections.synchronizedList</code>: Preserves insertion order for UI tables and file snapshotting.</li>
+    </ul>
+
+    <h2>3.7 Data Persistence & File Management</h2>
+    <p>
+      The persistence module writes records to flat files:
+    </p>
+    <ul>
+      <li><strong>Prescriptions:</strong> Stored in <code>records/prescriptions/Rx_Patient&lt;X&gt;_Appt&lt;Y&gt;.txt</code> with verification hashes.</li>
+      <li><strong>Invoices:</strong> Stored in <code>records/invoices/INV-2026-XXXX_Patient&lt;X&gt;.txt</code>.</li>
+      <li><strong>Database Snapshots:</strong> Written to <code>records/database_snapshot.txt</code> via JVM shutdown hook.</li>
+    </ul>
+  </div>
+
+  <!-- CHAPTER 4 -->
+  <div class="page-break">
+    <h1>Chapter 4: Results and Output Demonstrations</h1>
+
+    <h2>4.1 Main Application Interfaces</h2>
+    <h3>4.1.1 Interactive Console Interface (<code>Main.java</code>)</h3>
+    <pre>
+=================================================================
+            DOCTOR SMART APPOINTMENT & CLINICAL SYSTEM           
+          Developed by Mohit Srivastav & Shreyas Tiwari          
+=================================================================
+
+MAIN SELECTION MENU:
+  1. Login as Patient (Member 1 Portal)
+  2. Login as Doctor  (Member 2 Clinical Workspace)
+  3. Run Automated Demo Walkthrough (--demo mode)
+  4. Export System Diagnostic Snapshot to Disk
+  5. Launch Desktop Clinical GUI (Swing Core Java)
+  0. Exit
+-----------------------------------------------------------------
+    </pre>
+
+    <h3>4.1.2 Core Java Swing Desktop Application (<code>MainWindow.java</code>)</h3>
+    <p>
+      Launched using <code>java -cp out Main --gui</code> or by selecting Option 5. Features 4 interactive tabs:
+    </p>
+    <ul>
+      <li><strong>📅 Patient Appointment Portal:</strong> Patient and doctor dropdowns, date picker, submit button, and live appointment schedule table.</li>
+      <li><strong>🩺 Doctor Clinical Workspace:</strong> Queue review table with action buttons (Approve, Reject with reason modal, Cancel, Record Consultation).</li>
+      <li><strong>📋 Consultations & Invoices:</strong> Tabular overview of completed consultations, clinical diagnoses, and follow-up schedules.</li>
+      <li><strong>📊 System Audit & Log:</strong> Live clinical event log with buttons to export database snapshots and view notification alert telemetry.</li>
+    </ul>
+
+    <h2>4.2 Functional Outputs</h2>
+    <h3>4.2.1 Itemized Medical Billing Invoice Receipt</h3>
+    <pre>
+================================================================================
+                       SMART CLINIC MEDICAL INVOICE & RECEIPT                   
+================================================================================
+Invoice Number  : INV-2026-1001             Date: 12-11-2026 14:04
+Consultation Ref: #1                        Appointment Ref: #1
+--------------------------------------------------------------------------------
+PATIENT NAME    : Aman Sharma                    ID  : #1
+CONTACT NUMBER  : +91 98765 00001                Type: Primary Visit
+ATTENDING DOCTOR: Dr. Rajesh Sharma              Specialty: Senior General Physician
+--------------------------------------------------------------------------------
+ITEMIZED CLINICAL CHARGES:
+  1. Specialist Consultation Fee (Dr. Rajesh Sharma  ) : ₹  600.00
+  2. Healthcare Service GST (5%)                          : ₹   30.00
+--------------------------------------------------------------------------------
+TOTAL AMOUNT PAID                                        : ₹  630.00
+PAYMENT STATUS : [PAID - UPI Online Payment] (Confirmed)
+================================================================================
+    </pre>
+
+    <h3>4.2.2 Digital Prescription Slip (Disk Export)</h3>
+    <pre>
+================================================================================
+                     SMART CLINIC MEDICAL PRESCRIPTION SLIP                     
+================================================================================
+Consultation Ref: #1                       Date: 13-11-2026 10:30
+Appointment Ref : #1                       Type: PRIMARY CONSULTATION
+--------------------------------------------------------------------------------
+DOCTOR : Dr. Rajesh Sharma                  Specialty: Senior General Physician (ID: #1)
+PATIENT: Aman Sharma                        Contact  : +91 98765 00001 (ID: #1)
+--------------------------------------------------------------------------------
+CLINICAL DIAGNOSIS:
+  Acute Upper Respiratory Infection & Seasonal Asthma flare-up
+
+RX / PRESCRIBED MEDICATIONS & INSTRUCTIONS:
+  1. Tab Amoxicillin 500mg TDS x 5 days
+  2. Tab Cetirizine 10mg OD x 7 days
+  3. Levolin inhaler 2 puffs PRN
+
+NEXT FOLLOW-UP REVIEW:
+  27-11-2026 11:00 [Automated Status: APPROVED]
+--------------------------------------------------------------------------------
+Digital Verification Hash: [SEC-MED-7FBEA343]
+================================================================================
+    </pre>
+
+    <h2>4.3 Automated Verification Test Suite Execution</h2>
+    <p>
+      The project was validated against a 20-scenario automated test suite without JUnit or external test runners:
+    </p>
+    <pre>
+Running Core Java System Workflow Test Suite (20 Test Scenarios)...
+-----------------------------------------------------------------
+  [PASS] TC-01: Appointment request created with PENDING status
+  [PASS] TC-02: Appointment request with past date throws InvalidInputException
+  [PASS] TC-03: Doctor can approve pending appointment
+  [PASS] TC-04: Doctor can reject pending appointment
+  [PASS] TC-05: Modifying already decided appointment throws InvalidStateException
+  [PASS] TC-06: Recording consultation creates record AND auto follow-up appointment
+  [PASS] TC-07: Consultation cannot be recorded for non-APPROVED appointment
+  [PASS] TC-08: Duplicate consultation on same appointment is blocked
+  [PASS] TC-09: Next visit date must be after current appointment date
+  [PASS] TC-10: Patient data isolation and invalid ID validation
+  [PASS] TC-11: Doctor clinical statistics calculated accurately (Member 2 Module)
+  [PASS] TC-12: Doctor consultation history isolation
+  [PASS] TC-13: Rejection with custom clinical audit reason
+  [PASS] TC-14: Polymorphic Person hierarchy validation
+  [PASS] TC-15: Digital prescription slip generation & disk export
+  [PASS] TC-16: Thread-safe Atomic sequence ID generation under concurrency
+  [PASS] TC-17: Double-booking doctor within 30 minutes rejected by Slot Guard
+  [PASS] TC-18: Patient can cancel pending or approved appointment with reason audit
+  [PASS] TC-19: Appointment rescheduling updates time and validates collision
+  [PASS] TC-20: Medical billing invoice and GST calculation generated on consultation
+-----------------------------------------------------------------
+ALL 20 TESTS PASSED SUCCESSFULLY! (100% Passing)
+    </pre>
+  </div>
+
+  <!-- REFERENCES -->
+  <div class="page-break">
+    <h1>References</h1>
+    <ol>
+      <li>Schildt, Herbert. <em>Java: The Complete Reference</em>, 12th Edition, McGraw-Hill Education, 2021.</li>
+      <li>Martin, Robert C. <em>Clean Code: A Handbook of Agile Software Craftsmanship</em>, Prentice Hall, 2008.</li>
+      <li>Bloch, Joshua. <em>Effective Java</em>, 3rd Edition, Addison-Wesley Professional, 2017.</li>
+      <li>Freeman, Eric, and Elisabeth Robson. <em>Head First Design Patterns</em>, 2nd Edition, O'Reilly Media, 2020.</li>
+      <li>Oracle Corporation. <em>Java Platform, Standard Edition 17 API Specification (java.time, java.util.concurrent, javax.swing)</em>, Oracle Documentation, 2021.</li>
+      <li>Department of Computer Science & Engineering, <em>Course Curriculum & Laboratory Guidelines for UCS553: Enterprise Web Application / Core Java Programming</em>, Thapar Institute of Engineering & Technology, Patiala, 2026.</li>
+    </ol>
+
+    <div class="sign-row">
+      <div class="sign-box">
+        Student Signature<br>
+        <strong>Mohit Srivastav</strong>
+      </div>
+      <div class="sign-box">
+        Student Signature<br>
+        <strong>Shreyas Tiwari</strong>
+      </div>
+      <div class="sign-box">
+        Faculty Supervisor<br>
+        <strong>Dr. ABC, XYZ</strong>
+      </div>
+    </div>
+  </div>
+
+</body>
+</html>
