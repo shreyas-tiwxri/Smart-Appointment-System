@@ -10,6 +10,7 @@ import ui.InputHelper;
 import ui.MainWindow;
 import ui.PatientMenu;
 
+import java.awt.GraphicsEnvironment;
 import java.io.File;
 import java.util.Scanner;
 import util.Logger;
@@ -25,6 +26,11 @@ public class Main {
             return;
         }
         if (args.length > 0 && (args[0].equalsIgnoreCase("--gui") || args[0].equalsIgnoreCase("-g"))) {
+            MainWindow.main(args);
+            return;
+        }
+        // If double-clicked directly as a runnable JAR without terminal attached, launch Desktop GUI
+        if (System.console() == null && args.length == 0 && !GraphicsEnvironment.isHeadless()) {
             MainWindow.main(args);
             return;
         }

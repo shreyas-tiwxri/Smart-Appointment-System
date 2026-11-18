@@ -77,7 +77,26 @@ web/                                 # Interactive presentation simulator dashbo
 
 Requires JDK 17+ (Tested on Java 26 / Java 17).
 
-### 1. Run Automated Test Suite (20/20 Core Java Tests)
+### 1. One-Click Master Build (Compile, Test & Package JAR)
+- **On Windows:**
+  ```cmd
+  build.bat
+  ```
+- **On macOS / Linux:**
+  ```bash
+  chmod +x build.sh && ./build.sh
+  ```
+
+### 2. Standalone Executable JAR (Double-Click or CLI)
+- **Direct Double-Click:** Double-clicking `doctor-smart-system.jar` in Windows Explorer immediately launches the **Core Java Swing Desktop GUI**!
+- **Run via Terminal:**
+  ```bash
+  java -jar doctor-smart-system.jar         # Interactive console menu
+  java -jar doctor-smart-system.jar --demo  # 10-stage automated evaluation walkthrough
+  java -jar doctor-smart-system.jar --gui   # Multi-tab desktop GUI window
+  ```
+
+### 3. Run Automated Test Suite (20/20 Core Java Tests)
 ```bash
 # Compile all sources:
 javac -d out src/exception/*.java src/model/*.java src/repository/*.java src/service/*.java src/ui/*.java src/*.java
@@ -86,7 +105,7 @@ javac -d out src/exception/*.java src/model/*.java src/repository/*.java src/ser
 java -cp out SystemWorkflowTest
 ```
 
-### 2. One-Click Evaluator Presentation Demo (--demo mode)
+### 4. One-Click Evaluator Presentation Demo (--demo mode)
 ```bash
 java -cp out Main --demo
 # OR directly
