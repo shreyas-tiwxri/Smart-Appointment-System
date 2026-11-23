@@ -11,9 +11,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Service orchestrating clinical consultation records, diagnosis/prescription entry,
+ * Service managing clinical consultation records, diagnosis/prescription entry,
  * medical invoice generation, and automatic follow-up appointment scheduling.
- * Managed by Member 2 (Shreyas Tiwari).
+ * Managed by Shreyas Tiwari.
  */
 public class ConsultationService {
     private final IDataRepository repo;

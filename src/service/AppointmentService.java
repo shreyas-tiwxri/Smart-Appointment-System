@@ -15,7 +15,7 @@ import java.util.List;
 /**
  * Service managing appointment lifecycles, doctor decisions, slot availability,
  * and clinical schedule collision prevention.
- * Engineered by Member 2 (Shreyas Tiwari).
+ * Developed by Shreyas Tiwari.
  */
 public class AppointmentService {
     private static final DateTimeFormatter FMT = DateTimeFormatter.ofPattern(Config.DATETIME_FORMAT);

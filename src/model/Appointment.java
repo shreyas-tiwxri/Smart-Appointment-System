@@ -18,17 +18,25 @@ public class Appointment {
     private LocalDateTime dateTime;
     private AppointmentStatus status;
     private final boolean followUp;
+    private TriagePriority priority;
     private String rejectionReason;
     private String cancellationReason;
 
     public Appointment(int appointmentId, Patient patient, Doctor doctor,
                        LocalDateTime dateTime, AppointmentStatus status, boolean followUp) {
+        this(appointmentId, patient, doctor, dateTime, status, followUp, TriagePriority.ROUTINE);
+    }
+
+    public Appointment(int appointmentId, Patient patient, Doctor doctor,
+                       LocalDateTime dateTime, AppointmentStatus status, boolean followUp,
+                       TriagePriority priority) {
         this.appointmentId = appointmentId;
         this.patient = patient;
         this.doctor = doctor;
         this.dateTime = dateTime;
         this.status = status;
         this.followUp = followUp;
+        this.priority = (priority != null) ? priority : TriagePriority.ROUTINE;
         this.rejectionReason = "";
         this.cancellationReason = "";
     }
@@ -82,6 +90,8 @@ public class Appointment {
     public LocalDateTime getDateTime() { return dateTime; }
     public AppointmentStatus getStatus() { return status; }
     public boolean isFollowUp() { return followUp; }
+    public TriagePriority getPriority() { return priority; }
+    public void setPriority(TriagePriority priority) { this.priority = (priority != null) ? priority : TriagePriority.ROUTINE; }
     public String getRejectionReason() { return rejectionReason; }
     public String getCancellationReason() { return cancellationReason; }
 

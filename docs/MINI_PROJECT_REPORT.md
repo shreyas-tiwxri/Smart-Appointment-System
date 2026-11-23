@@ -6,7 +6,7 @@
 # DOCTOR SMART APPOINTMENT & CLINICAL WORKFLOW SYSTEM
 
 **Under the Guidance of:**  
-**Dr. ABC, XYZ**  
+**Dr. Jayendra Barua**  
 Assistant Professor  
 Computer Science & Engineering Department  
 Thapar Institute of Engineering & Technology, Patiala  
@@ -16,12 +16,11 @@ Thapar Institute of Engineering & Technology, Patiala
 ### Submitted By:
 | Roll Number | Student Name | Group / Sub-Group |
 |---|---|---|
-| [Roll Number 1] | **Mohit Srivastav** | [Group / Sub-Group] |
-| [Roll Number 2] | **Shreyas Tiwari** | [Group / Sub-Group] |
+| 1024030368 | **Mohit Srivastav** | 3C41 |
+| 1024030384 | **Shreyas Tiwari** | 3C41 |
 
 **Computer Science and Engineering Department**  
-**Thapar Institute of Engineering & Technology, Patiala**  
-*(Deemed to be University)*  
+**Thapar Institute of Engineering & Technology, Patiala** 
 
 *In Partial Fulfilment of the Requirements for the Degree of*  
 **Bachelor of Engineering in Computer Engineering**  

@@ -5,6 +5,7 @@ import repository.InMemoryRepository;
 import service.AppointmentService;
 import service.ConsultationService;
 import service.NotificationService;
+import server.SimpleHttpServer;
 import ui.DoctorMenu;
 import ui.InputHelper;
 import ui.MainWindow;
@@ -17,7 +18,7 @@ import util.Logger;
 
 /**
  * Main application bootstrap for the Doctor Smart Appointment System.
- * Collaborative project by Mohit Srivastav (Member 1) and Shreyas Tiwari (Member 2).
+ * Developed by: Mohit Srivastav & Shreyas Tiwari
  */
 public class Main {
     public static void main(String[] args) {
@@ -27,6 +28,22 @@ public class Main {
         }
         if (args.length > 0 && (args[0].equalsIgnoreCase("--gui") || args[0].equalsIgnoreCase("-g"))) {
             MainWindow.main(args);
+            return;
+        }
+        if (args.length > 0 && (args[0].equalsIgnoreCase("--web") || args[0].equalsIgnoreCase("-w"))) {
+            InMemoryRepository r = new InMemoryRepository();
+            seed(r);
+            AppointmentService as = new AppointmentService(r);
+            try {
+                SimpleHttpServer s = new SimpleHttpServer(8080, r, as);
+                s.start();
+                s.openInBrowser();
+                System.out.println("Press Enter to stop web server...");
+                System.in.read();
+                s.stop();
+            } catch (Exception ex) {
+                System.err.println("Failed to start server: " + ex.getMessage());
+            }
             return;
         }
         // If double-clicked directly as a runnable JAR without terminal attached, launch Desktop GUI
@@ -66,6 +83,7 @@ public class Main {
             System.out.println("  3. Run Automated Demo Walkthrough (--demo mode)");
             System.out.println("  4. Export System Diagnostic Snapshot to Disk");
             System.out.println("  5. Launch Desktop Clinical GUI (Swing Core Java)");
+            System.out.println("  6. Launch Local Web Portal in Browser (http://localhost:8080)");
             System.out.println("  0. Exit");
             System.out.println("-----------------------------------------------------------------");
 
@@ -84,11 +102,22 @@ public class Main {
                     System.out.println("Launching Core Java Swing Desktop Application...");
                     MainWindow.main(new String[]{});
                 }
+                case "6" -> {
+                    try {
+                        SimpleHttpServer server = new SimpleHttpServer(8080, repo, appointmentService);
+                        server.start();
+                        server.openInBrowser();
+                        System.out.println("Web dashboard running at http://localhost:8080/");
+                        in.readLine("Press Enter to return to main menu (server keeps running)...");
+                    } catch (Exception ex) {
+                        System.out.println("Could not start server: " + ex.getMessage());
+                    }
+                }
                 case "0" -> {
                     System.out.println("Thank you for using Doctor Smart Appointment System. Goodbye!");
                     return;
                 }
-                default -> System.out.println("Invalid choice. Please enter 0-5.");
+                default -> System.out.println("Invalid choice. Please enter 0-6.");
             }
         }
     }

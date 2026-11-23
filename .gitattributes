@@ -1,0 +1,7 @@
+# GitHub Linguist Language Configuration
+# Configure GitHub repository language bar to reflect the Core Java backend
+web/** linguist-vendored
+*.html linguist-documentation
+*.js linguist-vendored
+*.css linguist-vendored
+docs/** linguist-documentation

@@ -39,10 +39,10 @@ public class DemoRunner {
 
     public static void runDemo() {
         System.out.println("\n" + BOLD + CYAN + "=================================================================" + RESET);
-        System.out.println(BOLD + CYAN + "   DOCTOR SMART APPOINTMENT & CLINICAL SYSTEM - LIVE EVALUATION  " + RESET);
-        System.out.println(BOLD + CYAN + "     Architected by Mohit Srivastav (M1) & Shreyas Tiwari (M2)   " + RESET);
+        System.out.println(BOLD + CYAN + "          DOCTOR SMART APPOINTMENT SYSTEM - LIVE DEMO            " + RESET);
+        System.out.println(BOLD + CYAN + "             By: Mohit Srivastav & Shreyas Tiwari                " + RESET);
         System.out.println(BOLD + CYAN + "=================================================================" + RESET);
-        System.out.println("Comprehensive End-to-End Evaluation Demonstration | Core Java Architecture\n");
+        System.out.println("Outpatient Clinical Appointment & Consultation Workflow (Core Java)\n");
 
         InMemoryRepository repo = new InMemoryRepository();
         FilePersistenceService persistenceService = new FilePersistenceService();
@@ -115,7 +115,7 @@ public class DemoRunner {
                 .orElse(null);
 
         if (followUpAppt != null) {
-            System.out.println("\n" + BOLD + GREEN + "  ★ AUTOMATIC FOLLOW-UP APPOINTMENT CREATED BY SYSTEM ★" + RESET);
+            System.out.println("\n" + BOLD + GREEN + "  -> Auto follow-up appointment scheduled by system:" + RESET);
             System.out.println("    ID:           #" + followUpAppt.getAppointmentId());
             System.out.println("    Patient:      " + followUpAppt.getPatient().getName());
             System.out.println("    Doctor:       " + followUpAppt.getDoctor());
@@ -217,7 +217,7 @@ public class DemoRunner {
 
         // Summary Banner
         System.out.println("\n" + BOLD + GREEN + "=================================================================" + RESET);
-        System.out.println(BOLD + GREEN + "  ✔ ALL 10 CLINICAL STAGES & VALIDATION GUARDS 100% VERIFIED!    " + RESET);
+        System.out.println(BOLD + GREEN + "  [OK] All 10 clinical stages executed successfully              " + RESET);
         System.out.println(BOLD + GREEN + "=================================================================" + RESET);
         System.out.println("Ready for Evaluator / Teacher Demonstration.\n");
     }

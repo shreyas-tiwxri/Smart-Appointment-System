@@ -6,6 +6,7 @@ import repository.FilePersistenceService;
 import repository.InMemoryRepository;
 import service.AppointmentService;
 import service.ConsultationService;
+import service.TriageQueueService;
 
 import java.io.File;
 import java.time.LocalDateTime;
@@ -31,7 +32,7 @@ public class SystemWorkflowTest {
     private static final String BOLD = "\u001B[1m";
 
     public static void main(String[] args) {
-        System.out.println(BOLD + "\nRunning Core Java System Workflow Test Suite (20 Test Scenarios)..." + RESET);
+        System.out.println(BOLD + "\nRunning Core Java System Workflow Test Suite (21 Test Scenarios)..." + RESET);
         System.out.println("-----------------------------------------------------------------");
 
         testAppointmentCreation();
@@ -58,6 +59,7 @@ public class SystemWorkflowTest {
         testAppointmentCancellation();
         testAppointmentRescheduling();
         testMedicalInvoicingAndReceipt();
+        testTriagePriorityQueue();
 
         System.out.println("-----------------------------------------------------------------");
         if (failed == 0) {
@@ -419,6 +421,34 @@ public class SystemWorkflowTest {
             assertEquals(25.0, inv.getTaxAmount(), "5% GST on ₹500 must be ₹25.0");
             assertEquals(525.0, inv.getTotalAmount(), "Total invoice amount must be ₹525.0");
             assertEquals(true, inv.generateReceipt().contains("SMART CLINIC MEDICAL INVOICE"), "Receipt header must exist");
+        });
+    }
+
+    private static void testTriagePriorityQueue() {
+        runTest("TC-21: PriorityQueue triages EMERGENCY appointments ahead of ROUTINE", () -> {
+            InMemoryRepository repo = createRepoWithSeed();
+            Patient p = repo.getPatient(1);
+            Doctor d = repo.getDoctor(1);
+            LocalDateTime base = LocalDateTime.now().plusDays(1);
+
+            Appointment routine = new Appointment(101, p, d, base.withHour(10).withMinute(0),
+                    AppointmentStatus.APPROVED, false, TriagePriority.ROUTINE);
+            Appointment urgent = new Appointment(102, p, d, base.withHour(12).withMinute(0),
+                    AppointmentStatus.APPROVED, false, TriagePriority.URGENT);
+            Appointment emergency = new Appointment(103, p, d, base.withHour(14).withMinute(0),
+                    AppointmentStatus.APPROVED, false, TriagePriority.EMERGENCY);
+
+            TriageQueueService triage = new TriageQueueService();
+            // Enqueue in reverse order of severity
+            triage.enqueue(routine);
+            triage.enqueue(urgent);
+            triage.enqueue(emergency);
+
+            // Dequeue should pop EMERGENCY first (rank 1), then URGENT (rank 2), then ROUTINE (rank 3)
+            assertEquals(103, triage.dequeue().getAppointmentId(), "First dequeued must be EMERGENCY (#103)");
+            assertEquals(102, triage.dequeue().getAppointmentId(), "Second dequeued must be URGENT (#102)");
+            assertEquals(101, triage.dequeue().getAppointmentId(), "Third dequeued must be ROUTINE (#101)");
+            assertEquals(true, triage.isEmpty(), "Triage queue must be empty after popping all 3");
         });
     }
 

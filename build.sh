@@ -18,7 +18,7 @@ rm -f sources.txt
 echo "[OK] Compilation successful with 0 errors and 0 warnings!"
 
 echo ""
-echo "[2/3] Running 20-Scenario Verification Test Suite..."
+echo "[2/3] Running 21-Scenario Verification Test Suite..."
 java -cp out SystemWorkflowTest
 
 echo ""
