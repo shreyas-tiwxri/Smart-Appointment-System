@@ -1,34 +1,36 @@
-# Comprehensive Project Progress Report: Doctor Smart Appointment System
+# Course Project Progress Report: Doctor Smart Appointment System
 
-**Course:** Core Java / Object-Oriented Programming Laboratory  
+**Course:** UCS553: Enterprise Web Application / Core Java  
 **Project Title:** Doctor Smart Appointment & Clinical Workflow System  
-**Current Milestone:** Week 8 Final Laboratory Evaluation (100% Complete & Verified)  
-**Status:** 🟢 **Production & Evaluation Ready (20/20 Automated Tests Passing)**  
-**Authors:**
-- **Member 1:** Mohit Srivastav (Roll/ID: Member 1) — Patient Domain, Patient Portal UI, Interactive Web Presentation Simulator, Input Sanitation
-- **Member 2:** Shreyas Tiwari (Roll/ID: Member 2) — Doctor Domain, Clinical Analytics, Follow-up Automation, File Persistence, Medical Invoicing & Slot Collision Guard
+**Guide:** Dr. Jayendra Barua, Assistant Professor, CSED, TIET Patiala  
+**Current Milestone:** Final Course Evaluation (Complete & Verified)  
+**Status:** All 21 Automated Verification Tests Passing (100%)  
+**Submitted By:**
+- **Mohit Srivastav** (Roll No: 1024030368, Batch: 3C41) — Patient Domain, Patient Portal CLI, Web Presentation Dashboard, Input Validation
+- **Shreyas Tiwari** (Roll No: 1024030384, Batch: 3C41) — Doctor Workspace, Slot Collision Guard, Triage Priority Queue, Consultation & Follow-up, Invoicing & GST, File Persistence, Core Java HTTP Server
 
 ---
 
 ## 1. Executive Summary
 
-The **Doctor Smart Appointment System** is an enterprise-pattern Core Java application designed to coordinate the end-to-end appointment, clinical decision, billing, and consultation lifecycle between **Patients** and **Medical Practitioners**.
+The **Doctor Smart Appointment System** is a modular Core Java application designed to coordinate outpatient appointment scheduling, clinical consultations, follow-up automation, and medical billing between **Patients** and **Doctors**.
 
 ### Key Deliverables Completed:
-- ✅ **Polymorphic Domain Architecture:** Abstract base class `Person` extended by specialized actors `Patient` and `Doctor` featuring dynamic method dispatch.
-- ✅ **Interface-Driven Design (SOLID / DIP):** Data access decoupled via `IDataRepository`, ensuring services depend strictly on storage abstractions.
-- ✅ **Complete 6-Step Clinical Lifecycle:**
+- **Polymorphic Domain Architecture:** Abstract base class `Person` extended by specialized actors `Patient` and `Doctor` with dynamic method dispatch.
+- **Interface-Driven Design (SOLID / DIP):** Data access decoupled via `IDataRepository`, ensuring services depend strictly on storage abstractions.
+- **Complete Clinical Lifecycle:**
   1. **Request:** Patient requests an appointment with preferred date/time (initial status `PENDING`), guarded by a **30-minute collision buffer**.
-  2. **Review & Decision:** Doctor approves or rejects the request (with documented clinical audit reasons).
-  3. **Consultation Entry:** Doctor records clinical diagnosis and prescription for the approved visit.
-  4. **Automatic Follow-Up Booking:** Doctor enters next-visit date/time, triggering automatic creation of a follow-up appointment with status `APPROVED`.
-  5. **Medical Invoicing & Healthcare GST:** Automatically generates itemized medical bills with 5% healthcare GST stored in `records/invoices/`.
-  6. **Digital Prescription Slip & Real-Time Alerts:** Generates official formatted Rx slips with cryptographic verification hashes and dispatches Observer pattern alerts.
-- ✅ **Thread-Safety & Concurrency Hardening:** Lock-free sequence generation via `AtomicInteger` and thread-safe collections (`ConcurrentHashMap`, synchronized map wrappers).
-- ✅ **Zero-Dependency File Persistence:** Automated snapshot export and graceful state preservation via a JVM shutdown hook (`FilePersistenceService.java`).
-- ✅ **Automated Testing Suite:** 20/20 automated unit, integration, collision, and concurrency tests passing (`SystemWorkflowTest.java`) with zero third-party dependencies.
-- ✅ **1-Click Interactive Presentation Runner:** Built-in automated presentation mode (`DemoRunner.java` / `java -cp out Main --demo`) demonstrating all 10 clinical workflow stages.
-- ✅ **Interactive Slide Deck & Web Dashboard:** Standalone presentation deck (`docs/PRESENTATION_SLIDES.html`) and simulator (`web/index.html`) featuring live state visualization.
+  2. **Review & Decision:** Doctor approves or rejects the request (with mandatory clinical audit reasons).
+  3. **Emergency Triage Queue:** `PriorityQueue<Appointment>` with custom `Comparator` prioritizing EMERGENCY and URGENT cases.
+  4. **Consultation Entry:** Doctor records clinical diagnosis and prescription for the approved visit.
+  5. **Automatic Follow-Up Booking:** Doctor enters next-visit date/time, triggering automatic creation of a follow-up appointment with status `APPROVED`.
+  6. **Medical Invoicing & Healthcare GST:** Automatically generates itemized medical bills with 5% healthcare GST stored in `records/invoices/`.
+  7. **Prescription Slip & Real-Time Alerts:** Generates formatted Rx slips stored in `records/prescriptions/` and dispatches Observer pattern alerts.
+- **Thread-Safety & Concurrency:** Lock-free sequence generation via `AtomicInteger` and thread-safe collections (`ConcurrentHashMap`).
+- **File Persistence & Safe Shutdown:** Automated snapshot export and state preservation via a JVM shutdown hook (`FilePersistenceService.java`).
+- **Automated Testing Suite:** 21/21 automated unit, integration, collision, and concurrency tests passing (`SystemWorkflowTest.java`) with zero third-party dependencies.
+- **Embedded Web Server & REST API:** Built-in Java HTTP server (`SimpleHttpServer.java`) serving REST APIs and dashboard on port 8080.
+- **Desktop GUI:** Multi-tab clinical application built using 100% Core Java Swing (`MainWindow.java`).
 
 ---
 
@@ -69,15 +71,15 @@ src/
 
 ## 3. Team Member Division & Responsibilities
 
-| Contributor | Role & Package Responsibility | Concrete Modules Implemented |
+| Contributor | Roll Number | Concrete Modules Implemented |
 |---|---|---|
-| **Mohit Srivastav** | **Member 1 (Patient Portal & Presentation)** | - `Patient.java` entity model.<br>- `PatientMenu.java` interactive patient CLI.<br>- `web/` HTML5/CSS3/JS interactive evaluation simulator.<br>- Input sanitation & date parsing (`InputHelper.java`). |
-| **Shreyas Tiwari** | **Member 2 (Doctor Engine, Billing & Persistence)** | - `Doctor.java`, `Appointment.java`, `Consultation.java`, `Invoice.java` models.<br>- `DoctorMenu.java` practitioner workspace.<br>- `DoctorStats.java` clinical performance analytics.<br>- Automatic follow-up & slot collision engine.<br>- `NotificationService.java` Observer event dispatcher.<br>- `FilePersistenceService.java` local persistence, invoices & digital Rx exporter. |
-| **Collaborative** | **Architecture & Quality Assurance** | - `Person.java` abstract base class.<br>- `IDataRepository.java` DAO interface abstraction.<br>- `SystemWorkflowTest.java` 20-point automated test suite.<br>- Concurrency hardening, slide deck, and defense documentation. |
+| **Mohit Srivastav** | `1024030368` | - `Patient.java` domain model.<br>- `PatientMenu.java` interactive patient CLI.<br>- `web/` HTML5/CSS3/JS presentation dashboard.<br>- Input validation & date parsing (`InputHelper.java`). |
+| **Shreyas Tiwari** | `1024030384` | - `Doctor.java`, `Appointment.java`, `Consultation.java`, `Invoice.java` models.<br>- `DoctorMenu.java` practitioner workspace.<br>- `DoctorStats.java` clinical performance analytics.<br>- Automatic follow-up & slot collision engine (30-min buffer).<br>- `TriageQueueService.java` PriorityQueue triage sorting.<br>- `SimpleHttpServer.java` Core Java embedded HTTP server.<br>- `NotificationService.java` Observer event dispatcher.<br>- `FilePersistenceService.java` snapshot persistence & Rx exporter. |
+| **Collaborative** | Both | - `Person.java` abstract base class.<br>- `IDataRepository.java` DAO interface abstraction.<br>- `MainWindow.java` Core Java Swing Desktop GUI.<br>- `SystemWorkflowTest.java` 21-scenario automated test suite. |
 
 ---
 
-## 4. Automated Verification & Testing Matrix (20/20 PASS)
+## 4. Automated Verification & Testing Matrix (21/21 PASS)
 
 Every unit, integration, collision, and concurrency test executes without third-party frameworks:
 
@@ -97,20 +99,22 @@ Every unit, integration, collision, and concurrency test executes without third-
 | **TC-12** | Doctor consultation history isolation | Restricts consultation query results to calling doctor | ✅ **PASS** |
 | **TC-13** | Rejection with clinical audit reason | Captures and persists clinical justification for rejection | ✅ **PASS** |
 | **TC-14** | Polymorphic `Person` abstraction checks | Verifies dynamic dispatch of `getRole()` and `getSummaryDetails()` | ✅ **PASS** |
-| **TC-15** | Digital prescription slip export & file generation | Generates formatted Rx slip and saves to `records/prescriptions/` | ✅ **PASS** |
+| **TC-15** | Prescription slip export & file generation | Generates formatted Rx slip and saves to `records/prescriptions/` | ✅ **PASS** |
 | **TC-16** | Concurrency & Atomic sequence ID verification | 500 concurrent appointment creations with zero ID collisions | ✅ **PASS** |
 | **TC-17** | Double-booking doctor within 30 minutes | Guard prevents slot clash; throws `InvalidStateException` | ✅ **PASS** |
 | **TC-18** | Patient appointment cancellation workflow | Status transitions to `CANCELLED` with reason audit trail | ✅ **PASS** |
 | **TC-19** | Appointment rescheduling to new valid slot | Updates slot time and validates against schedule collisions | ✅ **PASS** |
 | **TC-20** | Medical billing invoice & GST calculation | Itemized receipt computed and stored in `records/invoices/` | ✅ **PASS** |
+| **TC-21** | Emergency triage PriorityQueue ordering | `PriorityQueue` with `Comparator` sorts `EMERGENCY` before `ROUTINE` | ✅ **PASS** |
 
 ---
 
 ## 5. How to Run the Demonstration
 
-### 1. Run Automated Test Suite (Fast 20-Point Verification)
+### 1. Run Automated Test Suite (Fast 21-Point Verification)
 ```bash
-javac -d out src/exception/*.java src/model/*.java src/repository/*.java src/service/*.java src/ui/*.java src/*.java
+# Compile and run test suite:
+javac -d out src/exception/*.java src/model/*.java src/repository/*.java src/service/*.java src/server/*.java src/ui/*.java src/util/*.java src/*.java
 java -cp out SystemWorkflowTest
 ```
 
@@ -124,6 +128,16 @@ java -cp out DemoRunner
 ### 3. Run Interactive Console System
 ```bash
 java -cp out Main
+```
+
+### 4. Launch Desktop GUI Application (Swing)
+```bash
+java -cp out Main --gui
+```
+
+### 5. Launch Embedded Web Server (:8080)
+```bash
+java -cp out Main --web
 ```
 
 ### 4. Open Evaluator Slide Deck

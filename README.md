@@ -1,168 +1,251 @@
 # Doctor Smart Appointment & Clinical Workflow System
 
-A modular, enterprise-grade Core Java clinical coordination project engineered with strict Object-Oriented principles, multi-layered architecture, zero-dependency file persistence, slot conflict guards, medical invoicing, and 20 automated tests.
+A modular healthcare coordination system developed using **100% Core Java (JDK 17+)** with zero external libraries or frameworks. Developed as an academic project for **UCS553: Enterprise Web Application / Core Java** at **Thapar Institute of Engineering & Technology, Patiala**.
+
+- **Live Project Web Portal:** [https://shreyas-tiwxri.github.io/Smart-Appointment-System/](https://shreyas-tiwxri.github.io/Smart-Appointment-System/)
+- **Local Micro-Server:** `http://localhost:8080/` (built-in Java HTTP server)
+- **Standalone Runnable:** `doctor-smart-system.jar` (Includes Desktop GUI, CLI, and Web Server)
+- **Detailed Academic Report:** [docs/MINI_PROJECT_REPORT.md](docs/MINI_PROJECT_REPORT.md)
 
 ---
 
-## 👥 Engineering Team & Division of Responsibilities
+## Academic & Team Details
 
-| Role | Engineer | Core Responsibilities & Modules |
+- **Course:** UCS553 - Enterprise Web Application / Core Java
+- **Under the Guidance of:** Dr. Jayendra Barua, Assistant Professor, Computer Science & Engineering Department
+- **Institution:** Thapar Institute of Engineering & Technology, Patiala
+- **Batch:** 3C41
+
+### Team Members & Division of Work
+
+| Student Name | Roll Number | Primary Modules & Responsibilities |
 |---|---|---|
-| **Member 1** | **Mohit Srivastav** | Patient domain model, Patient Portal CLI (`PatientMenu.java`), Web Presentation & interactive visual simulator showcase (`web/`), and Input Sanitation (`InputHelper.java`). |
-| **Member 2** | **Shreyas Tiwari** | Appointment & Consultation models, Doctor Workspace CLI (`DoctorMenu.java`), Follow-up automation engine, Slot Collision Guard, Medical Invoicing (`Invoice.java`), Clinical analytics (`DoctorStats.java`), Event Notification Engine (`NotificationService.java`), and File Persistence (`FilePersistenceService.java`). |
-| **Collaborative** | **Mohit & Shreyas** | Domain abstraction (`Person.java`), DAO abstraction (`IDataRepository.java`), Automated verification test suite (20/20 test scenarios), evaluation defense & presentation slides. |
+| **Mohit Srivastav** | `1024030368` | Patient Portal CLI (`PatientMenu.java`), Patient domain model (`Patient.java`), Web UI prototype (`web/`), input validation & date parsing (`InputHelper.java`). |
+| **Shreyas Tiwari** | `1024030384` | Doctor Clinical Workspace (`DoctorMenu.java`), Slot Collision Guard (30-min buffer), Triage Priority Queue (`TriageQueueService.java`), Consultation & auto follow-up booking, Invoicing & GST (`Invoice.java`), File persistence (`FilePersistenceService.java`), Core Java HTTP Server (`SimpleHttpServer.java`). |
+| **Collaborative** | Both Members | Domain abstraction (`Person.java`), DAO abstraction (`IDataRepository.java`), Core Java Swing Desktop GUI (`MainWindow.java`), 21-scenario test suite (`SystemWorkflowTest.java`), documentation. |
 
 ---
 
-## 🏥 Clinical Workflow Lifecycle (6-Step Pipeline)
-1. **Request Submission:** Patient requests an appointment with a chosen practitioner and preferred date/time (initial status `PENDING`). Enforces a **30-minute collision buffer** to eliminate double-booking.
-2. **Clinical Review & Decisioning:** Doctor reviews pending queue and decides:
-   - **Approve:** Updates status to `APPROVED`.
-   - **Reject:** Updates status to `REJECTED` with a documented clinical reason.
-3. **Clinical Consultation & Prescription:** Following the physical visit, doctor records:
-   - Official clinical diagnosis.
-   - Prescriptions, medications & patient instructions.
-   - Recommended next follow-up date and time.
-4. **Automated Follow-up Booking:** The system automatically schedules the follow-up appointment with status `APPROVED` directly (no secondary approval required, as it was established by the practitioner).
-5. **Medical Invoicing & Healthcare GST:** System computes specialist fees + 5% healthcare GST, generating an official itemized `Invoice` receipt stored in `records/invoices/`.
-6. **Digital Prescription Slip & Real-Time Alerts:** Formats official Rx discharge slips with digital cryptographic verification hashes in `records/prescriptions/` and dispatches live alerts via the Observer Pattern.
+## Key Features
+
+1. **Patient Booking & Slot Collision Prevention:**
+   - Patients can view available doctors and schedule appointments.
+   - Built-in scheduling guard enforces a **30-minute buffer** between appointments to prevent double-booking.
+2. **Emergency Triage Queue (`TriageQueueService`):**
+   - Implements a priority queue (`PriorityQueue<Appointment>`) with a custom `Comparator` to process emergency and urgent patients ahead of routine appointments.
+3. **Doctor Workspace & Decisioning:**
+   - Doctors review pending queues to approve or reject visits (with mandatory clinical reasons for rejections).
+   - Real-time clinical stats: total visits, approval rate percentage, and completed consultations.
+4. **Clinical Consultation & Automatic Follow-Up:**
+   - Doctors record clinical diagnoses and medication instructions.
+   - When a review date is specified, the system automatically schedules the next follow-up appointment with `APPROVED` status.
+5. **Medical Invoicing with GST:**
+   - Automatically computes consultation fees + 5% healthcare GST and writes itemized receipts to `records/invoices/`.
+6. **Prescription Slips & Persistence:**
+   - Formats and exports printable clinical prescription notes to `records/prescriptions/`.
+   - Saves database diagnostic snapshots to disk with a JVM shutdown hook to prevent accidental data loss.
+7. **Observer Pattern Real-Time Notifications:**
+   - `NotificationService` publishes event alerts for bookings, approvals, rejections, cancellations, and consultations.
+8. **Multiple Interfaces in One Package:**
+   - **Interactive Console CLI** with formatted menus.
+   - **Desktop GUI** built with 100% Core Java Swing (`MainWindow.java`).
+   - **Embedded Local Web Server** (`SimpleHttpServer.java`) serving REST APIs and the web dashboard on port `8080`.
+   - **GitHub Pages Portal** hosted at `https://shreyas-tiwxri.github.io/Smart-Appointment-System/`.
 
 ---
 
-## 📁 Layered Architecture & Codebase Map
+## Project Structure
 
 ```
-src/
-├── Main.java                        # System bootstrap, CLI routing & JVM shutdown hook
-├── DemoRunner.java                  # Automated 10-stage live evaluator presentation walkthrough
-├── SystemWorkflowTest.java          # 20-point unit, integration, collision & concurrency suite
-├── model/                           # Domain Entities, DTOs & Enums
-│   ├── Person.java                  # Abstract base class (Abstraction & Inheritance)
-│   ├── Patient.java                 # Patient entity (Inherits Person)
-│   ├── Doctor.java                  # Doctor entity (Inherits Person, includes consultation fee)
-│   ├── Appointment.java             # Scheduling entity, cancellation & transition guards
-│   ├── AppointmentStatus.java       # Strongly typed Enum (PENDING, APPROVED, REJECTED, CANCELLED)
-│   ├── Consultation.java            # Clinical notes & digital Rx slip generator
-│   ├── Invoice.java                 # Itemized medical billing & GST calculation
-│   ├── NotificationEvent.java       # Observer pattern audit alert message
-│   └── DoctorStats.java             # DTO aggregating practitioner analytics
-├── repository/                      # Data Access Layer & Storage Engines
-│   ├── IDataRepository.java         # DAO interface abstraction (Dependency Inversion Principle)
-│   ├── InMemoryRepository.java      # Thread-safe repository (ConcurrentHashMap, AtomicInteger)
-│   └── FilePersistenceService.java  # Zero-dependency file persistence & audit logger
-├── service/                         # Business Logic & Clinical Validation
-│   ├── AppointmentService.java      # Queue management, slot collision guard & doctor analytics
-│   ├── ConsultationService.java     # Clinical consultation recording & invoicing
-│   └── NotificationService.java     # Real-time event dispatcher (Observer Pattern)
-├── ui/                              # Presentation Layer (Console CLI & Desktop GUI)
-│   ├── MainWindow.java              # 100% Core Java Swing Multi-Tab Desktop Application
-│   ├── PatientMenu.java             # Patient portal, appointment modification & billing
-│   ├── DoctorMenu.java              # Doctor workspace, analytics, decisioning & revenue
-│   └── InputHelper.java             # Date parsing, input sanitation & exception wrappers
-└── util/                            # Utilities & Configuration
-    ├── Logger.java                  # ANSI colour-coded diagnostic logger with timestamping
-    └── Config.java                  # Centralised configuration loader (slot buffer, GST, formats)
-docs/
-├── PRESENTATION_SLIDES.html         # Interactive slide deck for evaluator defense
-├── TEACHER_PROGRESS_REPORT.md       # Comprehensive milestone report with architecture & metrics
-├── VIVA_PREPARATION_GUIDE.md        # 1-Hour strict evaluation defense script & answers
-└── TODO.md                          # 8-Week milestone tracker (100% Complete)
-records/                             # Local persistence snapshots, invoices & exported Rx slips
-web/                                 # Interactive presentation simulator dashboard
+doctor-smart-appointment-system/
+├── src/
+│   ├── Main.java                        # Application entry point, CLI routing & JVM shutdown hook
+│   ├── DemoRunner.java                  # 10-stage automated walkthrough for project evaluation
+│   ├── SystemWorkflowTest.java          # 21-scenario test suite (runs without JUnit)
+│   ├── model/                           # Domain Entities & DTOs
+│   │   ├── Person.java                  # Abstract base class (encapsulation & polymorphism)
+│   │   ├── Patient.java                 # Patient entity extending Person
+│   │   ├── Doctor.java                  # Doctor entity extending Person
+│   │   ├── Appointment.java             # Appointment entity with state and priority
+│   │   ├── AppointmentStatus.java       # Enum: PENDING, APPROVED, REJECTED, CANCELLED
+│   │   ├── TriagePriority.java          # Enum: EMERGENCY, URGENT, ROUTINE
+│   │   ├── Consultation.java            # Clinical notes, diagnosis, and prescription details
+│   │   ├── Invoice.java                 # Billing computation with 5% healthcare GST
+│   │   ├── NotificationEvent.java       # Observer alert data model
+│   │   └── DoctorStats.java             # DTO aggregating practitioner analytics
+│   ├── repository/                      # Data Access & Storage
+│   │   ├── IDataRepository.java         # Repository interface (Dependency Inversion Principle)
+│   │   ├── InMemoryRepository.java      # Thread-safe repository (ConcurrentHashMap, AtomicInteger)
+│   │   └── FilePersistenceService.java  # File I/O snapshot exporter and audit logger
+│   ├── server/                          # Embedded Networking
+│   │   └── SimpleHttpServer.java        # Standard library HTTP server & REST API (:8080)
+│   ├── service/                         # Business Logic Layer
+│   │   ├── AppointmentService.java      # Slot collision guard, booking, and doctor workload stats
+│   │   ├── TriageQueueService.java      # PriorityQueue triage ordering
+│   │   ├── ConsultationService.java     # Diagnosis, auto follow-up, and invoicing
+│   │   └── NotificationService.java     # Event publisher (Observer Pattern)
+│   ├── ui/                              # User Interfaces
+│   │   ├── MainWindow.java              # Core Java Swing Desktop Application
+│   │   ├── PatientMenu.java             # Terminal menu for patient workflows
+│   │   ├── DoctorMenu.java              # Terminal menu for doctor workflows
+│   │   └── InputHelper.java             # Input validation, sanitization, and date parsing
+│   ├── util/                            # Shared Utilities
+│   │   ├── Config.java                  # System constants (slot buffer, GST rate, formats)
+│   │   └── Logger.java                  # Timestamped terminal logger
+│   └── exception/                       # Custom Exception Hierarchy
+│       ├── InvalidInputException.java   # Bad input or past date validation
+│       ├── InvalidStateException.java   # State transition and slot collision errors
+│       └── NotFoundException.java       # Missing doctor/patient identifier errors
+├── web/                                 # Static web dashboard & client assets
+│   ├── index.html                       # Web presentation dashboard
+│   ├── css/style.css                    # Styling
+│   └── js/app.js                        # Client-side data interaction
+├── docs/                                # Project Documentation
+│   ├── MINI_PROJECT_REPORT.md           # Formal college mini-project report
+│   ├── TEACHER_PROGRESS_REPORT.md       # Milestone progress and architecture details
+│   ├── VIVA_PREPARATION_GUIDE.md        # Viva defense questions and answers
+│   └── PRESENTATION_SLIDES.html         # HTML presentation slide deck
+├── records/                             # Generated runtime output
+│   ├── prescriptions/                   # Exported prescription slips (.txt)
+│   ├── invoices/                        # Exported medical receipts (.txt)
+│   └── database_snapshot.txt            # System snapshot
+├── index.html                           # Root redirect for GitHub Pages deployment
+├── build.bat                            # 1-Click build & test script for Windows
+├── build.sh                             # 1-Click build & test script for Linux/macOS
+├── doctor-smart-system.jar              # Runnable standalone executable JAR
+└── README.md
 ```
 
 ---
 
-## ⚡ Run & Evaluation Commands
+## How to Build and Run
 
-Requires JDK 17+ (Tested on Java 26 / Java 17).
+### Prerequisites
+- Java Development Kit: **JDK 17 or higher** (Tested on JDK 17, 21, and 26)
+- No build tools (Maven, Gradle) needed. Standard `javac` and `java` are used.
 
-### 1. One-Click Master Build (Compile, Test & Package JAR)
-- **On Windows:**
+---
+
+### Method 1: One-Click Build Script
+
+- **Windows:**
   ```cmd
   build.bat
   ```
-- **On macOS / Linux:**
+- **Linux / macOS:**
   ```bash
-  chmod +x build.sh && ./build.sh
+  chmod +x build.sh
+  ./build.sh
+  ```
+*This compiles all source files, runs all 21 verification tests, and packages `doctor-smart-system.jar`.*
+
+---
+
+### Method 2: Running the Standalone Executable JAR
+
+- **Desktop GUI Mode (Default):**
+  Double-click `doctor-smart-system.jar` in file explorer, or run:
+  ```bash
+  java -jar doctor-smart-system.jar --gui
+  ```
+- **Interactive Console CLI:**
+  ```bash
+  java -jar doctor-smart-system.jar
+  ```
+- **Local Web Server (Port 8080):**
+  ```bash
+  java -jar doctor-smart-system.jar --web
+  ```
+  *Then open `http://localhost:8080/` in your browser.*
+- **Automated 10-Stage Evaluation Walkthrough:**
+  ```bash
+  java -jar doctor-smart-system.jar --demo
   ```
 
-### 2. Standalone Executable JAR (Double-Click or CLI)
-- **Direct Double-Click:** Double-clicking `doctor-smart-system.jar` in Windows Explorer immediately launches the **Core Java Swing Desktop GUI**!
-- **Run via Terminal:**
-  ```bash
-  java -jar doctor-smart-system.jar         # Interactive console menu
-  java -jar doctor-smart-system.jar --demo  # 10-stage automated evaluation walkthrough
-  java -jar doctor-smart-system.jar --gui   # Multi-tab desktop GUI window
-  ```
+---
 
-### 3. Run Automated Test Suite (20/20 Core Java Tests)
+### Method 3: Manual Compilation & Direct Execution
+
 ```bash
-# Compile all sources:
-javac -d out src/exception/*.java src/model/*.java src/repository/*.java src/service/*.java src/ui/*.java src/*.java
+# Compile all source files into the 'out' directory:
+javac -d out src/exception/*.java src/model/*.java src/repository/*.java src/service/*.java src/server/*.java src/ui/*.java src/util/*.java src/*.java
 
-# Run 20-test verification suite:
-java -cp out SystemWorkflowTest
-```
-
-### 4. One-Click Evaluator Presentation Demo (--demo mode)
-```bash
-java -cp out Main --demo
-# OR directly
-java -cp out DemoRunner
-```
-
-### 3. Run Interactive Clinical Console Application
-```bash
+# Run interactive console:
 java -cp out Main
-```
-- Select `1` for Patient Portal (Aman: ID 1, Riya: ID 2, Kabir: ID 3).
-- Select `2` for Doctor Clinical Workspace (Dr. Sharma: ID 1, Dr. Verma: ID 2).
-- Select `3` for 1-Click Automated Presentation Walkthrough (10 Stages).
-- Select `4` to export system diagnostic database snapshot to disk.
-- Select `5` to launch Core Java Swing Desktop Application.
 
-### 4. Launch Desktop GUI Application (100% Core Java Swing)
-```bash
+# Run Desktop Swing GUI:
 java -cp out Main --gui
-# OR directly
-java -cp out ui.MainWindow
-```
 
-### 5. Interactive Presentation Slides (For Teacher Viva)
-Open [`docs/PRESENTATION_SLIDES.html`](docs/PRESENTATION_SLIDES.html) in your browser:
-```bash
-start docs/PRESENTATION_SLIDES.html   # On Windows
-open docs/PRESENTATION_SLIDES.html    # On macOS
-```
+# Run embedded local web server:
+java -cp out Main --web
 
-### 5. Interactive Web Presentation Dashboard & Simulator
-Open [`web/index.html`](web/index.html) in your browser:
-```bash
-start web/index.html  # On Windows
-open web/index.html   # On macOS
+# Run 21-scenario verification test suite:
+java -cp out SystemWorkflowTest
+
+# Run 10-stage evaluation demo:
+java -cp out Main --demo
 ```
 
 ---
 
-## 🔬 Core Java Principles & Technical Highlights
+## Automated Test Suite (21 / 21 Tests Passing)
 
-- **Object-Oriented Abstraction & Inheritance:** `Person` base class inherited by `Patient` and `Doctor` with polymorphic methods `getRole()` and `getSummaryDetails()`.
-- **Interface-Driven Design (SOLID / DIP):** `IDataRepository` cleanly decouples business services (`AppointmentService`, `ConsultationService`) from physical storage.
-- **Slot Collision & Double-Booking Guard:** `AppointmentService.checkSlotAvailability()` enforces a 30-minute collision buffer around every active doctor slot.
-- **Observer Pattern Event Dispatching:** `NotificationService` dispatches decoupled alerts to actors on appointment scheduling, decisions, cancellations, and completed visits.
-- **Thread-Safety & Concurrency Handling:** `ConcurrentHashMap`, synchronized chronological wrappers, and `AtomicInteger` lock-free primary key counters ensure race condition immunity.
-- **Zero-Dependency Disk Persistence:** `FilePersistenceService` snapshots state to `records/database_snapshot.txt`, exports printable clinical Rx slips, and stores billing receipts in `records/invoices/`.
-- **Graceful JVM Shutdown Hook:** `Runtime.getRuntime().addShutdownHook(...)` guarantees automated database snapshotting even if the program terminates unexpectedly.
-- **Custom Exception Hierarchy:** Unchecked exceptions extending `RuntimeException`:
-  - `InvalidInputException` (e.g., past dates, missing fields).
-  - `InvalidStateException` (e.g., slot collisions, re-deciding visits, duplicate consultations).
-  - `NotFoundException` (e.g., unmapped patient or doctor identifiers).
+All tests are implemented in Core Java inside `src/SystemWorkflowTest.java` without relying on JUnit:
+
+| Test ID | Scenario Tested | Checked Invariant | Status |
+|:---:|---|---|:---:|
+| **TC-01** | Appointment Creation | Initial status is `PENDING`, `isFollowUp == false` | PASS |
+| **TC-02** | Past Date Scheduling | Rejects past timestamp via `InvalidInputException` | PASS |
+| **TC-03** | Doctor Approval | Updates status to `APPROVED` | PASS |
+| **TC-04** | Doctor Rejection | Updates status to `REJECTED` | PASS |
+| **TC-05** | Decision Locking | Re-deciding an already approved/rejected visit throws `InvalidStateException` | PASS |
+| **TC-06** | Consultation & Follow-up | Creates consultation note and auto-books follow-up with status `APPROVED` | PASS |
+| **TC-07** | Consultation Guard | Consultation blocked for non-`APPROVED` visits | PASS |
+| **TC-08** | Duplicate Consultation | Re-recording consultation on same visit throws `InvalidStateException` | PASS |
+| **TC-09** | Follow-Up Date Sequence | Next-visit date before current appointment is rejected | PASS |
+| **TC-10** | Data Isolation | Accessing invalid or unmapped patient/doctor IDs throws `NotFoundException` | PASS |
+| **TC-11** | Doctor Workload Analytics | Accurate calculation of total visits, approval %, and completed consults | PASS |
+| **TC-12** | Doctor Record Isolation | Restricts consultation query results to the attending doctor | PASS |
+| **TC-13** | Rejection Reason Audit | Captures and persists clinical justification for rejected visits | PASS |
+| **TC-14** | Polymorphism Verification | Polymorphic dispatch on `Person` methods (`getRole()`, `getSummaryDetails()`) | PASS |
+| **TC-15** | Prescription Slip Export | Formats and saves readable prescription file to `records/prescriptions/` | PASS |
+| **TC-16** | Thread Safety & Atomic IDs | Concurrent appointment creation with zero duplicate IDs | PASS |
+| **TC-17** | 30-Minute Slot Buffer | Prevents booking when doctor has overlapping appointment within 30 mins | PASS |
+| **TC-18** | Patient Cancellation | Transitions status to `CANCELLED` and logs cancellation reason | PASS |
+| **TC-19** | Appointment Rescheduling | Modifies appointment time and validates against schedule collisions | PASS |
+| **TC-20** | Invoicing & GST Calculation | Computes consultation fee + 5% healthcare GST, exports to `records/invoices/` | PASS |
+| **TC-21** | Triage Priority Queue | `PriorityQueue` processes `EMERGENCY` appointments before `ROUTINE` | PASS |
 
 ---
 
-## 📚 Evaluation & Viva Defense Documentation
-- **[Interactive Defense Slide Deck](docs/PRESENTATION_SLIDES.html)**: Clean, slide-based presentation for course instructors.
-- **[Comprehensive Viva Preparation & Defense Guide](docs/VIVA_PREPARATION_GUIDE.md)**: Word-for-word explanations, tricky examiner questions, and design justifications.
-- **[Teacher Progress Report & UML Diagrams](docs/TEACHER_PROGRESS_REPORT.md)**: Complete progress audit, class diagrams, and 20-test matrix.
-- **[8-Week Milestone Checklist](docs/TODO.md)**: All milestones verified.
+## Core Java Concepts Implemented
+
+- **Object-Oriented Programming (OOP):**
+  - **Abstraction & Inheritance:** Abstract base class `Person` extended by `Patient` and `Doctor`.
+  - **Polymorphism:** Method overriding in `getRole()` and dynamic method dispatch.
+  - **Encapsulation:** Strongly typed entities with private fields, validation rules, and immutability where appropriate.
+- **Java Collections Framework:**
+  - `PriorityQueue<Appointment>` with custom `Comparator` for patient triage.
+  - `ConcurrentHashMap<Integer, T>` for thread-safe repository lookups.
+  - `ArrayList<T>` and sorted chronological streams for appointment histories.
+- **Concurrency & Thread Safety:**
+  - `AtomicInteger` counters for lock-free, collision-free unique ID generation.
+  - Thread-safe repository operations preventing race conditions.
+- **File I/O & Serialization:**
+  - `BufferedWriter`, `BufferedReader`, `File` operations for persistent audit logs, prescription slips, and database snapshots.
+  - `Runtime.getRuntime().addShutdownHook(...)` ensuring clean snapshotting on JVM shutdown.
+- **Built-in HTTP Networking (`jdk.httpserver`):**
+  - Standard library `com.sun.net.httpserver.HttpServer` serving REST API endpoints without third-party web frameworks.
+- **Custom Exception Handling:**
+  - Exception hierarchy extending `RuntimeException` (`InvalidInputException`, `InvalidStateException`, `NotFoundException`).
+- **GUI Programming:**
+  - Multi-tab graphical interface built with standard Java Swing (`javax.swing.*`, `java.awt.*`).
+
+---
+
+## Evaluation Documents
+
+- **[Formal Mini-Project Report](docs/MINI_PROJECT_REPORT.md)**: Formatted according to academic project submission standards.
+- **[Teacher Progress Report](docs/TEACHER_PROGRESS_REPORT.md)**: Weekly milestones, component breakdown, and verification results.
+- **[Viva Preparation & Defense Guide](docs/VIVA_PREPARATION_GUIDE.md)**: Expected evaluation questions, technical justifications, and code explanations.
+- **[Presentation Slide Deck](docs/PRESENTATION_SLIDES.html)**: Interactive presentation slides for project demonstration.

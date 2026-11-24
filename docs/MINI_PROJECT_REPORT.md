@@ -43,7 +43,7 @@ The system implements a decoupled, 4-tier layered architecture adhering strictly
 5. A **Multi-Tab Desktop GUI** developed using 100% Core Java Swing (`javax.swing.*`, `java.awt.*`) providing interactive visual workflows alongside the interactive command-line interface.
 6. A **Graceful JVM Shutdown Hook** ensuring zero-loss state snapshotting to disk upon program termination.
 
-The system was verified against a custom-engineered 20-scenario automated test suite (`SystemWorkflowTest.java`) evaluating unit behavior, domain business rules, slot conflict constraints, and multi-threaded race conditions, achieving a 100% pass rate.
+The system was verified against a custom-engineered 21-scenario automated test suite (`SystemWorkflowTest.java`) evaluating unit behavior, domain business rules, slot conflict constraints, and multi-threaded race conditions, achieving a 100% pass rate.
 
 ---
 
@@ -78,7 +78,7 @@ The system was verified against a custom-engineered 20-scenario automated test s
   - 4.2 Functional Workflow Verification
   - 4.3 Automated 10-Stage Evaluation Walkthrough Output
   - 4.4 Clinical Business Rule & Error Handling Validation
-  - 4.5 Automated 20-Scenario Test Suite Execution
+  - 4.5 Automated 21-Scenario Test Suite Execution
 - **References**
 
 ---
@@ -663,7 +663,7 @@ The system was tested against deliberate invalid operations:
             ("Slot Conflict: Dr. Rajesh Sharma already has an active appointment (#4 at 15-11-2026 14:00). A 30-minute consultation buffer is required.")
 ```
 
-### 4.4 Automated 20-Scenario Verification Test Suite
+### 4.4 Automated 21-Scenario Verification Test Suite
 Executed via `build.bat` or `java -cp out SystemWorkflowTest`:
 
 | Test ID | Test Scenario | Verified System Behavior | Status |
@@ -688,8 +688,9 @@ Executed via `build.bat` or `java -cp out SystemWorkflowTest`:
 | **TC-18** | Patient appointment cancellation | Cancels visit and records audit reason | **PASS** |
 | **TC-19** | Appointment rescheduling | Updates date/time while enforcing slot collision buffer | **PASS** |
 | **TC-20** | Medical billing invoice & GST | Verifies base fee + 5% GST computation | **PASS** |
+| **TC-21** | Triage Priority Queue | `PriorityQueue` prioritizes `EMERGENCY` appointments ahead of `ROUTINE` | **PASS** |
 
-**Final Verification Result:** `ALL 20 TESTS PASSED SUCCESSFULLY! (100% Passing)`
+**Final Verification Result:** `ALL 21 TESTS PASSED SUCCESSFULLY! (100% Passing)`
 
 ---
 
