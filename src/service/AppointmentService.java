@@ -35,6 +35,13 @@ public class AppointmentService {
      * Patient creates an appointment request with slot collision and operating hours validation.
      */
     public Appointment requestAppointment(int patientId, int doctorId, LocalDateTime dateTime) {
+        return requestAppointment(patientId, doctorId, dateTime, TriagePriority.ROUTINE);
+    }
+
+    /**
+     * Overloaded appointment request supporting explicit TriagePriority (EMERGENCY, URGENT, ROUTINE).
+     */
+    public Appointment requestAppointment(int patientId, int doctorId, LocalDateTime dateTime, TriagePriority priority) {
         if (dateTime == null) throw new InvalidInputException("Appointment date and time are required.");
         if (dateTime.isBefore(LocalDateTime.now()))
             throw new InvalidInputException("Appointment date/time cannot be in the past.");
@@ -46,13 +53,14 @@ public class AppointmentService {
         checkSlotAvailability(doctorId, dateTime, -1);
 
         Appointment a = new Appointment(repo.nextAppointmentId(), p, d, dateTime,
-                                        AppointmentStatus.PENDING, false);
+                                        AppointmentStatus.PENDING, false, priority);
         repo.saveAppointment(a);
 
         // Dispatch alert to doctor
         if (notificationService != null) {
             notificationService.notify("DOCTOR", doctorId, "NEW_REQUEST",
-                    "New appointment request #" + a.getAppointmentId() + " from " + p.getName() + " for " + dateTime.format(FMT));
+                    "New " + a.getPriority().name() + " appointment request #" + a.getAppointmentId()
+                            + " from " + p.getName() + " for " + dateTime.format(FMT));
         }
 
         return a;

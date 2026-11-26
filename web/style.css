@@ -952,6 +952,24 @@ select:focus, input:focus, textarea:focus {
   border: 1px solid var(--status-followup-border);
 }
 
+.status-chip.priority-chip.emergency {
+  background: #fee2e2;
+  color: #b91c1c;
+  border: 1px solid #fca5a5;
+}
+
+.status-chip.priority-chip.urgent {
+  background: #fef3c7;
+  color: #b45309;
+  border: 1px solid #fcd34d;
+}
+
+.status-chip.priority-chip.routine {
+  background: #f1f5f9;
+  color: #475569;
+  border: 1px solid #cbd5e1;
+}
+
 .card-details {
   display: flex;
   flex-direction: column;

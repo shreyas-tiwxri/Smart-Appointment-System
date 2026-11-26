@@ -51,7 +51,7 @@ echo =================================================================
 echo Run Options:
 echo   1. Double-click doctor-smart-system.jar to launch Desktop GUI
 echo   2. Standalone JAR:   java -jar doctor-smart-system.jar
-echo   3. JAR Live Demo:    java -jar doctor-smart-system.jar --demo
+echo   3. JAR Web Portal:   java -jar doctor-smart-system.jar --web
 echo   4. JAR Desktop GUI:  java -jar doctor-smart-system.jar --gui
 echo   5. Classical Main:   java -cp out Main
 echo =================================================================

@@ -22,10 +22,6 @@ import util.Logger;
  */
 public class Main {
     public static void main(String[] args) {
-        if (args.length > 0 && args[0].equalsIgnoreCase("--demo")) {
-            DemoRunner.runDemo();
-            return;
-        }
         if (args.length > 0 && (args[0].equalsIgnoreCase("--gui") || args[0].equalsIgnoreCase("-g"))) {
             MainWindow.main(args);
             return;
@@ -80,10 +76,9 @@ public class Main {
             System.out.println("\nMAIN SELECTION MENU:");
             System.out.println("  1. Login as Patient (Member 1 Portal)");
             System.out.println("  2. Login as Doctor  (Member 2 Clinical Workspace)");
-            System.out.println("  3. Run Automated Demo Walkthrough (--demo mode)");
-            System.out.println("  4. Export System Diagnostic Snapshot to Disk");
-            System.out.println("  5. Launch Desktop Clinical GUI (Swing Core Java)");
-            System.out.println("  6. Launch Local Web Portal in Browser (http://localhost:8080)");
+            System.out.println("  3. Export System Diagnostic Snapshot to Disk");
+            System.out.println("  4. Launch Desktop Clinical GUI (Swing Core Java)");
+            System.out.println("  5. Launch Local Web Portal in Browser (http://localhost:8080)");
             System.out.println("  0. Exit");
             System.out.println("-----------------------------------------------------------------");
 
@@ -91,18 +86,17 @@ public class Main {
             switch (ch) {
                 case "1" -> patientMenu.run();
                 case "2" -> doctorMenu.run();
-                case "3" -> DemoRunner.runDemo();
-                case "4" -> {
+                case "3" -> {
                     File f = persistenceService.exportDatabaseSnapshot(repo);
                     if (f != null) {
                         System.out.println("✔ Diagnostic snapshot generated at: " + f.getAbsolutePath());
                     }
                 }
-                case "5" -> {
+                case "4" -> {
                     System.out.println("Launching Core Java Swing Desktop Application...");
                     MainWindow.main(new String[]{});
                 }
-                case "6" -> {
+                case "5" -> {
                     try {
                         SimpleHttpServer server = new SimpleHttpServer(8080, repo, appointmentService);
                         server.start();
@@ -117,7 +111,7 @@ public class Main {
                     System.out.println("Thank you for using Doctor Smart Appointment System. Goodbye!");
                     return;
                 }
-                default -> System.out.println("Invalid choice. Please enter 0-6.");
+                default -> System.out.println("Invalid choice. Please enter 0-5.");
             }
         }
     }

@@ -4,11 +4,13 @@ import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import com.sun.net.httpserver.HttpServer;
 import model.Appointment;
+import model.AppointmentStatus;
 import model.Doctor;
 import model.DoctorStats;
 import model.Patient;
 import repository.InMemoryRepository;
 import service.AppointmentService;
+import service.TriageQueueService;
 
 import java.awt.Desktop;
 import java.io.*;
@@ -45,6 +47,7 @@ public class SimpleHttpServer {
         server.createContext("/api/doctors", new DoctorsHandler());
         server.createContext("/api/patients", new PatientsHandler());
         server.createContext("/api/appointments", new AppointmentsHandler());
+        server.createContext("/api/triage", new TriageHandler());
         server.createContext("/api/stats", new StatsHandler());
 
         // Static Web Asset Handler (serves web/ folder)
@@ -111,10 +114,33 @@ public class SimpleHttpServer {
             List<Appointment> list = repo.getAllAppointments();
             for (int i = 0; i < list.size(); i++) {
                 Appointment a = list.get(i);
-                json.append(String.format("{\"id\":%d,\"patient\":\"%s\",\"doctor\":\"%s\",\"time\":\"%s\",\"status\":\"%s\",\"followUp\":%b}",
+                json.append(String.format("{\"id\":%d,\"patient\":\"%s\",\"doctor\":\"%s\",\"time\":\"%s\",\"status\":\"%s\",\"priority\":\"%s\",\"followUp\":%b}",
                         a.getAppointmentId(), escape(a.getPatient().getName()), escape(a.getDoctor().getName()),
-                        a.getDateTime().toString(), a.getStatus(), a.isFollowUp()));
+                        a.getDateTime().toString(), a.getStatus(), a.getPriority().name(), a.isFollowUp()));
                 if (i < list.size() - 1) json.append(",");
+            }
+            json.append("]");
+            sendResponse(exchange, 200, "application/json", json.toString());
+        }
+    }
+
+    private class TriageHandler implements HttpHandler {
+        @Override
+        public void handle(HttpExchange exchange) throws IOException {
+            TriageQueueService triage = new TriageQueueService();
+            for (Appointment a : repo.getAllAppointments()) {
+                if (a.getStatus() == AppointmentStatus.PENDING) {
+                    triage.enqueue(a);
+                }
+            }
+            List<Appointment> ordered = triage.getOrderedQueue();
+            StringBuilder json = new StringBuilder("[");
+            for (int i = 0; i < ordered.size(); i++) {
+                Appointment a = ordered.get(i);
+                json.append(String.format("{\"id\":%d,\"patient\":\"%s\",\"doctor\":\"%s\",\"time\":\"%s\",\"priority\":\"%s\",\"rank\":%d}",
+                        a.getAppointmentId(), escape(a.getPatient().getName()), escape(a.getDoctor().getName()),
+                        a.getDateTime().toString(), a.getPriority().name(), a.getPriority().getRank()));
+                if (i < ordered.size() - 1) json.append(",");
             }
             json.append("]");
             sendResponse(exchange, 200, "application/json", json.toString());

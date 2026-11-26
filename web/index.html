@@ -139,6 +139,14 @@
                     <label>Preferred Date & Time</label>
                     <input type="datetime-local" id="input-appt-datetime" required>
                   </div>
+                  <div class="form-group">
+                    <label>Triage Priority</label>
+                    <select id="input-triage-priority">
+                      <option value="ROUTINE">Routine Consultation (Rank 3)</option>
+                      <option value="URGENT">Urgent Review (Rank 2)</option>
+                      <option value="EMERGENCY">Emergency / Critical Care (Rank 1)</option>
+                    </select>
+                  </div>
                 </div>
                 <div class="quick-chips">
                   <span class="chip-label">Quick presets:</span>
@@ -517,7 +525,7 @@
     <div class="footer-content">
       <span>Doctor Smart Appointment System • Core Java Project</span>
       <div class="footer-links">
-        <span class="pill-info">CLI: <code>java -cp out Main --demo</code></span>
+        <span class="pill-info">Web: <code>java -cp out Main --web</code></span>
         <span class="pill-info">Tests: <code>java -cp out SystemWorkflowTest</code></span>
       </div>
     </div>

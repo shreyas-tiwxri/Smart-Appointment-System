@@ -78,7 +78,17 @@ function logTelemetry(type, message, details = "") {
   logBox.prepend(entry);
 }
 
-function requestAppointment(patientId, doctorId, dateTimeStr) {
+const TRIAGE_RANK = {
+  EMERGENCY: 1,
+  URGENT: 2,
+  ROUTINE: 3
+};
+
+function getPriorityRank(priority) {
+  return TRIAGE_RANK[priority] || 3;
+}
+
+function requestAppointment(patientId, doctorId, dateTimeStr, priority = "ROUTINE") {
   const dt = new Date(dateTimeStr);
   const now = new Date();
 
@@ -92,6 +102,7 @@ function requestAppointment(patientId, doctorId, dateTimeStr) {
 
   const patient = state.patients.find(p => p.id === patientId);
   const doctor = state.doctors.find(d => d.id === doctorId);
+  const normalizedPriority = TRIAGE_RANK[priority] ? priority : "ROUTINE";
 
   const appt = {
     id: state.nextAppointmentId++,
@@ -99,11 +110,12 @@ function requestAppointment(patientId, doctorId, dateTimeStr) {
     doctor: doctor,
     dateTime: dt,
     status: "PENDING",
-    followUp: false
+    followUp: false,
+    priority: normalizedPriority
   };
 
   state.appointments.push(appt);
-  logTelemetry("service", `AppointmentService.requestAppointment(patientId=${patientId}, doctorId=${doctorId})`, `-> Appointment #${appt.id} [PENDING]`);
+  logTelemetry("service", `AppointmentService.requestAppointment(patientId=${patientId}, doctorId=${doctorId}, priority=${normalizedPriority})`, `-> Appointment #${appt.id} [PENDING • ${normalizedPriority}]`);
   return appt;
 }
 
@@ -297,11 +309,16 @@ function renderPatientPortal() {
   if (appts.length === 0) {
     apptsContainer.innerHTML = `<div class="empty-state">No appointments booked yet. Use the form above to request one.</div>`;
   } else {
-    apptsContainer.innerHTML = appts.map(a => `
+    apptsContainer.innerHTML = appts.map(a => {
+      const priority = a.priority || "ROUTINE";
+      return `
       <div class="data-card ${a.followUp ? 'consult-card' : ''}">
         <div class="data-card-header">
           <span class="card-title">Appointment #${a.id} ${a.followUp ? '<span class="status-chip followup">★ AUTO FOLLOW-UP</span>' : ''}</span>
-          <span class="status-chip ${a.status.toLowerCase()}">${a.status}</span>
+          <div style="display:flex;gap:0.4rem;align-items:center;">
+            <span class="status-chip priority-chip ${priority.toLowerCase()}">${priority}</span>
+            <span class="status-chip ${a.status.toLowerCase()}">${a.status}</span>
+          </div>
         </div>
         <div class="card-details">
           <span><strong>Doctor:</strong> ${a.doctor.name} (${a.doctor.specialty})</span>
@@ -312,7 +329,8 @@ function renderPatientPortal() {
           ${a.status === 'REJECTED' ? '<span style="color:#b91c1c;font-weight:600">✖ Request declined by doctor.</span>' : ''}
         </div>
       </div>
-    `).join("");
+    `;
+    }).join("");
   }
 
   const consultsContainer = document.getElementById("patient-consults-list");
@@ -338,18 +356,29 @@ function renderPatientPortal() {
 
 function renderDoctorPortal() {
   const docId = state.selectedDoctorId || 1;
-  const pendingAppts = state.appointments.filter(a => a.status === "PENDING" && a.doctor.id === docId);
+  const pendingAppts = state.appointments
+    .filter(a => a.status === "PENDING" && a.doctor.id === docId)
+    .sort((a, b) => {
+      const rankDiff = getPriorityRank(a.priority) - getPriorityRank(b.priority);
+      if (rankDiff !== 0) return rankDiff;
+      return new Date(a.dateTime) - new Date(b.dateTime);
+    });
   document.getElementById("count-doctor-pending").textContent = `${pendingAppts.length} Pending`;
 
   const pendingContainer = document.getElementById("doctor-pending-list");
   if (pendingAppts.length === 0) {
     pendingContainer.innerHTML = `<div class="empty-state">No pending appointment requests in queue for this practitioner.</div>`;
   } else {
-    pendingContainer.innerHTML = pendingAppts.map(a => `
+    pendingContainer.innerHTML = pendingAppts.map(a => {
+      const priority = a.priority || "ROUTINE";
+      return `
       <div class="data-card">
         <div class="data-card-header">
           <span class="card-title">Appt #${a.id} • ${a.patient.name}</span>
-          <span class="status-chip pending">PENDING</span>
+          <div style="display:flex;gap:0.4rem;align-items:center;">
+            <span class="status-chip priority-chip ${priority.toLowerCase()}">${priority}</span>
+            <span class="status-chip pending">PENDING</span>
+          </div>
         </div>
         <div class="card-details">
           <span><strong>Contact:</strong> ${a.patient.contact}</span>
@@ -360,7 +389,8 @@ function renderDoctorPortal() {
           <button class="btn-reject" onclick="handleDoctorReject(${a.id})">✖ Reject</button>
         </div>
       </div>
-    `).join("");
+    `;
+    }).join("");
   }
 }
 
@@ -691,10 +721,13 @@ document.addEventListener("DOMContentLoaded", () => {
     e.preventDefault();
     const docId = parseInt(document.getElementById("input-doctor-id").value);
     const dtVal = document.getElementById("input-appt-datetime").value;
+    const priorityEl = document.getElementById("input-triage-priority");
+    const priority = priorityEl ? priorityEl.value : "ROUTINE";
 
     try {
-      requestAppointment(state.selectedPatientId, docId, dtVal);
+      requestAppointment(state.selectedPatientId, docId, dtVal, priority);
       document.getElementById("input-appt-datetime").value = "";
+      if (priorityEl) priorityEl.value = "ROUTINE";
       render();
     } catch (err) {
       alert(err.message);
