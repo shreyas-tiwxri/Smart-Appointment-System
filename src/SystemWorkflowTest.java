@@ -32,7 +32,7 @@ public class SystemWorkflowTest {
     private static final String BOLD = "\u001B[1m";
 
     public static void main(String[] args) {
-        System.out.println(BOLD + "\nRunning Core Java System Workflow Test Suite (23 Test Scenarios)..." + RESET);
+        System.out.println(BOLD + "\nRunning Core Java System Workflow Test Suite (24 Test Scenarios)..." + RESET);
         System.out.println("-----------------------------------------------------------------");
 
         testAppointmentCreation();
@@ -62,6 +62,7 @@ public class SystemWorkflowTest {
         testTriagePriorityQueue();
         testPersonValidationGuards();
         testReschedulePastDateGuard();
+        testDuplicateSlotApprovalBlocked();
 
         System.out.println("-----------------------------------------------------------------");
         if (failed == 0) {
@@ -478,6 +479,26 @@ public class SystemWorkflowTest {
             assertThrows(InvalidInputException.class, () -> {
                 svc.rescheduleAppointment(a.getAppointmentId(), LocalDateTime.now().minusDays(1));
             }, "Rescheduling to past date must be blocked");
+        });
+    }
+
+    private static void testDuplicateSlotApprovalBlocked() {
+        runTest("TC-24: Approving two requests for same doctor, date and time throws InvalidStateException", () -> {
+            InMemoryRepository repo = createRepoWithSeed();
+            AppointmentService svc = new AppointmentService(repo);
+            LocalDateTime slot = LocalDateTime.now().plusDays(3).withHour(11).withMinute(0).withSecond(0).withNano(0);
+
+            Appointment a1 = new Appointment(repo.nextAppointmentId(), repo.getPatient(1), repo.getDoctor(1),
+                    slot, AppointmentStatus.PENDING, false);
+            Appointment a2 = new Appointment(repo.nextAppointmentId(), repo.getPatient(2), repo.getDoctor(1),
+                    slot, AppointmentStatus.PENDING, false);
+            repo.saveAppointment(a1);
+            repo.saveAppointment(a2);
+
+            svc.updateDecision(a1.getAppointmentId(), true);
+            assertThrows(InvalidStateException.class, () -> {
+                svc.updateDecision(a2.getAppointmentId(), true);
+            }, "Cannot approve two requests at the same date and time for the same doctor");
         });
     }
 

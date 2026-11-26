@@ -18,19 +18,33 @@ public class InMemoryRepository implements IDataRepository {
     private final List<Consultation> consultations = Collections.synchronizedList(new ArrayList<>());
     private final List<Invoice> invoices = Collections.synchronizedList(new ArrayList<>());
 
+    private final AtomicInteger nextPatientIdSequence = new AtomicInteger(1);
+    private final AtomicInteger nextDoctorIdSequence = new AtomicInteger(1);
     private final AtomicInteger nextAppointmentIdSequence = new AtomicInteger(1);
     private final AtomicInteger nextConsultationIdSequence = new AtomicInteger(1);
     private final AtomicInteger nextInvoiceIdSequence = new AtomicInteger(1001);
 
     // ---- patients / doctors ----
     @Override
+    public int nextPatientId() {
+        return nextPatientIdSequence.getAndIncrement();
+    }
+
+    @Override
     public void addPatient(Patient p) { 
         patients.put(p.getPatientId(), p); 
+        nextPatientIdSequence.accumulateAndGet(p.getPatientId() + 1, Math::max);
+    }
+
+    @Override
+    public int nextDoctorId() {
+        return nextDoctorIdSequence.getAndIncrement();
     }
 
     @Override
     public void addDoctor(Doctor d) { 
         doctors.put(d.getDoctorId(), d); 
+        nextDoctorIdSequence.accumulateAndGet(d.getDoctorId() + 1, Math::max);
     }
 
     @Override

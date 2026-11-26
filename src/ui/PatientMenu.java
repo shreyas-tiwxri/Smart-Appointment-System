@@ -40,10 +40,23 @@ public class PatientMenu {
         for (Patient p : repo.getAllPatients()) {
             System.out.println("  [" + p.getPatientId() + "] " + p.getSummaryDetails());
         }
+        System.out.println("  [0] + Register as New Patient");
         int patientId;
         try {
-            patientId = in.readInt("Enter your patient ID: ");
-            Patient patient = repo.getPatient(patientId);
+            int choice = in.readInt("Enter your patient ID (or 0 to Sign Up): ");
+            Patient patient;
+            if (choice == 0) {
+                String name = in.readLine("Enter Full Name: ");
+                String contact = in.readLine("Enter Contact Number: ");
+                patient = new Patient(repo.nextPatientId(), name, contact);
+                repo.addPatient(patient);
+                patientId = patient.getPatientId();
+                persistenceService.logAudit("Registered new Patient #" + patientId + ": " + patient.getName());
+                System.out.println("✔ Account created! Your Patient ID is #" + patientId);
+            } else {
+                patientId = choice;
+                patient = repo.getPatient(patientId);
+            }
             System.out.println("Welcome, " + patient.getName() + "!");
         } catch (RuntimeException e) {
             System.out.println("Error: " + e.getMessage());

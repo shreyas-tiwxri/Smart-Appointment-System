@@ -40,10 +40,32 @@ public class DoctorMenu {
         for (Doctor d : repo.getAllDoctors()) {
             System.out.println("  [" + d.getDoctorId() + "] " + d.getSummaryDetails());
         }
+        System.out.println("  [0] + Register as New Doctor");
         int doctorId;
         try {
-            doctorId = in.readInt("Enter your doctor ID: ");
-            Doctor doc = repo.getDoctor(doctorId);
+            int choice = in.readInt("Enter your doctor ID (or 0 to Sign Up): ");
+            Doctor doc;
+            if (choice == 0) {
+                String name = in.readLine("Enter Full Name (without 'Dr.'): ");
+                String specialty = in.readLine("Enter Specialty (e.g., Cardiologist): ");
+                String feeStr = in.readLine("Enter Consultation Fee (₹) [Default: 500]: ");
+                double fee = 500.0;
+                if (!feeStr.isBlank()) {
+                    try {
+                        fee = Double.parseDouble(feeStr);
+                    } catch (NumberFormatException ignored) {
+                        System.out.println("Invalid fee entered, using default ₹500.0");
+                    }
+                }
+                doc = new Doctor(repo.nextDoctorId(), name, specialty, fee);
+                repo.addDoctor(doc);
+                doctorId = doc.getDoctorId();
+                persistenceService.logAudit("Registered new Doctor #" + doctorId + ": Dr. " + doc.getName());
+                System.out.println("✔ Practitioner account created! Your Doctor ID is #" + doctorId);
+            } else {
+                doctorId = choice;
+                doc = repo.getDoctor(doctorId);
+            }
             System.out.println("Welcome, Dr. " + doc.getName() + " (" + doc.getSpecialty() + ")");
         } catch (RuntimeException e) {
             System.out.println("Error: " + e.getMessage());

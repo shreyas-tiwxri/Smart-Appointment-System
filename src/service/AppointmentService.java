@@ -94,6 +94,21 @@ public class AppointmentService {
     /** Overloaded doctor decision with clinical reason documentation on rejection. */
     public Appointment updateDecision(int appointmentId, boolean approve, String reason) {
         Appointment a = repo.getAppointment(appointmentId);
+        if (approve) {
+            for (Appointment existing : repo.getAllAppointments()) {
+                if (existing.getAppointmentId() == a.getAppointmentId()) continue;
+                if (existing.getDoctor().getDoctorId() != a.getDoctor().getDoctorId()) continue;
+                if (existing.getStatus() != AppointmentStatus.APPROVED) continue;
+
+                long minuteDiff = Math.abs(Duration.between(existing.getDateTime(), a.getDateTime()).toMinutes());
+                if (existing.getDateTime().equals(a.getDateTime()) || minuteDiff < Config.SLOT_BUFFER_MINUTES) {
+                    throw new InvalidStateException(
+                        String.format("Approval Conflict: Dr. %s already has an APPROVED appointment (#%d at %s). Two requests at the same date and time cannot be approved.",
+                                a.getDoctor().getName(), existing.getAppointmentId(), existing.getDateTime().format(FMT))
+                    );
+                }
+            }
+        }
         a.updateDecision(approve ? AppointmentStatus.APPROVED : AppointmentStatus.REJECTED, reason);
 
         if (notificationService != null) {

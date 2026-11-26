@@ -119,7 +119,16 @@ public final class MainWindow extends JFrame {
         form.add(doctorCombo);
         form.add(new JLabel("Appointment Slot (dd-MM-yyyy HH:mm):"));
         form.add(dateTimeField);
-        form.add(new JLabel(""));
+
+        JPanel actionRow = new JPanel(new FlowLayout(FlowLayout.LEFT, 8, 0));
+        JButton newPatientBtn = new JButton("+ New Patient");
+        newPatientBtn.addActionListener(e -> handleCreatePatient());
+        JButton newDoctorBtn = new JButton("+ New Doctor");
+        newDoctorBtn.addActionListener(e -> handleCreateDoctor());
+        actionRow.add(newPatientBtn);
+        actionRow.add(newDoctorBtn);
+
+        form.add(actionRow);
         form.add(bookBtn);
 
         // Appointment Table
@@ -239,6 +248,49 @@ public final class MainWindow extends JFrame {
         doctorCombo.removeAllItems();
         for (Doctor d : repo.getAllDoctors()) {
             doctorCombo.addItem(d.getDoctorId() + ": Dr. " + d.getName() + " (" + d.getSpecialty() + ")");
+        }
+    }
+
+    private void handleCreatePatient() {
+        String name = JOptionPane.showInputDialog(this, "Enter New Patient Full Name:");
+        if (name == null || name.isBlank()) return;
+        String contact = JOptionPane.showInputDialog(this, "Enter Contact Number:");
+        if (contact == null) contact = "";
+
+        try {
+            Patient p = new Patient(repo.nextPatientId(), name, contact);
+            repo.addPatient(p);
+            populateCombos();
+            patientCombo.setSelectedItem(p.getPatientId() + ": " + p.getName());
+            log("Registered New Patient #" + p.getPatientId() + ": " + p.getName());
+            JOptionPane.showMessageDialog(this, "Patient #" + p.getPatientId() + " (" + p.getName() + ") registered!", "Patient Created", JOptionPane.INFORMATION_MESSAGE);
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(this, "Registration Failed: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
+    private void handleCreateDoctor() {
+        String name = JOptionPane.showInputDialog(this, "Enter New Doctor Full Name (without 'Dr.'):");
+        if (name == null || name.isBlank()) return;
+        String specialty = JOptionPane.showInputDialog(this, "Enter Specialty (e.g., Cardiologist):");
+        if (specialty == null || specialty.isBlank()) specialty = "General Physician";
+        String feeStr = JOptionPane.showInputDialog(this, "Enter Consultation Fee (₹):", "500");
+        double fee = 500.0;
+        if (feeStr != null && !feeStr.isBlank()) {
+            try {
+                fee = Double.parseDouble(feeStr.trim());
+            } catch (NumberFormatException ignored) {}
+        }
+
+        try {
+            Doctor d = new Doctor(repo.nextDoctorId(), name, specialty, fee);
+            repo.addDoctor(d);
+            populateCombos();
+            doctorCombo.setSelectedItem(d.getDoctorId() + ": Dr. " + d.getName() + " (" + d.getSpecialty() + ")");
+            log("Registered New Doctor #" + d.getDoctorId() + ": Dr. " + d.getName());
+            JOptionPane.showMessageDialog(this, "Dr. " + d.getName() + " (ID #" + d.getDoctorId() + ") registered!", "Doctor Created", JOptionPane.INFORMATION_MESSAGE);
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(this, "Registration Failed: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
         }
     }
 

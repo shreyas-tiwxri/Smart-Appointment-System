@@ -11,11 +11,13 @@ import java.util.List;
  */
 public interface IDataRepository {
     // Patient Operations
+    int nextPatientId();
     void addPatient(Patient p);
     Patient getPatient(int id);
     Collection<Patient> getAllPatients();
 
     // Doctor Operations
+    int nextDoctorId();
     void addDoctor(Doctor d);
     Doctor getDoctor(int id);
     Collection<Doctor> getAllDoctors();
