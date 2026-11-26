@@ -1,6 +1,6 @@
 # Doctor Smart Appointment & Clinical Workflow System
 
-A modular healthcare coordination system developed using **100% Core Java (JDK 17+)** with zero external libraries or frameworks. Developed as an academic project for **UCS553: Enterprise Web Application / Core Java** at **Thapar Institute of Engineering & Technology, Patiala**.
+A modular healthcare coordination system developed using **100% Core Java (JDK 17+)** with zero external libraries or frameworks. Developed as an academic project for **UCS553: Enterprise Web Application** at **Thapar Institute of Engineering & Technology, Patiala**.
 
 - **Live Project Web Portal:** [https://shreyas-tiwxri.github.io/Smart-Appointment-System/](https://shreyas-tiwxri.github.io/Smart-Appointment-System/)
 - **Local Micro-Server:** `http://localhost:8080/` (built-in Java HTTP server)
