@@ -1,4 +1,4 @@
-# UCS553: Enterprise Web Application / Core Java
+# UCS553: Enterprise Web Application
 ## Mini Project Report
 
 ---
