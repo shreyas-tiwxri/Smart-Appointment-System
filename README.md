@@ -11,7 +11,7 @@ A modular healthcare coordination system developed using **100% Core Java (JDK 1
 
 ## Academic & Team Details
 
-- **Course:** UCS553 - Enterprise Web Application / Core Java
+- **Course:** UCS553 - Enterprise Web Application
 - **Under the Guidance of:** Dr. Jayendra Barua, Assistant Professor, Computer Science & Engineering Department
 - **Institution:** Thapar Institute of Engineering & Technology, Patiala
 - **Batch:** 3C41
