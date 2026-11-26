@@ -970,6 +970,34 @@ select:focus, input:focus, textarea:focus {
   border: 1px solid #cbd5e1;
 }
 
+.auth-mode-toggle {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+  padding: 0.25rem;
+  background: #f1f5f9;
+  border-radius: 10px;
+}
+
+.auth-mode-btn {
+  border: none;
+  background: transparent;
+  padding: 0.45rem 0.75rem;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #64748b;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.auth-mode-btn.active {
+  background: #ffffff;
+  color: #0f172a;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.12);
+}
+
 .card-details {
   display: flex;
   flex-direction: column;

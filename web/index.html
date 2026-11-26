@@ -7,7 +7,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css?v=2.3">
+  <link rel="stylesheet" href="style.css?v=2.5">
 </head>
 <body>
   <!-- Header / Navigation Bar -->
@@ -39,8 +39,14 @@
         <div class="login-card">
           <div class="login-header">
             <div class="login-icon-box">🩺</div>
-            <h2 class="login-title">Account Sign In</h2>
+            <h2 class="login-title" id="auth-card-title">Account Sign In</h2>
             <p class="login-subtitle">Doctor Smart Appointment System</p>
+          </div>
+
+          <!-- Sign In vs Create Account Mode Toggle -->
+          <div class="auth-mode-toggle">
+            <button type="button" class="auth-mode-btn active" id="btn-auth-signin">Sign In</button>
+            <button type="button" class="auth-mode-btn" id="btn-auth-signup">+ Create Account</button>
           </div>
 
           <!-- Doctor or Patient Role Toggle Buttons -->
@@ -85,6 +91,44 @@
 
             <button type="submit" id="btn-login-submit" class="btn btn-login-action btn-patient-action">
               Sign In as Patient ➔
+            </button>
+          </form>
+
+          <!-- Sign Up Form (Create New Patient or Doctor) -->
+          <form id="form-signup" class="login-form hidden">
+            <div id="signup-patient-fields">
+              <div class="login-field">
+                <label for="signup-patient-name">Full Name</label>
+                <input type="text" id="signup-patient-name" class="form-input" placeholder="e.g. Rohan Verma">
+              </div>
+              <div class="login-field" style="margin-top:0.75rem;">
+                <label for="signup-patient-contact">Contact Number</label>
+                <input type="text" id="signup-patient-contact" class="form-input" placeholder="e.g. +91 98765 12345">
+              </div>
+            </div>
+
+            <div id="signup-doctor-fields" class="hidden">
+              <div class="login-field">
+                <label for="signup-doctor-name">Doctor Name</label>
+                <input type="text" id="signup-doctor-name" class="form-input" placeholder="e.g. Dr. Neha Kulkarni">
+              </div>
+              <div class="login-field" style="margin-top:0.75rem;">
+                <label for="signup-doctor-specialty">Specialty</label>
+                <input type="text" id="signup-doctor-specialty" class="form-input" placeholder="e.g. Dermatologist">
+              </div>
+              <div class="login-field" style="margin-top:0.75rem;">
+                <label for="signup-doctor-fee">Consultation Fee (₹)</label>
+                <input type="number" id="signup-doctor-fee" class="form-input" min="0" step="50" value="600">
+              </div>
+            </div>
+
+            <div class="login-field">
+              <label for="signup-password">Password</label>
+              <input type="password" id="signup-password" class="form-input" placeholder="Create password" value="password123" required autocomplete="new-password">
+            </div>
+
+            <button type="submit" id="btn-signup-submit" class="btn btn-login-action btn-patient-action">
+              Create Patient Account &amp; Sign In ➔
             </button>
           </form>
         </div>
@@ -531,6 +575,6 @@
     </div>
   </footer>
 
-  <script src="app.js?v=2.3"></script>
+  <script src="app.js?v=2.6"></script>
 </body>
 </html>

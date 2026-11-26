@@ -127,6 +127,20 @@ function updateDecision(appointmentId, approve) {
     throw new Error(`InvalidStateException: Appointment #${appt.id} is already ${appt.status}, cannot change it.`);
   }
 
+  if (approve) {
+    const apptTime = new Date(appt.dateTime).getTime();
+    const conflict = state.appointments.find(existing => {
+      if (existing.id === appt.id) return false;
+      if (existing.doctor.id !== appt.doctor.id) return false;
+      if (existing.status !== "APPROVED") return false;
+      const diffMinutes = Math.abs(new Date(existing.dateTime).getTime() - apptTime) / 60000;
+      return diffMinutes < 30;
+    });
+    if (conflict) {
+      throw new Error(`InvalidStateException: Cannot approve Appointment #${appt.id} — ${appt.doctor.name} already has an APPROVED appointment (#${conflict.id}) at this date and time.`);
+    }
+  }
+
   appt.status = approve ? "APPROVED" : "REJECTED";
   logTelemetry("doctor", `AppointmentService.updateDecision(id=${appointmentId}, approve=${approve})`, `-> Status: ${appt.status}`);
   return appt;
@@ -289,7 +303,90 @@ function updateDoctorHeader() {
 
 // --- UI Rendering ---
 
+function populateUserSelects() {
+  const signinPatient = document.getElementById("signin-patient-select");
+  const portalPatient = document.getElementById("patient-select");
+  const signinDoctor = document.getElementById("signin-doctor-select");
+  const portalDoctor = document.getElementById("doctor-select");
+  const bookingDoctor = document.getElementById("input-doctor-id");
+
+  const patientOptions = state.patients.map(p =>
+    `<option value="${p.id}">${escapeHtml(p.name)} (ID #${p.id})</option>`
+  ).join("");
+  if (signinPatient) {
+    signinPatient.innerHTML = patientOptions;
+    signinPatient.value = state.selectedPatientId;
+  }
+  if (portalPatient) {
+    portalPatient.innerHTML = patientOptions;
+    portalPatient.value = state.selectedPatientId;
+  }
+
+  const doctorOptions = state.doctors.map(d =>
+    `<option value="${d.id}">${escapeHtml(d.name)} (ID #${d.id} • ${escapeHtml(d.specialty)})</option>`
+  ).join("");
+  if (signinDoctor) {
+    signinDoctor.innerHTML = doctorOptions;
+    signinDoctor.value = state.selectedDoctorId;
+  }
+  if (portalDoctor) {
+    portalDoctor.innerHTML = state.doctors.map(d =>
+      `<option value="${d.id}">${escapeHtml(d.name)} (ID #${d.id})</option>`
+    ).join("");
+    portalDoctor.value = state.selectedDoctorId;
+  }
+  if (bookingDoctor) {
+    const prevDoc = bookingDoctor.value;
+    bookingDoctor.innerHTML = state.doctors.map(d =>
+      `<option value="${d.id}">${escapeHtml(d.name)} (${escapeHtml(d.specialty)} - ₹${d.fee})</option>`
+    ).join("");
+    if (prevDoc && state.doctors.some(d => String(d.id) === String(prevDoc))) {
+      bookingDoctor.value = prevDoc;
+    }
+  }
+}
+
+function registerPatient(name, contact) {
+  const trimmedName = (name || "").trim();
+  if (!trimmedName) {
+    throw new Error("InvalidInputException: Patient name is required.");
+  }
+  const nextId = state.patients.reduce((max, p) => Math.max(max, p.id), 0) + 1;
+  const newPatient = {
+    id: nextId,
+    name: trimmedName,
+    contact: (contact || "").trim() || "+91 98765 00000"
+  };
+  state.patients.push(newPatient);
+  populateUserSelects();
+  logTelemetry("patient", `Registered new Patient #${newPatient.id}: ${newPatient.name}`);
+  return newPatient;
+}
+
+function registerDoctor(name, specialty, fee) {
+  const rawName = (name || "").trim();
+  if (!rawName) {
+    throw new Error("InvalidInputException: Doctor name is required.");
+  }
+  const displayName = rawName.toLowerCase().startsWith("dr.") ? rawName : `Dr. ${rawName}`;
+  const trimmedSpec = (specialty || "").trim() || "General Physician";
+  const parsedFee = isNaN(fee) || fee < 0 ? 500 : Number(fee);
+
+  const nextId = state.doctors.reduce((max, d) => Math.max(max, d.id), 0) + 1;
+  const newDoctor = {
+    id: nextId,
+    name: displayName,
+    specialty: trimmedSpec,
+    fee: parsedFee
+  };
+  state.doctors.push(newDoctor);
+  populateUserSelects();
+  logTelemetry("doctor", `Registered new Doctor #${newDoctor.id}: ${newDoctor.name} (${newDoctor.specialty})`);
+  return newDoctor;
+}
+
 function render() {
+  populateUserSelects();
   updatePatientHeader();
   updateDoctorHeader();
   renderPatientPortal();
@@ -623,35 +720,89 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   });
 
-  // Role Sign-In Toggle & Form Submit Handlers
+  // Role Sign-In / Sign-Up Toggle & Form Submit Handlers
   let selectedRole = "patient";
+  let authMode = "signin"; // "signin" | "signup"
+
+  const authCardTitle = document.getElementById("auth-card-title");
+  const btnAuthSignin = document.getElementById("btn-auth-signin");
+  const btnAuthSignup = document.getElementById("btn-auth-signup");
+  const formLoginEl = document.getElementById("form-login");
+  const formSignupEl = document.getElementById("form-signup");
+
   const btnRolePatient = document.getElementById("btn-role-patient");
   const btnRoleDoctor = document.getElementById("btn-role-doctor");
   const fieldPatient = document.getElementById("field-patient-user");
   const fieldDoctor = document.getElementById("field-doctor-user");
+  const signupPatientFields = document.getElementById("signup-patient-fields");
+  const signupDoctorFields = document.getElementById("signup-doctor-fields");
   const btnLoginSubmit = document.getElementById("btn-login-submit");
+  const btnSignupSubmit = document.getElementById("btn-signup-submit");
 
-  function switchRoleToggle(role) {
-    selectedRole = role;
-    if (role === "patient") {
+  function syncAuthUI() {
+    if (authMode === "signin") {
+      if (authCardTitle) authCardTitle.textContent = "Account Sign In";
+      if (btnAuthSignin) btnAuthSignin.classList.add("active");
+      if (btnAuthSignup) btnAuthSignup.classList.remove("active");
+      if (formLoginEl) formLoginEl.classList.remove("hidden");
+      if (formSignupEl) formSignupEl.classList.add("hidden");
+    } else {
+      if (authCardTitle) authCardTitle.textContent = "Create New Account";
+      if (btnAuthSignup) btnAuthSignup.classList.add("active");
+      if (btnAuthSignin) btnAuthSignin.classList.remove("active");
+      if (formSignupEl) formSignupEl.classList.remove("hidden");
+      if (formLoginEl) formLoginEl.classList.add("hidden");
+    }
+
+    if (selectedRole === "patient") {
       if (btnRolePatient) btnRolePatient.classList.add("active");
       if (btnRoleDoctor) btnRoleDoctor.classList.remove("active");
       if (fieldPatient) fieldPatient.classList.remove("hidden");
       if (fieldDoctor) fieldDoctor.classList.add("hidden");
+      if (signupPatientFields) signupPatientFields.classList.remove("hidden");
+      if (signupDoctorFields) signupDoctorFields.classList.add("hidden");
       if (btnLoginSubmit) {
         btnLoginSubmit.className = "btn btn-login-action btn-patient-action";
         btnLoginSubmit.innerHTML = "Sign In as Patient ➔";
+      }
+      if (btnSignupSubmit) {
+        btnSignupSubmit.className = "btn btn-login-action btn-patient-action";
+        btnSignupSubmit.innerHTML = "Create Patient Account &amp; Sign In ➔";
       }
     } else {
       if (btnRoleDoctor) btnRoleDoctor.classList.add("active");
       if (btnRolePatient) btnRolePatient.classList.remove("active");
       if (fieldDoctor) fieldDoctor.classList.remove("hidden");
       if (fieldPatient) fieldPatient.classList.add("hidden");
+      if (signupDoctorFields) signupDoctorFields.classList.remove("hidden");
+      if (signupPatientFields) signupPatientFields.classList.add("hidden");
       if (btnLoginSubmit) {
         btnLoginSubmit.className = "btn btn-login-action btn-doctor-action";
         btnLoginSubmit.innerHTML = "Sign In as Doctor ➔";
       }
+      if (btnSignupSubmit) {
+        btnSignupSubmit.className = "btn btn-login-action btn-doctor-action";
+        btnSignupSubmit.innerHTML = "Create Doctor Account &amp; Sign In ➔";
+      }
     }
+  }
+
+  function switchRoleToggle(role) {
+    selectedRole = role;
+    syncAuthUI();
+  }
+
+  if (btnAuthSignin) {
+    btnAuthSignin.addEventListener("click", () => {
+      authMode = "signin";
+      syncAuthUI();
+    });
+  }
+  if (btnAuthSignup) {
+    btnAuthSignup.addEventListener("click", () => {
+      authMode = "signup";
+      syncAuthUI();
+    });
   }
 
   if (btnRolePatient) {
@@ -673,6 +824,41 @@ document.addEventListener("DOMContentLoaded", () => {
         const selDoc = document.getElementById("signin-doctor-select");
         if (selDoc) state.selectedDoctorId = parseInt(selDoc.value);
         setRoleView("doctor");
+      }
+    });
+  }
+
+  const formSignup = document.getElementById("form-signup");
+  if (formSignup) {
+    formSignup.addEventListener("submit", (e) => {
+      e.preventDefault();
+      try {
+        if (selectedRole === "patient") {
+          const nameInput = document.getElementById("signup-patient-name");
+          const contactInput = document.getElementById("signup-patient-contact");
+          const p = registerPatient(nameInput ? nameInput.value : "", contactInput ? contactInput.value : "");
+          state.selectedPatientId = p.id;
+          if (nameInput) nameInput.value = "";
+          if (contactInput) contactInput.value = "";
+          setRoleView("patient");
+        } else {
+          const nameInput = document.getElementById("signup-doctor-name");
+          const specInput = document.getElementById("signup-doctor-specialty");
+          const feeInput = document.getElementById("signup-doctor-fee");
+          const d = registerDoctor(
+            nameInput ? nameInput.value : "",
+            specInput ? specInput.value : "",
+            feeInput ? parseFloat(feeInput.value) : 500
+          );
+          state.selectedDoctorId = d.id;
+          if (nameInput) nameInput.value = "";
+          if (specInput) specInput.value = "";
+          setRoleView("doctor");
+        }
+        render();
+      } catch (err) {
+        alert(err.message);
+        logTelemetry("error", err.message);
       }
     });
   }
