@@ -57,6 +57,7 @@ const testSuiteCases = [
 
 function logTelemetry(type, message, details = "") {
   const logBox = document.getElementById("telemetry-log");
+  if (!logBox) return;
   const time = new Date().toLocaleTimeString();
   
   let tagClass = "tag-service";
@@ -533,6 +534,7 @@ window.handleDoctorReject = function(id) {
 
 function renderTestSuite() {
   const tbody = document.getElementById("test-table-body");
+  if (!tbody) return;
   tbody.innerHTML = testSuiteCases.map(tc => `
     <tr>
       <td><span class="test-id-pill">${tc.id}</span></td>
@@ -990,13 +992,20 @@ document.addEventListener("DOMContentLoaded", () => {
   if (btnTourStop) btnTourStop.addEventListener("click", stopTour);
 
   // Telemetry Actions
-  document.getElementById("btn-clear-telemetry").addEventListener("click", () => {
-    document.getElementById("telemetry-log").innerHTML = "";
-  });
+  const btnClearTelemetry = document.getElementById("btn-clear-telemetry");
+  if (btnClearTelemetry) {
+    btnClearTelemetry.addEventListener("click", () => {
+      const logBox = document.getElementById("telemetry-log");
+      if (logBox) logBox.innerHTML = "";
+    });
+  }
 
-  document.getElementById("btn-reset-data").addEventListener("click", () => {
-    seedDemoData();
-  });
+  const btnResetData = document.getElementById("btn-reset-data");
+  if (btnResetData) {
+    btnResetData.addEventListener("click", () => {
+      seedDemoData();
+    });
+  }
 
   // Test Runner Button
   const btnRunTests = document.getElementById("btn-run-tests");
