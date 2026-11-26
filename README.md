@@ -22,7 +22,7 @@ A modular healthcare coordination system developed using **100% Core Java (JDK 1
 |---|---|---|
 | **Mohit Srivastav** | `1024030368` | Patient Portal CLI (`PatientMenu.java`), Patient domain model (`Patient.java`), Web UI prototype (`web/`), input validation & date parsing (`InputHelper.java`). |
 | **Shreyas Tiwari** | `1024030384` | Doctor Clinical Workspace (`DoctorMenu.java`), Slot Collision Guard (30-min buffer), Triage Priority Queue (`TriageQueueService.java`), Consultation & auto follow-up booking, Invoicing & GST (`Invoice.java`), File persistence (`FilePersistenceService.java`), Core Java HTTP Server (`SimpleHttpServer.java`). |
-| **Collaborative** | Both Members | Domain abstraction (`Person.java`), DAO abstraction (`IDataRepository.java`), Core Java Swing Desktop GUI (`MainWindow.java`), 21-scenario test suite (`SystemWorkflowTest.java`), documentation. |
+| **Collaborative** | Both Members | Domain abstraction (`Person.java`), DAO abstraction (`IDataRepository.java`), Core Java Swing Desktop GUI (`MainWindow.java`), 23-scenario test suite (`SystemWorkflowTest.java`), documentation. |
 
 ---
 
