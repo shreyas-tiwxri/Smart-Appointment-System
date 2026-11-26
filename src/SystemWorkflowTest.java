@@ -32,7 +32,7 @@ public class SystemWorkflowTest {
     private static final String BOLD = "\u001B[1m";
 
     public static void main(String[] args) {
-        System.out.println(BOLD + "\nRunning Core Java System Workflow Test Suite (21 Test Scenarios)..." + RESET);
+        System.out.println(BOLD + "\nRunning Core Java System Workflow Test Suite (23 Test Scenarios)..." + RESET);
         System.out.println("-----------------------------------------------------------------");
 
         testAppointmentCreation();
@@ -60,6 +60,8 @@ public class SystemWorkflowTest {
         testAppointmentRescheduling();
         testMedicalInvoicingAndReceipt();
         testTriagePriorityQueue();
+        testPersonValidationGuards();
+        testReschedulePastDateGuard();
 
         System.out.println("-----------------------------------------------------------------");
         if (failed == 0) {
@@ -449,6 +451,33 @@ public class SystemWorkflowTest {
             assertEquals(102, triage.dequeue().getAppointmentId(), "Second dequeued must be URGENT (#102)");
             assertEquals(101, triage.dequeue().getAppointmentId(), "Third dequeued must be ROUTINE (#101)");
             assertEquals(true, triage.isEmpty(), "Triage queue must be empty after popping all 3");
+        });
+    }
+
+    private static void testPersonValidationGuards() {
+        runTest("TC-22: Person constructor guards reject invalid ID or blank name", () -> {
+            assertThrows(IllegalArgumentException.class, () -> {
+                new Patient(0, "Aman", "9876500001");
+            }, "Non-positive ID must throw IllegalArgumentException");
+
+            assertThrows(IllegalArgumentException.class, () -> {
+                new Doctor(1, "   ", "Cardiology");
+            }, "Blank name must throw IllegalArgumentException");
+
+            Doctor d = new Doctor(2, "Pooja", "Cardiology", -100.0);
+            assertEquals(500.0, d.getConsultationFee(), "Negative fee should fallback to default ₹500.0");
+        });
+    }
+
+    private static void testReschedulePastDateGuard() {
+        runTest("TC-23: Rescheduling appointment to a past date throws InvalidInputException", () -> {
+            InMemoryRepository repo = createRepoWithSeed();
+            AppointmentService svc = new AppointmentService(repo);
+            Appointment a = svc.requestAppointment(1, 1, LocalDateTime.now().plusDays(2).withHour(10).withMinute(0));
+
+            assertThrows(InvalidInputException.class, () -> {
+                svc.rescheduleAppointment(a.getAppointmentId(), LocalDateTime.now().minusDays(1));
+            }, "Rescheduling to past date must be blocked");
         });
     }
 
